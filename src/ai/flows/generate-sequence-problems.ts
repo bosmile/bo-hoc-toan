@@ -46,15 +46,16 @@ Generate {{numProblems}} unique problems.
 Rules:
 1. Cycle Length (N): {{cycleLength}} (either 3 or 4).
 2. Cycle Sum (S): Must be exactly the sum of the N cycle numbers, and ≤ {{maxCycleSum}}.
-3. Grid: A sequence array of length 12-15.
-4. Hiding Strategy (STRICT PATTERN):
-   - For a cycle of length N (e.g., [a, b, c] for N=3), you must provide EXACTLY ONE instance of each number (a, b, c) in the grid at a valid periodic position.
-   - For example, if N=3 and cycle is [2, 3, 5], you might place '2' at index 0, '3' at index 4 (mod 3 = 1), and '5' at index 8 (mod 3 = 2).
-   - ALL OTHER POSITIONS in the grid must be underscores ('_').
-   - This ensures the student sees only one of each number in the entire grid and MUST use the provided sum S to find any missing numbers before filling the rest.
-5. Difficulty: The sum S must be clearly stated in the instruction.
-6. Instruction Format: "Biết tổng của {{cycleLength}} số liên tiếp bằng {{cycleSum}}. Em hãy tìm số còn thiếu và hoàn thiện bảng sau:"
-7. Output: Return an array of objects with cycleNumbers, cycleSum, grid, and instruction.`,
+3. Randomness: Do NOT use hardcoded sets like (4, 7, 9). Every problem MUST use a different, randomly generated set of integers for the cycle.
+4. Grid Construction (STRICT PATTERN):
+   - For a cycle of length N (e.g., [a, b, c, d] for N=4), you must place EXACTLY ONE instance of each of the first N-1 numbers (a, b, c) in the grid at their correct periodic positions (index mod N).
+   - The N-th number (d) MUST NOT appear in the grid at all (it will be the underscore '_').
+   - This forces the student to use the provided sum S and the known numbers (a, b, c) to find the missing number d.
+   - Example for N=3, Cycle=[2, 5, 3], S=10:
+     Grid: ["2", "_", "_", "_", "5", "_", "_", "_", "3", "_", "_", "_"]
+     (Notice 2 is at index 0 (0%3=0), 5 is at index 4 (4%3=1), 3 is at index 8 (8%3=2). Only ONE of each.)
+5. Instruction: "Biết tổng của {{cycleLength}} số liên tiếp bằng {{cycleSum}}. Em hãy tìm số còn thiếu và hoàn thiện bảng sau:"
+6. Output: Return an array of objects with cycleNumbers, cycleSum, grid, and instruction.`,
 });
 
 const generateSequenceProblemsFlow = ai.defineFlow(

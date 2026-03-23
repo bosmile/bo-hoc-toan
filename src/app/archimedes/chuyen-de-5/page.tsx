@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as React from "react"
@@ -81,14 +80,13 @@ const SequenceProblem = ({ index, problem }: { index: number, problem: any }) =>
         ))}
       </div>
 
-      <div className="mt-8 pt-6 border-2 border-dashed border-blue-100 rounded-3xl p-8 bg-blue-50/5">
-        <p className="text-xs font-black text-blue-500 uppercase tracking-[0.2em] mb-8 flex items-center gap-2">
+      <div className="mt-8 pt-6 rounded-3xl p-0 bg-blue-50/5">
+        <p className="text-xs font-black text-blue-500 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
           <span className="text-xl">✍️</span> Phần trình bày của em:
         </p>
         
-        <div className="space-y-8">
-          {/* Guided Hint Line */}
-          <div className="flex items-center gap-2 text-lg font-medium text-slate-500 italic font-serif">
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 text-lg font-medium text-slate-500 italic font-serif flex-wrap">
             <span>Ta có:</span>
             {knownNumbers.map((num: any, idx: number) => (
               <React.Fragment key={idx}>
@@ -96,19 +94,10 @@ const SequenceProblem = ({ index, problem }: { index: number, problem: any }) =>
                 <span className="mx-1">+</span>
               </React.Fragment>
             ))}
-            <div className="size-8 border-2 border-dashed border-blue-200 rounded flex items-center justify-center bg-white shadow-sm shrink-0">
-               <span className="text-blue-200 text-xs">?</span>
-            </div>
+            <span className="font-bold text-primary not-italic">?</span>
             <span className="mx-1">=</span>
             <span className="text-slate-700 font-bold not-italic">{problem.cycleSum}</span>
             <span className="ml-2">nên số còn thiếu là:</span>
-            <span className="min-w-[80px] border-b-2 border-dotted border-slate-400"></span>
-          </div>
-
-          {/* Dotted lines for further writing */}
-          <div className="space-y-6 pb-2">
-            <div className="h-px w-full border-t border-dotted border-slate-300" />
-            <div className="h-px w-full border-t border-dotted border-slate-300" />
           </div>
         </div>
       </div>

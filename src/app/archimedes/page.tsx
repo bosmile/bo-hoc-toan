@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as React from "react"
@@ -665,17 +664,6 @@ export default function ArchimedesMixerPage() {
                           startIndex={batch.startIndex} 
                         />
                       ))}
-                    </div>
-
-                    {/* Footer Signature */}
-                    <div className="mt-4 pt-4 border-t border-slate-100 flex justify-between items-end opacity-40">
-                       <div className="text-[8px] font-bold text-slate-500 uppercase tracking-widest">
-                         © BƠ HỌC TOÁN - NUMBER GARDEN EDITION
-                       </div>
-                       <div className="flex gap-2">
-                         <Calculator className="size-3" />
-                         <Heart className="size-3" />
-                       </div>
                     </div>
 
                     {/* Answer Key (Optional) */}
