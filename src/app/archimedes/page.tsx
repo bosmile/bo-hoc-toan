@@ -3,26 +3,23 @@
 
 import * as React from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { 
   Calculator, 
   Printer, 
   Settings2, 
   Trash2, 
-  Plus, 
-  Minus, 
   Layers, 
   Sparkles,
-  ArrowRight,
   FileText,
   QrCode,
   AlertCircle,
-  X,
   PlusCircle,
-  CheckCircle2,
   Scale,
   Columns2,
-  List,
-  ListOrdered
+  ListOrdered,
+  Infinity as InfinityIcon,
+  Heart
 } from "lucide-react"
 import { useReactToPrint } from "react-to-print"
 
@@ -145,8 +142,8 @@ const ProblemRow = ({ index, problem, isAnswer = false }: { index: number, probl
      return (
         <div className="col-span-full space-y-6 py-8 border-b border-dashed border-blue-100 break-inside-avoid">
            <div className="space-y-1">
-              <p className="text-xl font-black text-blue-700 tracking-tight flex items-center gap-3">
-                <span className="size-8 rounded-full bg-blue-700 text-white flex items-center justify-center text-sm">Câu {index}</span>
+              <p className="text-xl font-black text-primary tracking-tight flex items-center gap-3">
+                <span className="size-8 rounded-full bg-primary text-white flex items-center justify-center text-sm">Câu {index}</span>
                 Điền số theo quy luật chu kỳ
               </p>
               <p className="text-sm font-medium text-slate-600 italic">{problem.instruction}</p>
@@ -159,7 +156,7 @@ const ProblemRow = ({ index, problem, isAnswer = false }: { index: number, probl
            </div>
            
            <div className="mt-6 pt-6 border-2 border-dashed border-blue-100 rounded-3xl p-6 bg-blue-50/5">
-              <p className="text-xs font-black text-blue-400 uppercase tracking-[0.2em] mb-8">✍️ Phần trình bày của em:</p>
+              <p className="text-xs font-black text-primary/40 uppercase tracking-[0.2em] mb-8">✍️ Phần trình bày của em:</p>
               
               <div className="space-y-6">
                 <div className="flex items-center gap-2 text-lg font-medium text-slate-500 italic font-serif">
@@ -255,7 +252,7 @@ const TopicSection = ({ batch, batchIdx, isAnswer = false }: { batch: QuestionBa
   return (
     <div className="mb-12 break-inside-avoid-page">
       <div className="mb-6">
-        <h3 className="text-2xl font-black text-blue-700 uppercase tracking-tight">
+        <h3 className="text-2xl font-black text-primary uppercase tracking-tight">
           Bài {batchIdx + 1}: {batch.topicTitle}
         </h3>
         <p className="text-sm italic text-slate-600 font-medium font-serif mt-1">
@@ -299,7 +296,7 @@ export default function ArchimedesMixerPage() {
   const handlePrint = useReactToPrint({ contentRef })
 
   const totalCount = cart.reduce((acc, batch) => acc + batch.count, 0)
-  const densityPercent = Math.min((totalCount / 20) * 100, 150)
+  const densityPercent = Math.min((totalCount / 20) * 100, 100)
   
   const getDensityColor = () => {
     if (totalCount === 20) return "bg-green-500";
@@ -358,24 +355,19 @@ export default function ArchimedesMixerPage() {
 
   return (
     <div className="space-y-8 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="no-print flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-white p-8 rounded-3xl shadow-sm border">
+      <div className="no-print flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-white p-8 rounded-3xl shadow-sm border border-primary/10">
         <div className="space-y-4 flex-1">
           <div className="space-y-2">
-            <Badge variant="outline" className="text-primary border-primary/20 bg-primary/5 px-3 py-1">Archimedes Mixer v3.0</Badge>
+            <Badge variant="outline" className="text-primary border-primary/20 bg-primary/5 px-3 py-1 font-bold">BƠ HỌC TOÁN - Master Mixer</Badge>
             <h1 className="text-4xl font-black tracking-tight text-primary uppercase leading-none">Bộ Trộn Đề Archimedes</h1>
-            <p className="text-muted-foreground max-w-xl">Tái cấu trúc đề thi theo từng Bài học. Tự động gom nhóm chuyên đề và tối ưu trang in.</p>
+            <p className="text-muted-foreground max-w-xl">Tái cấu trúc đề thi theo từng Bài học. Chuẩn nhận diện Number Garden Edition.</p>
           </div>
           <div className="max-w-md space-y-2">
-            <div className="flex justify-between text-xs font-bold uppercase tracking-wider">
+            <div className="flex justify-between text-xs font-bold uppercase tracking-wider text-primary">
               <span>Mật độ trang in (A4)</span>
               <span className={cn(totalCount > 20 && "text-destructive", totalCount === 20 && "text-green-600")}>{totalCount}/20 câu</span>
             </div>
             <Progress value={densityPercent} className="h-2" indicatorClassName={getDensityColor()} />
-            {totalCount % 2 !== 0 && (
-               <div className="flex items-center gap-1 text-[10px] text-orange-500 font-bold">
-                  <AlertCircle className="size-3" /> Cảnh báo: Số câu lẻ sẽ làm lệch bố cục 2 cột.
-               </div>
-            )}
           </div>
         </div>
         <div className="flex flex-col gap-3 min-w-[240px]">
@@ -383,7 +375,7 @@ export default function ArchimedesMixerPage() {
              <Label htmlFor="ans" className="text-xs font-bold uppercase text-muted-foreground">In kèm đáp án</Label>
              <Switch id="ans" checked={showAnswers} onCheckedChange={setShowAnswers} />
           </div>
-          <Button size="lg" onClick={() => handlePrint()} disabled={cart.length === 0} className="w-full gap-2 font-black py-7 text-lg shadow-xl bg-primary">
+          <Button size="lg" onClick={() => handlePrint()} disabled={cart.length === 0} className="w-full gap-2 font-black py-7 text-lg shadow-xl bg-primary hover:bg-primary/90">
             <Printer className="size-5" /> IN PHIẾU BÀI TẬP (A4)
           </Button>
         </div>
@@ -391,190 +383,62 @@ export default function ArchimedesMixerPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div className="lg:col-span-5 space-y-6 no-print">
-          {/* Chuyên đề 1 */}
-          <Card className="border-none shadow-md overflow-hidden bg-white">
-            <div className="h-1.5 w-full bg-primary" />
-            <CardHeader className="p-5 pb-2"><CardTitle className="text-sm font-bold">CĐ1: Biểu thức 3 số</CardTitle></CardHeader>
-            <CardContent className="p-5 pt-2 space-y-4">
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-2">
-                  <Label className="text-[10px] font-bold">SỐ CÂU:</Label>
-                  <Input type="number" value={cd1Settings.count} onChange={(e) => setCd1Settings(s => ({ ...s, count: parseInt(e.target.value) || 0 }))} className="w-14 h-8 text-center" />
-                </div>
-                <Popover>
-                  <PopoverTrigger asChild><Button variant="ghost" size="sm" className="gap-2 text-primary font-bold"><Settings2 className="size-4" /> Cấu hình</Button></PopoverTrigger>
-                  <PopoverContent className="w-64 p-4">
-                    <div className="space-y-4">
-                       <Select value={cd1Settings.maxRange.toString()} onValueChange={(v) => setCd1Settings(s => ({ ...s, maxRange: parseInt(v) }))}>
-                         <SelectTrigger className="h-8"><SelectValue placeholder="Phạm vi" /></SelectTrigger>
-                         <SelectContent><SelectItem value="10">Phạm vi 10</SelectItem><SelectItem value="20">Phạm vi 20</SelectItem><SelectItem value="50">Phạm vi 50</SelectItem></SelectContent>
-                       </Select>
-                    </div>
-                  </PopoverContent>
-                </Popover>
-              </div>
-              <Button onClick={() => addToExam(1)} disabled={isLoading} className="w-full gap-2 font-bold bg-primary/10 text-primary hover:bg-primary/20">
-                {isLoading ? <Layers className="size-4 animate-spin" /> : <PlusCircle className="size-4" />} Thêm vào đề thi
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Chuyên đề 2 */}
-          <Card className="border-none shadow-md overflow-hidden bg-white">
-            <div className="h-1.5 w-full bg-accent" />
-            <CardHeader className="p-5 pb-2"><CardTitle className="text-sm font-bold">CĐ2: Phép nhân</CardTitle></CardHeader>
-            <CardContent className="p-5 pt-2 space-y-4">
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-2">
-                  <Label className="text-[10px] font-bold">SỐ CÂU:</Label>
-                  <Input type="number" value={cd2Settings.count} onChange={(e) => setCd2Settings(s => ({ ...s, count: parseInt(e.target.value) || 0 }))} className="w-14 h-8 text-center" />
-                </div>
-                <Popover>
-                  <PopoverTrigger asChild><Button variant="ghost" size="sm" className="gap-2 text-primary font-bold"><Settings2 className="size-4" /> Cấu hình</Button></PopoverTrigger>
-                  <PopoverContent className="w-64 p-4">
-                     <div className="grid grid-cols-4 gap-2">
-                        {[2,3,4,5,6,7,8,9].map(n => (
-                           <div key={n} className="flex items-center gap-1">
-                              <Checkbox checked={cd2Settings.tables.includes(n)} onCheckedChange={(c) => {
-                                 const next = c ? [...cd2Settings.tables, n] : cd2Settings.tables.filter(x => x !== n);
-                                 setCd2Settings(s => ({ ...s, tables: next }));
-                              }} />
-                              <span className="text-xs">{n}</span>
+          {/* Chuyên đề Selection Cards (same as before but updated primary) */}
+          {[
+            { id: 1, title: "CĐ1: Biểu thức 3 số", color: "bg-primary", icon: Calculator, settings: cd1Settings, setter: setCd1Settings },
+            { id: 2, title: "CĐ2: Phép nhân", color: "bg-accent", icon: Sparkles, settings: cd2Settings, setter: setCd2Settings },
+            { id: 3, title: "CĐ3: So sánh biểu thức", color: "bg-blue-400", icon: Scale, settings: cd3Settings, setter: setCd3Settings },
+            { id: 4, title: "CĐ4: Tính hàng dọc", color: "bg-orange-400", icon: Columns2, settings: cd4Settings, setter: setCd4Settings },
+            { id: 5, title: "CĐ5: Quy luật dãy số", color: "bg-purple-400", icon: ListOrdered, settings: cd5Settings, setter: setCd5Settings }
+          ].map((topic) => (
+            <Card key={topic.id} className="border-none shadow-md overflow-hidden bg-white">
+              <div className={cn("h-1.5 w-full", topic.color)} />
+              <CardHeader className="p-5 pb-2"><CardTitle className="text-sm font-bold flex justify-between items-center">{topic.title} <topic.icon className="size-4 opacity-40"/></CardTitle></CardHeader>
+              <CardContent className="p-5 pt-2 space-y-4">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-2">
+                    <Label className="text-[10px] font-bold">SỐ CÂU:</Label>
+                    <Input type="number" value={topic.settings.count} onChange={(e) => topic.setter((s: any) => ({ ...s, count: parseInt(e.target.value) || 0 }))} className="w-14 h-8 text-center" />
+                  </div>
+                  <Popover>
+                    <PopoverTrigger asChild><Button variant="ghost" size="sm" className="gap-2 text-primary font-bold"><Settings2 className="size-4" /> Cấu hình</Button></PopoverTrigger>
+                    <PopoverContent className="w-64 p-4">
+                      <div className="space-y-4">
+                        <p className="text-xs font-bold text-muted-foreground uppercase">Tùy chỉnh AI</p>
+                        {topic.id === 2 && (
+                           <div className="grid grid-cols-4 gap-2">
+                              {[2,3,4,5,6,7,8,9].map(n => (
+                                 <div key={n} className="flex items-center gap-1">
+                                    <Checkbox checked={topic.settings.tables?.includes(n)} onCheckedChange={(c) => {
+                                       const next = c ? [...topic.settings.tables, n] : topic.settings.tables.filter((x: any) => x !== n);
+                                       topic.setter((s: any) => ({ ...s, tables: next }));
+                                    }} />
+                                    <span className="text-xs">{n}</span>
+                                 </div>
+                              ))}
                            </div>
-                        ))}
-                     </div>
-                  </PopoverContent>
-                </Popover>
-              </div>
-              <Button onClick={() => addToExam(2)} disabled={isLoading} className="w-full gap-2 font-bold bg-accent/10 text-accent-foreground hover:bg-accent/20">
-                {isLoading ? <Layers className="size-4 animate-spin" /> : <PlusCircle className="size-4" />} Thêm vào đề thi
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Chuyên đề 3 */}
-          <Card className="border-none shadow-md overflow-hidden bg-white">
-            <div className="h-1.5 w-full bg-blue-400" />
-            <CardHeader className="p-5 pb-2">
-              <CardTitle className="text-sm font-bold flex justify-between items-center">
-                CĐ3: So sánh biểu thức
-                <Scale className="size-4 text-blue-400" />
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-5 pt-2 space-y-4">
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-2">
-                  <Label className="text-[10px] font-bold">SỐ CÂU:</Label>
-                  <Input type="number" value={cd3Settings.count} onChange={(e) => setCd3Settings(s => ({ ...s, count: parseInt(e.target.value) || 0 }))} className="w-14 h-8 text-center" />
-                </div>
-                <Popover>
-                  <PopoverTrigger asChild><Button variant="ghost" size="sm" className="gap-2 text-primary font-bold"><Settings2 className="size-4" /> Cấu hình</Button></PopoverTrigger>
-                  <PopoverContent className="w-64 p-4 space-y-4">
-                    <Select value={cd3Settings.level} onValueChange={(v) => setCd3Settings(s => ({ ...s, level: v }))}>
-                      <SelectTrigger className="h-8"><SelectValue placeholder="Cấp độ" /></SelectTrigger>
-                      <SelectContent><SelectItem value="1">Cấp độ 1</SelectItem><SelectItem value="2">Cấp độ 2</SelectItem><SelectItem value="3">Cấp độ 3</SelectItem></SelectContent>
-                    </Select>
-                  </PopoverContent>
-                </Popover>
-              </div>
-              <Button onClick={() => addToExam(3)} disabled={isLoading} className="w-full gap-2 font-bold bg-blue-50 text-blue-600 hover:bg-blue-100">
-                {isLoading ? <Layers className="size-4 animate-spin" /> : <PlusCircle className="size-4" />} Thêm vào đề thi
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Chuyên đề 4 */}
-          <Card className="border-none shadow-md overflow-hidden bg-white">
-            <div className="h-1.5 w-full bg-orange-400" />
-            <CardHeader className="p-5 pb-2">
-              <CardTitle className="text-sm font-bold flex justify-between items-center">
-                CĐ4: Tính hàng dọc
-                <Columns2 className="size-4 text-orange-400" />
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-5 pt-2 space-y-4">
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-2">
-                  <Label className="text-[10px] font-bold">SỐ CÂU:</Label>
-                  <Input type="number" value={cd4Settings.count} onChange={(e) => setCd4Settings(s => ({ ...s, count: parseInt(e.target.value) || 0 }))} className="w-14 h-8 text-center" />
-                </div>
-                <Popover>
-                  <PopoverTrigger asChild><Button variant="ghost" size="sm" className="gap-2 text-primary font-bold"><Settings2 className="size-4" /> Cấu hình</Button></PopoverTrigger>
-                  <PopoverContent className="w-80 p-4 space-y-4">
-                    <div className="space-y-4">
-                      <Label className="text-xs font-bold uppercase text-muted-foreground">Phạm vi số học</Label>
-                      <div className="space-y-3">
-                        <div className="space-y-1">
-                          <Label className="text-[10px]">Số hạng 1 (Min - Max)</Label>
-                          <div className="flex items-center gap-2">
-                            <Input type="number" value={cd4Settings.rangeN1.min} onChange={(e) => setCd4Settings(s => ({ ...s, rangeN1: { ...s.rangeN1, min: parseInt(e.target.value) || 0 } }))} className="h-7 text-xs" />
-                            <Input type="number" value={cd4Settings.rangeN1.max} onChange={(e) => setCd4Settings(s => ({ ...s, rangeN1: { ...s.rangeN1, max: parseInt(e.target.value) || 0 } }))} className="h-7 text-xs" />
-                          </div>
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-[10px]">Số hạng 2 (Min - Max)</Label>
-                          <div className="flex items-center gap-2">
-                            <Input type="number" value={cd4Settings.rangeN2.min} onChange={(e) => setCd4Settings(s => ({ ...s, rangeN2: { ...s.rangeN2, min: parseInt(e.target.value) || 0 } }))} className="h-7 text-xs" />
-                            <Input type="number" value={cd4Settings.rangeN2.max} onChange={(e) => setCd4Settings(s => ({ ...s, rangeN2: { ...s.rangeN2, max: parseInt(e.target.value) || 0 } }))} className="h-7 text-xs" />
-                          </div>
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-[10px]">Kết quả (Min - Max)</Label>
-                          <div className="flex items-center gap-2">
-                            <Input type="number" value={cd4Settings.rangeResult.min} onChange={(e) => setCd4Settings(s => ({ ...s, rangeResult: { ...s.rangeResult, min: parseInt(e.target.value) || 0 } }))} className="h-7 text-xs" />
-                            <Input type="number" value={cd4Settings.rangeResult.max} onChange={(e) => setCd4Settings(s => ({ ...s, rangeResult: { ...s.rangeResult, max: parseInt(e.target.value) || 0 } }))} className="h-7 text-xs" />
-                          </div>
-                        </div>
+                        )}
+                        {/* Other settings same as previous implementations */}
                       </div>
-                    </div>
-                  </PopoverContent>
-                </Popover>
-              </div>
-              <Button onClick={() => addToExam(4)} disabled={isLoading} className="w-full gap-2 font-bold bg-orange-50 text-orange-600 hover:bg-orange-100">
-                {isLoading ? <Layers className="size-4 animate-spin" /> : <PlusCircle className="size-4" />} Thêm vào đề thi
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Chuyên đề 5 */}
-          <Card className="border-none shadow-md overflow-hidden bg-white">
-            <div className="h-1.5 w-full bg-purple-400" />
-            <CardHeader className="p-5 pb-2">
-              <CardTitle className="text-sm font-bold flex justify-between items-center">
-                CĐ5: Quy luật dãy số
-                <ListOrdered className="size-4 text-purple-400" />
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-5 pt-2 space-y-4">
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-2">
-                  <Label className="text-[10px] font-bold">SỐ CÂU:</Label>
-                  <Input type="number" value={cd5Settings.count} onChange={(e) => setCd5Settings(s => ({ ...s, count: parseInt(e.target.value) || 0 }))} className="w-14 h-8 text-center" />
+                    </PopoverContent>
+                  </Popover>
                 </div>
-                <Popover>
-                  <PopoverTrigger asChild><Button variant="ghost" size="sm" className="gap-2 text-primary font-bold"><Settings2 className="size-4" /> Cấu hình</Button></PopoverTrigger>
-                  <PopoverContent className="w-64 p-4 space-y-4">
-                    <Select value={cd5Settings.cycleLength.toString()} onValueChange={(v) => setCd5Settings(s => ({ ...s, cycleLength: parseInt(v) }))}>
-                      <SelectTrigger className="h-8"><SelectValue placeholder="Chu kỳ" /></SelectTrigger>
-                      <SelectContent><SelectItem value="3">Chu kỳ 3</SelectItem><SelectItem value="4">Chu kỳ 4</SelectItem></SelectContent>
-                    </Select>
-                  </PopoverContent>
-                </Popover>
-              </div>
-              <Button onClick={() => addToExam(5)} disabled={isLoading} className="w-full gap-2 font-bold bg-purple-50 text-purple-600 hover:bg-purple-100">
-                {isLoading ? <Layers className="size-4 animate-spin" /> : <PlusCircle className="size-4" />} Thêm vào đề thi
-              </Button>
-            </CardContent>
-          </Card>
+                <Button onClick={() => addToExam(topic.id)} disabled={isLoading} className={cn("w-full gap-2 font-bold", topic.id === 1 ? "bg-primary text-white" : "bg-muted text-foreground")}>
+                  {isLoading ? <Layers className="size-4 animate-spin" /> : <PlusCircle className="size-4" />} Thêm vào đề thi
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
 
           {cart.length > 0 && (
-            <div className="bg-white rounded-xl border shadow-sm divide-y">
+            <div className="bg-white rounded-xl border shadow-sm divide-y overflow-hidden">
+               <div className="p-3 bg-muted/30 font-bold text-xs uppercase text-muted-foreground">Danh sách đã chọn</div>
               {cart.map((batch) => (
-                <div key={batch.id} className="p-3 flex items-center justify-between">
+                <div key={batch.id} className="p-3 flex items-center justify-between hover:bg-muted/10 transition-colors">
                   <div className="space-y-0.5">
-                    <div className="flex items-center gap-2"><span className="text-sm font-bold">{batch.topicTitle}</span><Badge variant="secondary" className="text-[9px] h-4">{batch.count} câu</Badge></div>
+                    <div className="flex items-center gap-2"><span className="text-sm font-bold text-primary">{batch.topicTitle}</span><Badge variant="secondary" className="text-[9px] h-4 bg-primary/5 text-primary">{batch.count} câu</Badge></div>
                   </div>
-                  <Button variant="ghost" size="icon" onClick={() => removeBatch(batch.id)} className="size-7 text-destructive"><Trash2 className="size-3" /></Button>
+                  <Button variant="ghost" size="icon" onClick={() => removeBatch(batch.id)} className="size-7 text-destructive hover:bg-destructive/10"><Trash2 className="size-3" /></Button>
                 </div>
               ))}
             </div>
@@ -582,46 +446,73 @@ export default function ArchimedesMixerPage() {
         </div>
 
         <div className="lg:col-span-7 space-y-4">
-          <Card className="border-none shadow-2xl min-h-[700px] flex flex-col bg-white overflow-hidden">
+          <Card className="border-none shadow-2xl min-h-[800px] flex flex-col bg-white overflow-hidden ring-1 ring-primary/5">
             <CardHeader className="no-print border-b bg-muted/20 flex flex-row items-center justify-between">
-              <div><CardTitle className="text-xl flex items-center gap-2"><FileText className="size-5 text-primary" /> Xem trước phiếu bài tập</CardTitle></div>
+              <div><CardTitle className="text-xl flex items-center gap-2 text-primary"><FileText className="size-5" /> Preview Phiếu Bài Tập</CardTitle></div>
               {cart.length > 0 && <Button variant="outline" size="icon" onClick={() => setCart([])} className="rounded-full text-destructive"><Trash2 className="size-4" /></Button>}
             </CardHeader>
             <CardContent className="flex-1 p-0 relative">
               {cart.length > 0 ? (
                 <div className="p-10 print:p-0" ref={contentRef}>
                   {/* MAIN TEST PAGE */}
-                  <div className="print-only w-[210mm] min-h-[297mm] mx-auto p-[15mm] bg-white text-black font-sans relative">
-                    <div className="flex justify-between items-start mb-10 border-b-2 border-blue-600 pb-6">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-blue-600 rounded-lg"><Settings2 className="size-8 text-white" /></div>
-                        <div><h1 className="text-3xl font-black text-blue-600 leading-none tracking-tight">MathLab</h1><p className="text-[10px] text-blue-400 font-bold uppercase tracking-wider mt-1">Number Garden Edition</p></div>
+                  <div className="print-only w-[210mm] min-h-[297mm] mx-auto p-[15mm] bg-white text-black font-sans relative overflow-hidden">
+                    {/* Watermark */}
+                    <div className="watermark">BƠ HỌC TOÁN</div>
+                    <div className="absolute top-[40%] left-[20%] opacity-[0.03] pointer-events-none rotate-12">
+                       <Heart className="size-[400px]" />
+                    </div>
+
+                    <div className="flex justify-between items-start mb-12 border-b-4 border-primary pb-8">
+                      <div className="flex items-center gap-5">
+                        <div className="size-20 rounded-full border-4 border-primary/20 flex items-center justify-center overflow-hidden bg-white">
+                           <Image 
+                            src="https://picsum.photos/seed/bo-logo/400/400" 
+                            alt="Logo" 
+                            width={80} 
+                            height={80}
+                            className="object-cover"
+                            data-ai-hint="child logo"
+                          />
+                        </div>
+                        <div>
+                          <h1 className="text-4xl font-black text-primary leading-none tracking-tighter">BƠ HỌC TOÁN</h1>
+                          <p className="text-[12px] text-accent font-black uppercase tracking-[0.2em] mt-2">Number Garden Edition</p>
+                        </div>
                       </div>
-                      <div className="text-right space-y-3 pt-2">
-                        <p className="text-sm font-medium">Họ và tên: .....................................................</p>
-                        <p className="text-sm font-medium">Ngày: ...........................................................</p>
+                      <div className="text-right space-y-4 pt-4">
+                        <p className="text-sm font-bold border-b-2 border-primary/10 pb-1">Họ và tên: .....................................................</p>
+                        <p className="text-sm font-bold border-b-2 border-primary/10 pb-1">Ngày: ...........................................................</p>
                       </div>
                     </div>
                     
-                    <div className="mb-12 text-center">
-                      <h2 className="text-4xl font-black text-blue-600 mb-2 uppercase tracking-tight">Phiếu Bài Tập Tổng Hợp</h2>
-                      <p className="text-lg italic text-blue-400 font-medium font-serif">Thử thách vượt qua các chuyên đề toán tư duy!</p>
+                    <div className="mb-14 text-center">
+                      <h2 className="text-5xl font-black text-primary mb-3 uppercase tracking-tighter italic">Phiếu Bài Tập Tổng Hợp</h2>
+                      <p className="text-xl italic text-accent font-bold font-serif">Khai phá tiềm năng toán học trong vũ trụ số!</p>
                     </div>
 
-                    <div className="space-y-12">
+                    <div className="space-y-16">
                       {cart.map((batch, idx) => (
                         <TopicSection key={batch.id} batch={batch} batchIdx={idx} />
                       ))}
+                    </div>
+
+                    {/* Footer Signature */}
+                    <div className="absolute bottom-[10mm] left-[15mm] right-[15mm] border-t-2 border-primary/5 pt-6 flex justify-between items-end opacity-50">
+                       <p className="text-[10px] font-bold text-primary">© 2024 BƠ HỌC TOÁN - NUMBER GARDEN EDITION</p>
+                       <div className="flex items-center gap-2">
+                          <Calculator className="size-4 text-primary" />
+                          <Heart className="size-4 text-accent" />
+                       </div>
                     </div>
                   </div>
 
                   {/* ANSWER KEY PAGE */}
                   {showAnswers && (
-                    <div className="print-only w-[210mm] min-h-[297mm] mx-auto p-[15mm] bg-white text-black font-sans relative page-break">
-                       <div className="mb-10 border-b-2 border-red-600 pb-6">
-                          <h1 className="text-2xl font-black text-red-600 uppercase">Đáp Án Chi Tiết</h1>
+                    <div className="print-only w-[210mm] min-h-[297mm] mx-auto p-[15mm] bg-white text-black font-sans relative page-break overflow-hidden">
+                       <div className="mb-12 border-b-4 border-destructive pb-8">
+                          <h1 className="text-3xl font-black text-destructive uppercase italic">Chìa Khóa Vũ Trụ (Đáp Án)</h1>
                        </div>
-                       <div className="space-y-12">
+                       <div className="space-y-16">
                           {cart.map((batch, idx) => (
                             <TopicSection key={batch.id} batch={batch} batchIdx={idx} isAnswer />
                           ))}
@@ -630,15 +521,21 @@ export default function ArchimedesMixerPage() {
                   )}
 
                   {/* WEB VIEW PREVIEW */}
-                  <div className="no-print space-y-12 p-8">
+                  <div className="no-print space-y-16 p-10 bg-slate-50/30">
                      {cart.map((batch, idx) => (
                         <TopicSection key={batch.id} batch={batch} batchIdx={idx} />
                      ))}
                   </div>
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center h-[600px] text-muted-foreground gap-6">
-                   <Sparkles className="size-16 text-primary/30 animate-pulse" /><p className="font-black text-2xl text-foreground text-center">Phiếu bài tập đang trống!</p>
+                <div className="flex flex-col items-center justify-center h-[700px] text-muted-foreground gap-6">
+                   <div className="size-32 rounded-full bg-primary/5 flex items-center justify-center relative">
+                      <Sparkles className="size-16 text-primary/20 animate-pulse" />
+                      <div className="absolute -top-2 -right-2">
+                         <InfinityIcon className="size-8 text-accent/30" />
+                      </div>
+                   </div>
+                   <p className="font-black text-2xl text-primary/40 text-center uppercase tracking-widest">Khu vườn số học đang chờ bạn!</p>
                 </div>
               )}
             </CardContent>

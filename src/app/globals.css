@@ -5,55 +5,47 @@
 
 @layer base {
   :root {
-    --background: 105 20% 95%;
-    --foreground: 105 50% 10%;
+    --background: 220 33% 98%;
+    --foreground: 222 47% 11%;
     --card: 0 0% 100%;
-    --card-foreground: 105 50% 10%;
+    --card-foreground: 222 47% 11%;
     --popover: 0 0% 100%;
-    --popover-foreground: 105 50% 10%;
-    --primary: 221 83% 53%; /* Blue-600 for MathLab branding */
-    --primary-foreground: 0 0% 100%;
-    --secondary: 105 30% 90%;
-    --secondary-foreground: 105 50% 20%;
-    --muted: 105 15% 90%;
-    --muted-foreground: 105 20% 40%;
-    --accent: 75 70% 60%;
-    --accent-foreground: 75 80% 15%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 221 83% 25%; /* Deep Galaxy Blue */
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222 22.2% 47.4%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 45 90% 45%; /* Number Garden Gold */
+    --accent-foreground: 222.2 47.4% 11.2%;
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 105 20% 85%;
-    --input: 105 20% 85%;
-    --ring: 221 83% 53%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221 83% 25%;
     --radius: 0.75rem;
-    --sidebar-background: 105 25% 98%;
-    --sidebar-foreground: 105 50% 20%;
-    --sidebar-primary: 221 83% 53%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 105 30% 92%;
-    --sidebar-accent-foreground: 105 50% 25%;
-    --sidebar-border: 105 20% 90%;
-    --sidebar-ring: 221 83% 53%;
   }
   .dark {
-    --background: 105 30% 5%;
-    --foreground: 105 10% 95%;
-    --card: 105 30% 8%;
-    --card-foreground: 105 10% 95%;
-    --popover: 105 30% 8%;
-    --popover-foreground: 105 10% 95%;
-    --primary: 221 83% 53%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 105 30% 15%;
-    --secondary-foreground: 105 10% 95%;
-    --muted: 105 30% 15%;
-    --muted-foreground: 105 10% 65%;
-    --accent: 75 70% 50%;
-    --accent-foreground: 75 10% 95%;
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 45 90% 45%;
+    --accent-foreground: 210 40% 98%;
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 105 30% 15%;
-    --input: 105 30% 15%;
-    --ring: 221 83% 53%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
   }
 }
 
@@ -63,9 +55,9 @@
   }
   body {
     @apply bg-background text-foreground font-body;
-  }
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-headline;
+    background-image: 
+      radial-gradient(at 0% 0%, hsla(221, 83%, 25%, 0.05) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, hsla(45, 90%, 45%, 0.05) 0px, transparent 50%);
   }
 }
 
@@ -78,7 +70,7 @@
   }
   
   @page {
-    size: auto;
+    size: A4;
     margin: 0;
   }
 
@@ -90,26 +82,19 @@
     print-color-adjust: exact !important;
   }
 
-  .page-break {
-    page-break-before: always;
-  }
-  
-  .break-inside-avoid {
-    page-break-inside: avoid;
-    break-inside: avoid;
-  }
-
-  .break-inside-avoid-page {
-    page-break-inside: avoid;
-    break-inside: avoid-page;
-  }
-
-  main {
-    padding: 0 !important;
-  }
-  
-  .shadow-2xl, .shadow-md, .shadow-sm, .shadow-xl {
-    box-shadow: none !important;
+  .watermark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-30deg);
+    opacity: 0.08;
+    z-index: -1;
+    pointer-events: none;
+    font-size: 150px;
+    font-weight: 900;
+    color: #000;
+    white-space: nowrap;
+    user-select: none;
   }
 }
 
