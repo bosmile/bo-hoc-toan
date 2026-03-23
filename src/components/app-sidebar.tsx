@@ -12,7 +12,11 @@ import {
   List,
   Scale,
   Columns2,
-  ListOrdered
+  ListOrdered,
+  LayoutDashboard,
+  BrainCircuit,
+  Shapes,
+  BoxSelect
 } from "lucide-react"
 
 import {
@@ -40,6 +44,13 @@ const navigation = {
       { title: "CĐ5: Quy luật dãy số", url: "/archimedes/chuyen-de-5", icon: ListOrdered },
     ],
   },
+  singapore: {
+    title: "Toán Tư Duy Singapore",
+    chapters: [
+      { title: "CĐ1: Mô hình Bar Model", url: "/singapore/chuyen-de-1", icon: Shapes },
+      { title: "CĐ2: Logic hình ảnh", url: "/singapore/chuyen-de-2", icon: BoxSelect },
+    ],
+  },
 }
 
 export function AppSidebar() {
@@ -56,7 +67,6 @@ export function AppSidebar() {
                 width={48} 
                 height={48}
                 className="object-contain p-0.5"
-                data-ai-hint="bo math logo"
               />
           </div>
           <div className="flex flex-col gap-0.5 leading-none overflow-hidden">
@@ -65,6 +75,7 @@ export function AppSidebar() {
           </div>
         </Link>
       </SidebarHeader>
+      
       <SidebarContent className="bg-white">
         <SidebarGroup>
           <SidebarMenu>
@@ -72,16 +83,17 @@ export function AppSidebar() {
               <SidebarMenuButton asChild isActive={pathname === "/"} className="hover:bg-primary/5 hover:text-primary">
                 <Link href="/">
                   <Home className="size-4" />
-                  <span className="font-bold">Bảng điều khiển</span>
+                  <span className="font-bold">Trang chủ</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroup>
 
+        {/* Toán Archimedes Section */}
         <SidebarGroup>
           <SidebarGroupLabel className="px-4 text-[10px] font-black text-primary/40 uppercase tracking-[0.2em] mb-2">
-            Hệ thống chuyên đề
+            Hệ thống Archimedes
           </SidebarGroupLabel>
           <SidebarMenu>
             {navigation.archimedes.chapters.map((chapter) => {
@@ -99,7 +111,30 @@ export function AppSidebar() {
             })}
           </SidebarMenu>
         </SidebarGroup>
+
+        {/* Toán Singapore Section */}
+        <SidebarGroup>
+          <SidebarGroupLabel className="px-4 text-[10px] font-black text-accent/60 uppercase tracking-[0.2em] mb-2">
+            Toán Tư Duy Singapore
+          </SidebarGroupLabel>
+          <SidebarMenu>
+            {navigation.singapore.chapters.map((chapter) => {
+              const Icon = chapter.icon
+              return (
+                <SidebarMenuItem key={chapter.url}>
+                  <SidebarMenuButton asChild isActive={pathname === chapter.url} className="data-[active=true]:bg-accent data-[active=true]:text-white transition-all">
+                    <Link href={chapter.url}>
+                      <Icon className="size-4" />
+                      <span className="font-semibold">{chapter.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )
+            })}
+          </SidebarMenu>
+        </SidebarGroup>
       </SidebarContent>
+
       <SidebarFooter className="border-t p-6 bg-primary/5">
         <div className="flex items-center gap-3 text-[10px] text-primary/60 font-bold uppercase tracking-widest">
           <Settings className="size-4" />
