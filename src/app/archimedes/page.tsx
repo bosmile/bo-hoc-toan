@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as React from "react"
@@ -12,8 +11,6 @@ import {
   Layers, 
   Sparkles,
   FileText,
-  QrCode,
-  AlertCircle,
   PlusCircle,
   Scale,
   Columns2,
@@ -21,7 +18,7 @@ import {
   Infinity as InfinityIcon,
   Heart
 } from "lucide-react"
-import { useReactToPrint } from "react-to-print"
+import { useReactToPrint } from "react-use-print"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -29,7 +26,6 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Progress } from "@/components/ui/progress"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -51,7 +47,7 @@ type QuestionBatch = {
 };
 
 const ComparisonBox = () => (
-  <div className="size-10 bg-blue-50 border-2 border-blue-200 rounded-md mx-3 shadow-inner shrink-0 relative flex items-center justify-center overflow-hidden">
+  <div className="size-9 bg-blue-50 border-2 border-blue-200 rounded-md mx-3 shadow-inner shrink-0 relative flex items-center justify-center overflow-hidden">
     <div className="absolute inset-0 opacity-10 pointer-events-none" 
       style={{ 
         backgroundImage: 'linear-gradient(#3b82f6 1px, transparent 1px), linear-gradient(90deg, #3b82f6 1px, transparent 1px)',
@@ -65,7 +61,7 @@ const SequenceBox = ({ value, isAnswer = false }: { value: string, isAnswer?: bo
   const isBlank = value === '_';
   return (
     <div className={cn(
-      "size-11 flex items-center justify-center border-2 font-mono text-xl font-bold shadow-sm",
+      "size-10 flex items-center justify-center border-2 font-mono text-xl font-bold shadow-sm",
       isBlank 
         ? "bg-blue-50/50 border-blue-200 rounded-lg shadow-inner relative overflow-hidden" 
         : "bg-white border-gray-300 rounded-md text-slate-700"
@@ -88,7 +84,7 @@ const SequenceBox = ({ value, isAnswer = false }: { value: string, isAnswer?: bo
 const DigitBox = ({ digit, isAnswer = false }: { digit: string, isAnswer?: boolean }) => {
   if (digit === '_') {
     return (
-      <div className="size-9 bg-blue-50 border border-blue-200 rounded-md shadow-inner flex items-center justify-center relative overflow-hidden">
+      <div className="size-8 bg-blue-50 border border-blue-200 rounded-md shadow-inner flex items-center justify-center relative overflow-hidden">
          <div className="absolute inset-0 opacity-10 pointer-events-none" 
           style={{ 
             backgroundImage: 'linear-gradient(#3b82f6 1px, transparent 1px), linear-gradient(90deg, #3b82f6 1px, transparent 1px)',
@@ -101,7 +97,7 @@ const DigitBox = ({ digit, isAnswer = false }: { digit: string, isAnswer?: boole
   }
   return (
     <div className={cn(
-      "size-9 flex items-center justify-center font-mono text-xl font-bold",
+      "size-8 flex items-center justify-center font-mono text-xl font-bold",
       isAnswer && "text-red-500 underline decoration-dotted"
     )}>
       {digit}
@@ -115,79 +111,71 @@ const VerticalProblemRow = ({ index, problem, isAnswer = false }: { index: numbe
   const resultDigits = (isAnswer ? problem.fullEquation.split(' ')[4] : problem.result).split('');
 
   return (
-    <div className="flex items-start gap-2 break-inside-avoid">
-      <span className="text-blue-600 font-sans font-bold text-[10px] shrink-0 pt-3">{index}.</span>
-      <div className="flex flex-col items-end gap-1 relative pt-2 pr-2">
-        <span className="absolute left-[-20px] top-[54px] text-xl font-bold text-blue-500">{problem.operator}</span>
-        <div className="flex gap-1">
-          {topDigits.map((d: string, i: number) => <DigitBox key={i} digit={d} isAnswer={isAnswer && (isAnswer ? problem.top[i] === '_' : false)} />)}
-        </div>
-        <div className="flex gap-1">
-          {bottomDigits.map((d: string, i: number) => <DigitBox key={i} digit={d} isAnswer={isAnswer && (isAnswer ? problem.bottom[i] === '_' : false)} />)}
-        </div>
-        <div className="w-full h-[1.5px] bg-black my-0.5" />
-        <div className="flex gap-1">
-          {resultDigits.map((d: string, i: number) => <DigitBox key={i} digit={d} isAnswer={isAnswer && (isAnswer ? problem.result[i] === '_' : false)} />)}
+    <div className="flex flex-col items-center justify-center break-inside-avoid print:py-4">
+      <div className="flex items-start gap-1">
+        <span className="text-blue-600 font-sans font-bold text-[9px] shrink-0 pt-3">{index}.</span>
+        <div className="flex flex-col items-end gap-0.5 relative pt-1 pr-1">
+          <span className="absolute left-[-18px] top-[42px] text-lg font-bold text-blue-500">{problem.operator}</span>
+          <div className="flex gap-0.5">
+            {topDigits.map((d: string, i: number) => <DigitBox key={i} digit={d} isAnswer={isAnswer && (isAnswer ? problem.top[i] === '_' : false)} />)}
+          </div>
+          <div className="flex gap-0.5">
+            {bottomDigits.map((d: string, i: number) => <DigitBox key={i} digit={d} isAnswer={isAnswer && (isAnswer ? problem.bottom[i] === '_' : false)} />)}
+          </div>
+          <div className="w-full h-[1.5px] bg-black my-0.5" />
+          <div className="flex gap-0.5">
+            {resultDigits.map((d: string, i: number) => <DigitBox key={i} digit={d} isAnswer={isAnswer && (isAnswer ? problem.result[i] === '_' : false)} />)}
+          </div>
         </div>
       </div>
     </div>
   );
 };
 
-const ProblemRow = ({ index, problem, isAnswer = false }: { index: number, problem: any, isAnswer?: boolean }) => {
-  if (problem.grid) {
+const ProblemRow = ({ index, problem, isAnswer = false, topicId }: { index: number, problem: any, isAnswer?: boolean, topicId: number }) => {
+  if (topicId === 5) { // Sequence
      const gridNumbers = problem.grid.filter((v: string) => v !== '_').map(Number);
      const knownNumbers = Array.from(new Set(gridNumbers));
      
      return (
-        <div className="col-span-full space-y-6 py-8 border-b border-dashed border-blue-100 break-inside-avoid">
+        <div className="col-span-full space-y-4 py-6 border-b border-dashed border-blue-100 break-inside-avoid">
            <div className="space-y-1">
-              <p className="text-xl font-black text-primary tracking-tight flex items-center gap-3">
-                <span className="size-8 rounded-full bg-primary text-white flex items-center justify-center text-sm">Câu {index}</span>
+              <p className="text-lg font-black text-primary tracking-tight flex items-center gap-2">
+                <span className="size-7 rounded-full bg-primary text-white flex items-center justify-center text-xs">Câu {index}</span>
                 Điền số theo quy luật chu kỳ
               </p>
-              <p className="text-sm font-medium text-slate-600 italic">{problem.instruction}</p>
+              <p className="text-xs font-medium text-slate-600 italic">{problem.instruction}</p>
            </div>
            
-           <div className="flex flex-wrap gap-1.5 p-1 bg-slate-50/30 rounded-xl border border-slate-100/50">
+           <div className="flex flex-wrap gap-1 p-1 bg-slate-50/30 rounded-xl border border-slate-100/50 justify-center">
               {problem.grid.map((val: string, i: number) => (
                  <SequenceBox key={i} value={val} isAnswer={isAnswer} />
               ))}
            </div>
            
-           <div className="mt-6 pt-6 border-2 border-dashed border-blue-100 rounded-3xl p-6 bg-blue-50/5">
-              <p className="text-xs font-black text-primary/40 uppercase tracking-[0.2em] mb-8">✍️ Phần trình bày của em:</p>
-              
-              <div className="space-y-6">
-                <div className="flex items-center gap-2 text-lg font-medium text-slate-500 italic font-serif">
+           <div className="mt-4 pt-4 border-2 border-dashed border-blue-100 rounded-2xl p-6 bg-blue-50/5">
+              <p className="text-[10px] font-black text-primary/40 uppercase tracking-[0.2em] mb-4">✍️ Phần trình bày của em:</p>
+              <div className="space-y-4">
+                <div className="flex items-center gap-1.5 text-base font-medium text-slate-500 italic font-serif flex-wrap">
                   <span>Ta có:</span>
                   {knownNumbers.map((num: any, idx: number) => (
                     <React.Fragment key={idx}>
-                      <span className="text-slate-700 font-bold not-italic">{num}</span>
-                      <span className="mx-1">+</span>
+                      <span className="text-slate-800 font-bold not-italic">{num}</span>
+                      <span className="mx-0.5">+</span>
                     </React.Fragment>
                   ))}
-                  <div className="size-8 border-2 border-dashed border-blue-200 rounded flex items-center justify-center bg-white shadow-sm shrink-0">
-                    {isAnswer ? (
-                      <span className="text-red-500 font-black text-sm">?</span>
-                    ) : (
-                      <span className="text-blue-100 text-xs">?</span>
-                    )}
+                  <div className="size-7 border-2 border-dashed border-blue-200 rounded flex items-center justify-center bg-white shadow-sm shrink-0">
+                    {isAnswer ? <span className="text-red-500 font-black text-sm">?</span> : <span className="text-blue-100 text-xs">?</span>}
                   </div>
-                  <span className="mx-1">=</span>
-                  <span className="text-slate-700 font-bold not-italic">{problem.cycleSum}</span>
-                  <span className="ml-2">nên số còn thiếu là:</span>
+                  <span className="mx-0.5">=</span>
+                  <span className="text-slate-800 font-bold not-italic">{problem.cycleSum}</span>
+                  <span className="ml-1">nên số còn thiếu là:</span>
                   <span className={cn(
-                    "min-w-[100px] border-b-2 border-dotted border-slate-400 pb-1 text-center font-bold font-sans",
+                    "min-w-[80px] border-b-2 border-dotted border-slate-400 pb-0.5 text-center font-bold font-sans",
                     isAnswer && "text-red-500 not-italic"
                   )}>
-                    {isAnswer ? "XEM ĐÁP ÁN" : ""}
+                    {isAnswer ? "✓ ĐÁP ÁN" : ""}
                   </span>
-                </div>
-                
-                <div className="space-y-5 pb-2">
-                  <div className="h-px w-full border-t border-dotted border-slate-300" />
-                  <div className="h-px w-full border-t border-dotted border-slate-300" />
                 </div>
               </div>
            </div>
@@ -195,46 +183,48 @@ const ProblemRow = ({ index, problem, isAnswer = false }: { index: number, probl
      );
   }
 
-  if (problem.top && problem.bottom) {
+  if (topicId === 4) { // Vertical
      return <VerticalProblemRow index={index} problem={problem} isAnswer={isAnswer} />;
   }
 
   const probStr = isAnswer ? problem.answer : (problem.question || problem);
 
-  if (typeof probStr === 'string' && probStr.includes('_')) {
+  // Comparison
+  if (topicId === 3 || (typeof probStr === 'string' && probStr.includes('_'))) {
     const parts = probStr.split('_');
     return (
-      <div className="flex items-center gap-4 text-xl font-bold font-mono py-2 break-inside-avoid">
-        <span className="text-blue-600 font-sans w-6 text-right shrink-0">{index}.</span>
-        <div className="flex items-center">
-          <span className="whitespace-nowrap text-slate-700">{parts[0].trim()}</span>
+      <div className="flex items-center gap-2 text-xl font-bold font-mono py-4 break-inside-avoid justify-start pl-4">
+        <span className="text-blue-600 font-sans w-8 text-right shrink-0">{index}.</span>
+        <div className="flex items-center min-w-[150px]">
+          <span className="text-slate-700 text-right min-w-[50px]">{parts[0].trim()}</span>
           <ComparisonBox />
-          <span className="whitespace-nowrap text-slate-700">{parts[1].trim()}</span>
+          <span className="text-slate-700 text-left min-w-[50px]">{parts[1].trim()}</span>
         </div>
       </div>
     );
   }
 
+  // Standard Horizontal
   const cleanStr = typeof probStr === 'string' ? probStr : JSON.stringify(probStr);
   const parts = cleanStr.replace(/([+\-x=])/g, ' $1 ').replace(/\s+/g, ' ').trim().split(' ');
   
   return (
-    <div className="flex items-center gap-4 text-xl font-bold font-mono py-2 break-inside-avoid">
-      <span className="text-blue-600 font-sans w-6 text-right shrink-0">{index}.</span>
-      <div className="flex items-center">
+    <div className="flex items-center gap-2 text-xl font-bold font-mono py-4 break-inside-avoid justify-start pl-4">
+      <span className="text-blue-600 font-sans w-8 text-right shrink-0">{index}.</span>
+      <div className="flex items-center flex-wrap">
         {parts.map((part: string, i: number) => {
-          if (part === '_') return <div key={i} className="w-14 h-10 bg-blue-50 border-2 border-blue-100 rounded-md mx-1 shadow-inner shrink-0" />;
-          if (part === '=') return <span key={i} className="mx-2 text-blue-600">=</span>;
-          if (part === 'x') return <span key={i} className="mx-2 text-blue-400">×</span>;
-          if (part === '+' || part === '-') return <span key={i} className="mx-2 text-primary">{part}</span>;
-          return <span key={i} className={cn("mx-1 text-slate-700", isAnswer && "text-red-500 underline decoration-dotted decoration-red-200 underline-offset-4 font-black")}>{part}</span>;
+          if (part === '_') return <div key={i} className="w-12 h-9 bg-blue-50 border-2 border-blue-100 rounded-md mx-1 shadow-inner shrink-0" />;
+          if (part === '=') return <span key={i} className="mx-1.5 text-blue-600">=</span>;
+          if (part === 'x') return <span key={i} className="mx-1.5 text-blue-400">×</span>;
+          if (part === '+' || part === '-') return <span key={i} className="mx-1.5 text-primary">{part}</span>;
+          return <span key={i} className={cn("mx-0.5 text-slate-700", isAnswer && "text-red-500 underline decoration-dotted font-black")}>{part}</span>;
         })}
       </div>
     </div>
   );
 };
 
-const TopicSection = ({ batch, batchIdx, isAnswer = false }: { batch: QuestionBatch, batchIdx: number, isAnswer?: boolean }) => {
+const TopicSection = ({ batch, batchIdx, startIndex, isAnswer = false }: { batch: QuestionBatch, batchIdx: number, startIndex: number, isAnswer?: boolean }) => {
   const getInstruction = (topicId: number) => {
     switch (topicId) {
       case 1: return "Tính toán nhanh. (Em hãy điền số thích hợp vào chỗ trống để hoàn thành phép tính)";
@@ -250,21 +240,21 @@ const TopicSection = ({ batch, batchIdx, isAnswer = false }: { batch: QuestionBa
   const isSequence = batch.topicId === 5;
 
   return (
-    <div className="mb-12 break-inside-avoid-page">
-      <div className="mb-6">
-        <h3 className="text-2xl font-black text-primary uppercase tracking-tight">
+    <div className="mb-10 break-inside-avoid-page">
+      <div className="mb-4">
+        <h3 className="text-xl font-black text-primary uppercase tracking-tight">
           Bài {batchIdx + 1}: {batch.topicTitle}
         </h3>
-        <p className="text-sm italic text-slate-600 font-medium font-serif mt-1">
+        <p className="text-[11px] italic text-slate-600 font-medium font-serif mt-0.5">
           ({getInstruction(batch.topicId)})
         </p>
       </div>
       <div className={cn(
-        "grid gap-x-12 gap-y-6",
+        "grid gap-x-6 gap-y-2",
         isVertical ? "grid-cols-5" : (isSequence ? "grid-cols-1" : "grid-cols-2")
       )}>
         {batch.problems.map((prob, idx) => (
-          <ProblemRow key={idx} index={idx + 1} problem={prob} isAnswer={isAnswer} />
+          <ProblemRow key={idx} index={startIndex + idx + 1} problem={prob} isAnswer={isAnswer} topicId={batch.topicId} />
         ))}
       </div>
     </div>
@@ -293,17 +283,24 @@ export default function ArchimedesMixerPage() {
 
   const { toast } = useToast()
   const contentRef = React.useRef<HTMLDivElement>(null)
-  const handlePrint = useReactToPrint({ contentRef })
+  const handlePrint = useReactToPrint({ 
+    content: () => contentRef.current,
+    documentTitle: "BoHocToan_PhieuBaiTap",
+    removeAfterPrint: true,
+  })
+
+  const batchesWithIndices = React.useMemo(() => {
+    let currentIndex = 0;
+    return cart.map(batch => {
+      const startIndex = currentIndex;
+      currentIndex += batch.count;
+      return { ...batch, startIndex };
+    });
+  }, [cart]);
 
   const totalCount = cart.reduce((acc, batch) => acc + batch.count, 0)
   const densityPercent = Math.min((totalCount / 20) * 100, 100)
   
-  const getDensityColor = () => {
-    if (totalCount === 20) return "bg-green-500";
-    if (totalCount > 20) return "bg-destructive";
-    return "bg-primary";
-  }
-
   const removeBatch = (id: string) => setCart(prev => prev.filter(b => b.id !== id))
 
   async function addToExam(topicId: number) {
@@ -355,6 +352,7 @@ export default function ArchimedesMixerPage() {
 
   return (
     <div className="space-y-8 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      {/* Configuration Header */}
       <div className="no-print flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-white p-8 rounded-3xl shadow-sm border border-primary/10">
         <div className="space-y-4 flex-1">
           <div className="space-y-2">
@@ -367,7 +365,7 @@ export default function ArchimedesMixerPage() {
               <span>Mật độ trang in (A4)</span>
               <span className={cn(totalCount > 20 && "text-destructive", totalCount === 20 && "text-green-600")}>{totalCount}/20 câu</span>
             </div>
-            <Progress value={densityPercent} className="h-2" indicatorClassName={getDensityColor()} />
+            <Progress value={densityPercent} className="h-2" indicatorClassName={totalCount > 20 ? "bg-destructive" : "bg-primary"} />
           </div>
         </div>
         <div className="flex flex-col gap-3 min-w-[240px]">
@@ -375,13 +373,14 @@ export default function ArchimedesMixerPage() {
              <Label htmlFor="ans" className="text-xs font-bold uppercase text-muted-foreground">In kèm đáp án</Label>
              <Switch id="ans" checked={showAnswers} onCheckedChange={setShowAnswers} />
           </div>
-          <Button size="lg" onClick={() => handlePrint()} disabled={cart.length === 0} className="w-full gap-2 font-black py-7 text-lg shadow-xl bg-primary hover:bg-primary/90">
+          <Button size="lg" onClick={handlePrint} disabled={cart.length === 0} className="w-full gap-2 font-black py-7 text-lg shadow-xl bg-primary hover:bg-primary/90">
             <Printer className="size-5" /> IN PHIẾU BÀI TẬP (A4)
           </Button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Left Column - Topic Cards */}
         <div className="lg:col-span-5 space-y-6 no-print">
           {[
             { id: 1, title: "CĐ1: Biểu thức 3 số", color: "bg-primary", icon: Calculator, settings: cd1Settings, setter: setCd1Settings },
@@ -392,7 +391,11 @@ export default function ArchimedesMixerPage() {
           ].map((topic) => (
             <Card key={topic.id} className="border-none shadow-md overflow-hidden bg-white">
               <div className={cn("h-1.5 w-full", topic.color)} />
-              <CardHeader className="p-5 pb-2"><CardTitle className="text-sm font-bold flex justify-between items-center">{topic.title} <topic.icon className="size-4 opacity-40"/></CardTitle></CardHeader>
+              <CardHeader className="p-5 pb-2">
+                <CardTitle className="text-sm font-bold flex justify-between items-center">
+                  {topic.title} <topic.icon className="size-4 opacity-40"/>
+                </CardTitle>
+              </CardHeader>
               <CardContent className="p-5 pt-2 space-y-4">
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-2">
@@ -404,6 +407,12 @@ export default function ArchimedesMixerPage() {
                     <PopoverContent className="w-64 p-4">
                       <div className="space-y-4">
                         <p className="text-xs font-bold text-muted-foreground uppercase">Tùy chỉnh AI</p>
+                        {topic.id === 1 && (
+                          <div className="space-y-2">
+                            <Label className="text-xs">Phạm vi tối đa</Label>
+                            <Input type="number" value={topic.settings.maxRange} onChange={(e) => topic.setter((s: any) => ({ ...s, maxRange: parseInt(e.target.value) }))} className="h-8" />
+                          </div>
+                        )}
                         {topic.id === 2 && (
                            <div className="grid grid-cols-4 gap-2">
                               {[2,3,4,5,6,7,8,9].map(n => (
@@ -427,7 +436,8 @@ export default function ArchimedesMixerPage() {
               </CardContent>
             </Card>
           ))}
-
+          
+          {/* Cart View */}
           {cart.length > 0 && (
             <div className="bg-white rounded-xl border shadow-sm divide-y overflow-hidden">
                <div className="p-3 bg-muted/30 font-bold text-xs uppercase text-muted-foreground">Danh sách đã chọn</div>
@@ -443,6 +453,7 @@ export default function ArchimedesMixerPage() {
           )}
         </div>
 
+        {/* Right Column - Print Preview */}
         <div className="lg:col-span-7 space-y-4">
           <Card className="border-none shadow-2xl min-h-[800px] flex flex-col bg-white overflow-hidden ring-1 ring-primary/5">
             <CardHeader className="no-print border-b bg-muted/20 flex flex-row items-center justify-between">
@@ -451,72 +462,85 @@ export default function ArchimedesMixerPage() {
             </CardHeader>
             <CardContent className="flex-1 p-0 relative">
               {cart.length > 0 ? (
-                <div className="p-10 print:p-0" ref={contentRef}>
-                  <div className="print-only w-[210mm] min-h-[297mm] mx-auto p-[15mm] bg-white text-black font-sans relative overflow-hidden">
-                    <div className="watermark">BƠ HỌC TOÁN</div>
-                    <div className="absolute top-[40%] left-[20%] opacity-[0.03] pointer-events-none rotate-12">
-                       <Heart className="size-[400px]" />
+                <div className="p-0">
+                  <div ref={contentRef} className="print-container bg-white text-black font-sans relative">
+                    {/* Watermark Overlay */}
+                    <Image 
+                      src="https://storage.googleapis.com/demos-pipeline-artifacts-0f3d548b-3061-46c7-9857-e696cc86535d/image_15.png" 
+                      alt="Watermark" 
+                      width={600} 
+                      height={600}
+                      className="watermark-overlay"
+                    />
+
+                    {/* Header */}
+                    <div className="flex justify-between items-center mb-8 border-b-4 border-primary pb-6">
+                      <div className="flex items-center gap-4 shrink-0">
+                        <Image 
+                          src="https://storage.googleapis.com/demos-pipeline-artifacts-0f3d548b-3061-46c7-9857-e696cc86535d/image_15.png" 
+                          alt="Logo" 
+                          width={80} 
+                          height={80} 
+                          className="object-contain" 
+                        />
+                      </div>
+                      <div className="text-center flex-1 px-4">
+                        <h1 className="text-3xl font-black text-primary tracking-tighter uppercase leading-tight italic">Phiếu Bài Tập Tổng Hợp</h1>
+                        <p className="text-sm italic text-accent font-bold font-serif">Khai phá tiềm năng toán học trong vũ trụ số!</p>
+                      </div>
+                      <div className="text-right space-y-2 pt-2 shrink-0 w-[180px]">
+                        <p className="text-[11px] font-bold border-b border-primary/20 pb-0.5 whitespace-nowrap">Họ và tên: .............................</p>
+                        <p className="text-[11px] font-bold border-b border-primary/20 pb-0.5 whitespace-nowrap">Ngày: ..................................</p>
+                      </div>
                     </div>
 
-                    <div className="flex justify-between items-start mb-12 border-b-4 border-primary pb-8">
-                      <div className="flex items-center gap-5">
-                        <div className="size-24 rounded-full border-4 border-primary/20 flex items-center justify-center overflow-hidden bg-white shadow-sm">
-                           <Image 
-                            src="https://storage.googleapis.com/demos-pipeline-artifacts-0f3d548b-3061-46c7-9857-e696cc86535d/image_15.png" 
-                            alt="Logo" 
-                            width={96} 
-                            height={96}
-                            className="object-contain p-1"
-                            data-ai-hint="bo math logo"
-                          />
-                        </div>
-                        <div>
-                          <h1 className="text-4xl font-black text-primary leading-none tracking-tighter">BƠ HỌC TOÁN</h1>
-                          <p className="text-[12px] text-accent font-black uppercase tracking-[0.2em] mt-2">Number Garden Edition</p>
-                        </div>
-                      </div>
-                      <div className="text-right space-y-4 pt-4">
-                        <p className="text-sm font-bold border-b-2 border-primary/10 pb-1">Họ và tên: .....................................................</p>
-                        <p className="text-sm font-bold border-b-2 border-primary/10 pb-1">Ngày: ...........................................................</p>
-                      </div>
-                    </div>
-                    
-                    <div className="mb-14 text-center">
-                      <h2 className="text-5xl font-black text-primary mb-3 uppercase tracking-tighter italic">Phiếu Bài Tập Tổng Hợp</h2>
-                      <p className="text-xl italic text-accent font-bold font-serif">Khai phá tiềm năng toán học trong vũ trụ số!</p>
-                    </div>
-
-                    <div className="space-y-16">
-                      {cart.map((batch, idx) => (
-                        <TopicSection key={batch.id} batch={batch} batchIdx={idx} />
+                    {/* Content Section */}
+                    <div className="flex-1 space-y-12">
+                      {batchesWithIndices.map((batch, idx) => (
+                        <TopicSection 
+                          key={batch.id} 
+                          batch={batch} 
+                          batchIdx={idx} 
+                          startIndex={batch.startIndex} 
+                        />
                       ))}
                     </div>
 
-                    <div className="absolute bottom-[10mm] left-[15mm] right-[15mm] border-t-2 border-primary/5 pt-6 flex justify-between items-end opacity-50">
-                       <p className="text-[10px] font-bold text-primary">© 2024 BƠ HỌC TOÁN - NUMBER GARDEN EDITION</p>
-                       <div className="flex items-center gap-2">
-                          <Calculator className="size-4 text-primary" />
-                          <Heart className="size-4 text-accent" />
-                       </div>
-                    </div>
+                    {/* Answer Key (Optional) */}
+                    {showAnswers && (
+                      <div className="page-break pt-10 relative">
+                        <Image 
+                          src="https://storage.googleapis.com/demos-pipeline-artifacts-0f3d548b-3061-46c7-9857-e696cc86535d/image_15.png" 
+                          alt="Watermark" 
+                          width={600} 
+                          height={600}
+                          className="watermark-overlay"
+                        />
+                        <div className="mb-8 border-b-4 border-destructive pb-6">
+                          <h1 className="text-3xl font-black text-destructive uppercase italic text-center">Chìa Khóa Vũ Trụ (Đáp Án)</h1>
+                        </div>
+                        <div className="space-y-12">
+                          {batchesWithIndices.map((batch, idx) => (
+                            <TopicSection 
+                              key={batch.id} 
+                              batch={batch} 
+                              batchIdx={idx} 
+                              startIndex={batch.startIndex} 
+                              isAnswer 
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
-                  {showAnswers && (
-                    <div className="print-only w-[210mm] min-h-[297mm] mx-auto p-[15mm] bg-white text-black font-sans relative page-break overflow-hidden">
-                       <div className="mb-12 border-b-4 border-destructive pb-8">
-                          <h1 className="text-3xl font-black text-destructive uppercase italic">Chìa Khóa Vũ Trụ (Đáp Án)</h1>
-                       </div>
-                       <div className="space-y-16">
-                          {cart.map((batch, idx) => (
-                            <TopicSection key={batch.id} batch={batch} batchIdx={idx} isAnswer />
-                          ))}
-                       </div>
-                    </div>
-                  )}
-
-                  <div className="no-print space-y-16 p-10 bg-slate-50/30">
-                     {cart.map((batch, idx) => (
-                        <TopicSection key={batch.id} batch={batch} batchIdx={idx} />
+                  {/* On-screen Preview Footer (Buttons only) */}
+                  <div className="no-print p-10 bg-slate-50/30">
+                     <div className="text-center text-muted-foreground italic text-sm mb-4">
+                       Bản xem trước nội dung sẽ in.
+                     </div>
+                     {batchesWithIndices.map((batch, idx) => (
+                        <TopicSection key={batch.id} batch={batch} batchIdx={idx} startIndex={batch.startIndex} />
                      ))}
                   </div>
                 </div>
