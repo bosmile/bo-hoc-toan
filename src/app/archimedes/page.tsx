@@ -28,6 +28,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Switch } from "@/components/ui/switch"
 import { Progress } from "@/components/ui/progress"
+import { Checkbox } from "@/components/ui/checkbox"
 import { generateArchimedesMathProblems } from "@/ai/flows/generate-archimedes-math-problems"
 import { generateMultiplicationProblems } from "@/ai/flows/generate-multiplication-problems"
 import { useToast } from "@/hooks/use-toast"
@@ -81,9 +82,6 @@ const ProblemRow = ({ index, problem, isAnswer = false }: { index: number, probl
           if (part === 'x') return <span key={i} className="mx-2 text-blue-400">×</span>;
           if (part === '+' || part === '-') return <span key={i} className="mx-2 text-primary">{part}</span>;
           
-          // Logic to identify if this was an underscore in the question
-          // For simplicity, we assume the question had '_' at unknownVariable position.
-          // In the mixed preview, we highlight the answer if isAnswer is true.
           return <span key={i} className={cn("mx-1", isAnswer && "text-red-500 underline decoration-dotted")}>{part}</span>;
         })}
       </div>
@@ -128,7 +126,6 @@ export default function ArchimedesMixerPage() {
     try {
       const allProblems: {question: string, answer: string}[] = [];
       
-      // Handle Chuyên đề 1
       const cd1 = topics.find(t => t.id === 1 && t.enabled && t.count > 0)
       if (cd1) {
         const res = await generateArchimedesMathProblems({
@@ -139,13 +136,9 @@ export default function ArchimedesMixerPage() {
           rangeC: { min: 0, max: Math.floor(cd1.settings.maxRange / 2) },
           rangeD: { min: 0, max: cd1.settings.maxRange * 2 },
         })
-        // Chuyên đề 1 currently returns array of strings, we map them
-        // Note: For CD1 to have answers, we'd need to update its flow. 
-        // For now, we simulate answers by replacing '_' with the calculation.
         allProblems.push(...res.problems.map(p => ({ question: p, answer: p.replace('_', '??') })))
       }
 
-      // Handle Chuyên đề 2
       const cd2 = topics.find(t => t.id === 2 && t.enabled && t.count > 0)
       if (cd2) {
         const res = await generateMultiplicationProblems({
@@ -340,7 +333,6 @@ export default function ArchimedesMixerPage() {
               {mixedResults.length > 0 ? (
                 <div className="p-10 print:p-0">
                   <div ref={contentRef}>
-                    {/* Page 1: Worksheet */}
                     <div className="print-only w-[210mm] min-h-[297mm] mx-auto p-[15mm] bg-white text-black font-sans relative">
                       <div className="flex justify-between items-start mb-10 border-b-2 border-blue-600 pb-6">
                         <div className="flex items-center gap-3">
@@ -392,7 +384,6 @@ export default function ArchimedesMixerPage() {
                       </div>
                     </div>
 
-                    {/* Page 2: Answer Key (Conditional) */}
                     {showAnswers && (
                       <div className="print-only w-[210mm] min-h-[297mm] mx-auto p-[15mm] bg-white text-black font-sans relative page-break">
                          <div className="mb-10 border-b-2 border-red-600 pb-6">
@@ -414,7 +405,6 @@ export default function ArchimedesMixerPage() {
                     )}
                   </div>
 
-                  {/* Browser Preview */}
                   <div className="no-print space-y-4 p-8">
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {mixedResults.map((res, index) => (
