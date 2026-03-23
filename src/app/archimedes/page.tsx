@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -18,7 +19,7 @@ import {
   Infinity as InfinityIcon,
   Heart
 } from "lucide-react"
-import { useReactToPrint } from "react-use-print"
+import { useReactToPrint } from "react-to-print"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -283,10 +284,10 @@ export default function ArchimedesMixerPage() {
 
   const { toast } = useToast()
   const contentRef = React.useRef<HTMLDivElement>(null)
+  
   const handlePrint = useReactToPrint({ 
-    content: () => contentRef.current,
+    contentRef,
     documentTitle: "BoHocToan_PhieuBaiTap",
-    removeAfterPrint: true,
   })
 
   const batchesWithIndices = React.useMemo(() => {
@@ -373,7 +374,7 @@ export default function ArchimedesMixerPage() {
              <Label htmlFor="ans" className="text-xs font-bold uppercase text-muted-foreground">In kèm đáp án</Label>
              <Switch id="ans" checked={showAnswers} onCheckedChange={setShowAnswers} />
           </div>
-          <Button size="lg" onClick={handlePrint} disabled={cart.length === 0} className="w-full gap-2 font-black py-7 text-lg shadow-xl bg-primary hover:bg-primary/90">
+          <Button size="lg" onClick={() => handlePrint()} disabled={cart.length === 0} className="w-full gap-2 font-black py-7 text-lg shadow-xl bg-primary hover:bg-primary/90">
             <Printer className="size-5" /> IN PHIẾU BÀI TẬP (A4)
           </Button>
         </div>
