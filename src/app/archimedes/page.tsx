@@ -404,7 +404,7 @@ export default function ArchimedesMixerPage() {
                 <div className="flex gap-2">
                   <Popover>
                     <PopoverTrigger asChild><Button variant="outline" size="sm" className="flex-1 h-7 text-[10px] font-bold gap-1"><Settings2 className="size-3" /> Cấu hình</Button></PopoverTrigger>
-                    <PopoverContent className="w-80 p-6">
+                    <PopoverContent className="w-80 p-6 overflow-y-auto max-h-[80vh]">
                       <div className="space-y-6">
                         <div className="flex items-center justify-between border-b pb-2">
                           <p className="text-xs font-black text-primary uppercase tracking-widest">{topic.title}</p>
@@ -539,6 +539,24 @@ export default function ArchimedesMixerPage() {
                                   <SelectItem value="mixed">Hỗn hợp</SelectItem>
                                 </SelectContent>
                               </Select>
+                            </div>
+                            {/* Detailed Range Settings for Topic 4 */}
+                            <div className="space-y-3 p-3 rounded-lg border bg-muted/5">
+                              <Label className="text-[10px] font-bold uppercase text-muted-foreground">Phạm vi số hạng</Label>
+                              <div className="space-y-2">
+                                <Label className="text-[10px]">N1 (Min - Max)</Label>
+                                <div className="flex items-center gap-2">
+                                  <Input type="number" value={topic.settings.rangeN1.min} onChange={(e) => topic.setter((s: any) => ({ ...s, rangeN1: { ...s.rangeN1, min: parseInt(e.target.value) } }))} className="h-7 text-xs" />
+                                  <Input type="number" value={topic.settings.rangeN1.max} onChange={(e) => topic.setter((s: any) => ({ ...s, rangeN1: { ...s.rangeN1, max: parseInt(e.target.value) } }))} className="h-7 text-xs" />
+                                </div>
+                              </div>
+                              <div className="space-y-2">
+                                <Label className="text-[10px]">Result (Min - Max)</Label>
+                                <div className="flex items-center gap-2">
+                                  <Input type="number" value={topic.settings.rangeResult.min} onChange={(e) => topic.setter((s: any) => ({ ...s, rangeResult: { ...s.rangeResult, min: parseInt(e.target.value) } }))} className="h-7 text-xs" />
+                                  <Input type="number" value={topic.settings.rangeResult.max} onChange={(e) => topic.setter((s: any) => ({ ...s, rangeResult: { ...s.rangeResult, max: parseInt(e.target.value) } }))} className="h-7 text-xs" />
+                                </div>
+                              </div>
                             </div>
                           </div>
                         )}
