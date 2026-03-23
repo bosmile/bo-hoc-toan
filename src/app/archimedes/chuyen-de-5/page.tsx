@@ -68,7 +68,7 @@ const SequenceProblem = ({ index, problem }: { index: number, problem: any }) =>
         </p>
       </div>
 
-      <div className="flex flex-nowrap items-center justify-center gap-0.5 p-1 bg-slate-50/50 rounded-xl border border-slate-100 overflow-hidden w-full">
+      <div className="flex flex-nowrap items-center justify-center gap-1 p-1 bg-slate-50/50 rounded-xl border border-slate-100 w-full">
         {problem.grid.map((val: string, i: number) => (
           <SequenceBox key={i} value={val} />
         ))}
@@ -84,13 +84,13 @@ const SequenceProblem = ({ index, problem }: { index: number, problem: any }) =>
             <span>Ta có:</span>
             {knownNumbers.map((num: any, idx: number) => (
               <React.Fragment key={idx}>
-                <span className="text-slate-700 font-bold not-italic">{num}</span>
+                <span className="text-slate-700 font-bold not-italic text-[13px]">{num}</span>
                 <span className="mx-0.5">+</span>
               </React.Fragment>
             ))}
             <span className="font-bold text-primary not-italic">?</span>
             <span className="mx-0.5">=</span>
-            <span className="text-slate-700 font-bold not-italic">{problem.cycleSum}</span>
+            <span className="text-slate-700 font-bold not-italic text-[13px]">{problem.cycleSum}</span>
             <span className="ml-1">nên số còn thiếu là:</span>
           </div>
         </div>
@@ -233,7 +233,7 @@ export default function ChuyenDe5Page() {
                         <div className="flex items-center gap-3">
                           <div className="p-2 bg-primary rounded-lg flex items-center justify-center overflow-hidden">
                              <Image 
-                              src="https://storage.googleapis.com/demos-pipeline-artifacts-0f3d548b-3061-46c7-9857-e696cc86535d/image_15.png" 
+                              src="/logo.png" 
                               alt="Logo" 
                               width={40} 
                               height={40}

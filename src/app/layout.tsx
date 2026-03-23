@@ -34,12 +34,11 @@ export default function RootLayout({
               <div className="flex items-center gap-3">
                  <div className="size-10 rounded-full flex items-center justify-center overflow-hidden border border-primary/20 bg-white">
                     <Image 
-                      src="https://storage.googleapis.com/demos-pipeline-artifacts-0f3d548b-3061-46c7-9857-e696cc86535d/image_15.png" 
+                      src="/logo.png" 
                       alt="Bơ Học Toán Logo" 
                       width={40} 
                       height={40}
                       className="object-contain p-0.5"
-                      data-ai-hint="bo math logo"
                     />
                  </div>
                  <h2 className="text-sm font-bold text-primary uppercase tracking-tight">Number Garden Edition</h2>

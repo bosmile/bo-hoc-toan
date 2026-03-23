@@ -176,9 +176,9 @@ const ProblemRow = ({ index, problem, isAnswer = false, topicId }: { index: numb
       <div className="flex items-center gap-1 text-[13px] font-bold font-mono py-1.5 break-inside-avoid justify-start pl-4 border-b border-dashed border-slate-100/50">
         <span className="text-blue-600 font-sans w-6 text-right shrink-0 text-xs">{index}.</span>
         <div className="flex items-center min-w-[120px]">
-          <span className="text-slate-700 text-right min-w-[40px]">{parts[0].trim()}</span>
+          <span className="text-slate-700 text-right min-w-[40px] text-[13px]">{parts[0].trim()}</span>
           <ComparisonBox />
-          <span className="text-slate-700 text-left min-w-[40px]">{parts[1].trim()}</span>
+          <span className="text-slate-700 text-left min-w-[40px] text-[13px]">{parts[1].trim()}</span>
         </div>
       </div>
     );
@@ -193,11 +193,11 @@ const ProblemRow = ({ index, problem, isAnswer = false, topicId }: { index: numb
       <span className="text-blue-600 font-sans w-6 text-right shrink-0 text-xs">{index}.</span>
       <div className="flex items-center flex-wrap">
         {parts.map((part: string, i: number) => {
-          if (part === '_') return <div key={i} className="w-9 h-7 bg-white border border-gray-400 rounded-md mx-1 shadow-inner shrink-0" />;
+          if (part === '_') return <div key={i} className="w-9 h-7 bg-white border border-gray-400 rounded-md mx-1 shrink-0" />;
           if (part === '=') return <span key={i} className="mx-1 text-blue-600">=</span>;
           if (part === 'x') return <span key={i} className="mx-1 text-blue-400">×</span>;
           if (part === '+' || part === '-') return <span key={i} className="mx-1 text-primary">{part}</span>;
-          return <span key={i} className={cn("mx-0.5 text-slate-700", isAnswer && "text-red-500 underline decoration-dotted font-black")}>{part}</span>;
+          return <span key={i} className={cn("mx-0.5 text-slate-700 text-[13px]", isAnswer && "text-red-500 underline decoration-dotted font-black")}>{part}</span>;
         })}
       </div>
     </div>
@@ -246,7 +246,7 @@ export default function ArchimedesMixerPage() {
   const [isLoading, setIsLoading] = React.useState(false)
   const [showAnswers, setShowAnswers] = React.useState(false)
   
-  // Settings for each topic
+  // Settings state
   const [cd1Settings, setCd1Settings] = React.useState({ count: 5, unknownVariable: "D" as any, operationMode: "mixed" as any, maxRange: 20 })
   const [cd2Settings, setCd2Settings] = React.useState({ count: 5, tables: [2, 5, 10], unknownVariable: "C" as any, shuffle: true })
   const [cd3Settings, setCd3Settings] = React.useState({ count: 5, level: "1" as any, maxRange: 20, operationMode: "mixed" as any })
@@ -520,7 +520,6 @@ export default function ArchimedesMixerPage() {
                                 </SelectContent>
                               </Select>
                             </div>
-                            {/* Detailed Range Settings for Topic 4 */}
                             <div className="space-y-3 p-3 rounded-lg border bg-muted/5">
                               <Label className="text-[10px] font-bold uppercase text-muted-foreground">Phạm vi số hạng</Label>
                               <div className="space-y-2">
@@ -606,7 +605,7 @@ export default function ArchimedesMixerPage() {
                     {/* Watermark Overlay */}
                     <div className="watermark-overlay fixed inset-0 flex items-center justify-center opacity-[0.06] pointer-events-none z-[-1] overflow-hidden">
                        <Image 
-                        src="https://storage.googleapis.com/demos-pipeline-artifacts-0f3d548b-3061-46c7-9857-e696cc86535d/image_15.png" 
+                        src="/logo.png" 
                         alt="Watermark" 
                         width={600} 
                         height={600}
@@ -618,7 +617,7 @@ export default function ArchimedesMixerPage() {
                     <div className="flex justify-between items-center mb-4 border-b-4 border-primary pb-4">
                       <div className="flex items-center gap-4 shrink-0">
                         <Image 
-                          src="https://storage.googleapis.com/demos-pipeline-artifacts-0f3d548b-3061-46c7-9857-e696cc86535d/image_15.png" 
+                          src="/logo.png" 
                           alt="Logo" 
                           width={60} 
                           height={60} 

@@ -62,7 +62,7 @@ export function AppSidebar() {
         <Link href="/" className="flex items-center gap-3">
           <div className="flex aspect-square size-12 items-center justify-center rounded-full bg-white shadow-sm overflow-hidden border-2 border-primary/20 shrink-0">
              <Image 
-                src="https://storage.googleapis.com/demos-pipeline-artifacts-0f3d548b-3061-46c7-9857-e696cc86535d/image_15.png" 
+                src="/logo.png" 
                 alt="Logo" 
                 width={48} 
                 height={48}

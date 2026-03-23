@@ -55,7 +55,7 @@ const formSchema = z.object({
 const DigitBox = ({ digit }: { digit: string }) => {
   if (digit === '_') {
     return (
-      <div className="size-9 bg-white border border-gray-400 rounded-md shadow-inner flex items-center justify-center relative overflow-hidden">
+      <div className="size-9 bg-white border border-gray-400 rounded-md flex items-center justify-center relative overflow-hidden">
       </div>
     );
   }
@@ -71,7 +71,6 @@ const VerticalProblem = ({ index, problem }: { index: number, problem: any }) =>
     <div className="flex items-start gap-2">
       <span className="text-blue-600 font-sans font-bold text-[10px] shrink-0 pt-3">{index}.</span>
       <div className="flex flex-col items-end gap-1 relative pt-2 pr-2">
-        {/* Operator positioned to the left of the bottom number */}
         <span className="absolute left-[-20px] top-[54px] text-lg font-bold text-blue-500">{problem.operator}</span>
         
         <div className="flex gap-1">
@@ -339,7 +338,7 @@ export default function ChuyenDe4Page() {
                         <div className="flex items-center gap-3">
                           <div className="p-2 bg-primary rounded-lg flex items-center justify-center overflow-hidden">
                             <Image 
-                              src="https://storage.googleapis.com/demos-pipeline-artifacts-0f3d548b-3061-46c7-9857-e696cc86535d/image_15.png" 
+                              src="/logo.png" 
                               alt="Logo" 
                               width={40} 
                               height={40}

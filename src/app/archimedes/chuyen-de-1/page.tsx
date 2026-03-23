@@ -53,13 +53,13 @@ const ProblemRow = ({ index, problem }: { index: number, problem: string }) => {
         {parts.map((part, i) => {
           if (part === '_') {
             return (
-              <div key={i} className="w-14 h-10 bg-white border border-gray-400 rounded-md mx-1 shadow-inner shrink-0" />
+              <div key={i} className="w-14 h-10 bg-white border border-gray-400 rounded-md mx-1 shrink-0" />
             );
           }
           if (part === '=') {
             return <span key={i} className="mx-2 text-blue-600">=</span>;
           }
-          return <span key={i} className="mx-1">{part}</span>;
+          return <span key={i} className="mx-1 text-[13px]">{part}</span>;
         })}
       </div>
     </div>
@@ -266,7 +266,7 @@ export default function ChuyenDe1Page() {
                         <div className="flex items-center gap-3">
                           <div className="p-2 bg-primary rounded-lg overflow-hidden flex items-center justify-center">
                             <Image 
-                              src="https://storage.googleapis.com/demos-pipeline-artifacts-0f3d548b-3061-46c7-9857-e696cc86535d/image_15.png" 
+                              src="/logo.png" 
                               alt="Logo" 
                               width={40} 
                               height={40}
@@ -285,7 +285,7 @@ export default function ChuyenDe1Page() {
                       </div>
 
                       <div className="mb-12 text-center">
-                        <h2 className="text-4xl font-black text-primary mb-2">Tìm số còn thiếu</h2>
+                        <h2 className="text-4xl font-black text-primary mb-2 uppercase">Tìm số còn thiếu</h2>
                         <p className="text-lg italic text-accent font-medium">Thử thách điền số thích hợp vào chỗ trống nhé!</p>
                       </div>
 
@@ -308,7 +308,7 @@ export default function ChuyenDe1Page() {
                     {problems.map((problem, index) => (
                       <div key={index} className="flex items-center gap-4 text-[13px] font-bold border-b border-dashed pb-4">
                         <span className="text-xs bg-primary/10 text-primary size-6 rounded-full flex items-center justify-center shrink-0">{index + 1}</span>
-                        <div className="font-mono">{problem.replace('=', ' = ')}</div>
+                        <div className="font-mono text-[13px]">{problem.replace('=', ' = ')}</div>
                       </div>
                     ))}
                   </div>
