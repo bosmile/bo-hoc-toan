@@ -20,7 +20,8 @@ import {
   PlusCircle,
   CheckCircle2,
   Scale,
-  Columns2
+  Columns2,
+  List
 } from "lucide-react"
 import { useReactToPrint } from "react-to-print"
 
@@ -90,7 +91,7 @@ const VerticalProblemRow = ({ index, problem, isAnswer = false }: { index: numbe
   const resultDigits = (isAnswer ? problem.fullEquation.split(' ')[4] : problem.result).split('');
 
   return (
-    <div className="flex items-start gap-2">
+    <div className="flex items-start gap-2 break-inside-avoid">
       <span className="text-blue-600 font-sans font-bold text-[10px] shrink-0 pt-3">{index}.</span>
       <div className="flex flex-col items-end gap-1 relative pt-2 pr-2">
         <span className="absolute left-[-20px] top-[54px] text-xl font-bold text-blue-500">{problem.operator}</span>
@@ -110,18 +111,16 @@ const VerticalProblemRow = ({ index, problem, isAnswer = false }: { index: numbe
 };
 
 const ProblemRow = ({ index, problem, isAnswer = false }: { index: number, problem: any, isAnswer?: boolean }) => {
-  // Check if it's a vertical problem
-  if (problem.question && typeof problem.question === 'object') {
-     return <VerticalProblemRow index={index} problem={isAnswer ? problem : problem.question} isAnswer={isAnswer} />;
+  if (problem.top && problem.bottom) {
+     return <VerticalProblemRow index={index} problem={problem} isAnswer={isAnswer} />;
   }
 
-  const probStr = isAnswer ? problem.answer : problem.question;
+  const probStr = isAnswer ? problem.answer : (problem.question || problem);
 
-  // Check if it's a comparison problem
-  if (probStr.includes('_')) {
+  if (typeof probStr === 'string' && probStr.includes('_')) {
     const parts = probStr.split('_');
     return (
-      <div className="flex items-center gap-4 text-xl font-bold font-mono py-2">
+      <div className="flex items-center gap-4 text-xl font-bold font-mono py-2 break-inside-avoid">
         <span className="text-blue-600 font-sans w-6 text-right shrink-0">{index}.</span>
         <div className="flex items-center">
           <span className="whitespace-nowrap">{parts[0].trim()}</span>
@@ -132,9 +131,11 @@ const ProblemRow = ({ index, problem, isAnswer = false }: { index: number, probl
     );
   }
 
-  const parts = probStr.replace(/([+\-x=])/g, ' $1 ').replace(/\s+/g, ' ').trim().split(' ');
+  const cleanStr = typeof probStr === 'string' ? probStr : JSON.stringify(probStr);
+  const parts = cleanStr.replace(/([+\-x=])/g, ' $1 ').replace(/\s+/g, ' ').trim().split(' ');
+  
   return (
-    <div className="flex items-center gap-4 text-xl font-bold font-mono py-2">
+    <div className="flex items-center gap-4 text-xl font-bold font-mono py-2 break-inside-avoid">
       <span className="text-blue-600 font-sans w-6 text-right shrink-0">{index}.</span>
       <div className="flex items-center">
         {parts.map((part: string, i: number) => {
@@ -142,8 +143,43 @@ const ProblemRow = ({ index, problem, isAnswer = false }: { index: number, probl
           if (part === '=') return <span key={i} className="mx-2 text-blue-600">=</span>;
           if (part === 'x') return <span key={i} className="mx-2 text-blue-400">×</span>;
           if (part === '+' || part === '-') return <span key={i} className="mx-2 text-primary">{part}</span>;
-          return <span key={i} className={cn("mx-1", isAnswer && probStr.includes('_') === false && "text-red-500 underline decoration-dotted")}>{part}</span>;
+          return <span key={i} className={cn("mx-1", isAnswer && "text-red-500 underline decoration-dotted")}>{part}</span>;
         })}
+      </div>
+    </div>
+  );
+};
+
+const TopicSection = ({ batch, batchIdx, isAnswer = false }: { batch: QuestionBatch, batchIdx: number, isAnswer?: boolean }) => {
+  const getInstruction = (topicId: number) => {
+    switch (topicId) {
+      case 1: return "Tính toán nhanh. (Em hãy điền số thích hợp vào chỗ trống để hoàn thành phép tính)";
+      case 2: return "Bảng nhân thông minh. (Em hãy thực hiện các phép tính nhân sau đây)";
+      case 3: return "So sánh số. (Em hãy điền dấu > ; < ; = vào ô trống)";
+      case 4: return "Đặt tính rồi tính. (Em hãy thực hiện các phép tính hàng dọc sau đây)";
+      default: return "Luyện tập tư duy toán học.";
+    }
+  };
+
+  const isVertical = batch.topicId === 4;
+
+  return (
+    <div className="mb-10 break-inside-avoid-page">
+      <div className="mb-4">
+        <h3 className="text-lg font-black text-blue-700 uppercase tracking-tight">
+          Bài {batchIdx + 1}: {batch.topicTitle}
+        </h3>
+        <p className="text-sm italic text-gray-600 font-medium">
+          ({getInstruction(batch.topicId)})
+        </p>
+      </div>
+      <div className={cn(
+        "grid gap-x-12 gap-y-6",
+        isVertical ? "grid-cols-5" : "grid-cols-2"
+      )}>
+        {batch.problems.map((prob, idx) => (
+          <ProblemRow key={idx} index={idx + 1} problem={prob} isAnswer={isAnswer} />
+        ))}
       </div>
     </div>
   );
@@ -197,7 +233,7 @@ export default function ArchimedesMixerPage() {
           rangeC: { min: 0, max: Math.floor(cd1Settings.maxRange / 2) },
           rangeD: { min: 0, max: cd1Settings.maxRange * 2 },
         })
-        newBatch = { id: Math.random().toString(36).substr(2, 9), topicId: 1, topicTitle: "Biểu thức 3 số", count: cd1Settings.count, settings: { ...cd1Settings }, problems: res.problems.map(p => ({ question: p, answer: p })) }
+        newBatch = { id: Math.random().toString(36).substr(2, 9), topicId: 1, topicTitle: "Biểu thức 3 số", count: cd1Settings.count, settings: { ...cd1Settings }, problems: res.problems }
       } else if (topicId === 2) {
         const res = await generateMultiplicationProblems({ tables: cd2Settings.tables, unknownVariable: cd2Settings.unknownVariable, numProblems: cd2Settings.count, shuffle: cd2Settings.shuffle })
         newBatch = { id: Math.random().toString(36).substr(2, 9), topicId: 2, topicTitle: "Phép nhân", count: cd2Settings.count, settings: { ...cd2Settings }, problems: res.problems }
@@ -215,7 +251,7 @@ export default function ArchimedesMixerPage() {
           rangeN2: cd4Settings.rangeN2,
           rangeResult: cd4Settings.rangeResult
         })
-        newBatch = { id: Math.random().toString(36).substr(2, 9), topicId: 4, topicTitle: "Tính hàng dọc", count: cd4Settings.count, settings: { ...cd4Settings }, problems: res.problems.map(p => ({ question: p, answer: p })) }
+        newBatch = { id: Math.random().toString(36).substr(2, 9), topicId: 4, topicTitle: "Tính hàng dọc", count: cd4Settings.count, settings: { ...cd4Settings }, problems: res.problems }
       }
 
       setCart(prev => [...prev, newBatch])
@@ -227,17 +263,14 @@ export default function ArchimedesMixerPage() {
     }
   }
 
-  const allProblems = cart.flatMap(batch => batch.problems)
-  const mid = Math.ceil(allProblems.length / 2);
-
   return (
     <div className="space-y-8 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="no-print flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-white p-8 rounded-3xl shadow-sm border">
         <div className="space-y-4 flex-1">
           <div className="space-y-2">
-            <Badge variant="outline" className="text-primary border-primary/20 bg-primary/5 px-3 py-1">Archimedes Mixer v2.5</Badge>
+            <Badge variant="outline" className="text-primary border-primary/20 bg-primary/5 px-3 py-1">Archimedes Mixer v3.0</Badge>
             <h1 className="text-4xl font-black tracking-tight text-primary uppercase leading-none">Bộ Trộn Đề Archimedes</h1>
-            <p className="text-muted-foreground max-w-xl">Chọn cấu hình từ các chuyên đề và "Thêm vào đề thi". Tổng 20 câu để tối ưu A4.</p>
+            <p className="text-muted-foreground max-w-xl">Tái cấu trúc đề thi theo từng Bài học. Tự động gom nhóm chuyên đề và tối ưu trang in.</p>
           </div>
           <div className="max-w-md space-y-2">
             <div className="flex justify-between text-xs font-bold uppercase tracking-wider">
@@ -245,11 +278,6 @@ export default function ArchimedesMixerPage() {
               <span className={cn(totalCount > 20 && "text-destructive", totalCount === 20 && "text-green-600")}>{totalCount}/20 câu</span>
             </div>
             <Progress value={densityPercent} className="h-2" indicatorClassName={getDensityColor()} />
-            {totalCount % 2 !== 0 && (
-               <div className="flex items-center gap-1 text-[10px] text-orange-500 font-bold">
-                  <AlertCircle className="size-3" /> Cảnh báo: Số câu lẻ sẽ làm lệch bố cục 2 cột.
-               </div>
-            )}
           </div>
         </div>
         <div className="flex flex-col gap-3 min-w-[240px]">
@@ -257,15 +285,15 @@ export default function ArchimedesMixerPage() {
              <Label htmlFor="ans" className="text-xs font-bold uppercase text-muted-foreground">In kèm đáp án</Label>
              <Switch id="ans" checked={showAnswers} onCheckedChange={setShowAnswers} />
           </div>
-          <Button size="lg" onClick={() => handlePrint()} disabled={allProblems.length === 0} className="w-full gap-2 font-black py-7 text-lg shadow-xl bg-primary">
-            <Printer className="size-5" /> IN ĐỀ TOÁN (A4)
+          <Button size="lg" onClick={() => handlePrint()} disabled={cart.length === 0} className="w-full gap-2 font-black py-7 text-lg shadow-xl bg-primary">
+            <Printer className="size-5" /> IN PHIẾU BÀI TẬP (A4)
           </Button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div className="lg:col-span-5 space-y-6 no-print">
-          {/* CD1 */}
+          {/* Chuyên đề 1 */}
           <Card className="border-none shadow-md overflow-hidden bg-white">
             <div className="h-1.5 w-full bg-primary" />
             <CardHeader className="p-5 pb-2"><CardTitle className="text-sm font-bold">CĐ1: Biểu thức 3 số</CardTitle></CardHeader>
@@ -293,7 +321,7 @@ export default function ArchimedesMixerPage() {
             </CardContent>
           </Card>
 
-          {/* CD2 */}
+          {/* Chuyên đề 2 */}
           <Card className="border-none shadow-md overflow-hidden bg-white">
             <div className="h-1.5 w-full bg-accent" />
             <CardHeader className="p-5 pb-2"><CardTitle className="text-sm font-bold">CĐ2: Phép nhân</CardTitle></CardHeader>
@@ -326,7 +354,7 @@ export default function ArchimedesMixerPage() {
             </CardContent>
           </Card>
 
-          {/* CD3 */}
+          {/* Chuyên đề 3 */}
           <Card className="border-none shadow-md overflow-hidden bg-white">
             <div className="h-1.5 w-full bg-blue-400" />
             <CardHeader className="p-5 pb-2">
@@ -357,7 +385,7 @@ export default function ArchimedesMixerPage() {
             </CardContent>
           </Card>
 
-          {/* CD4 */}
+          {/* Chuyên đề 4 */}
           <Card className="border-none shadow-md overflow-hidden bg-white">
             <div className="h-1.5 w-full bg-orange-400" />
             <CardHeader className="p-5 pb-2">
@@ -401,33 +429,6 @@ export default function ArchimedesMixerPage() {
                         </div>
                       </div>
                     </div>
-
-                    <div className="space-y-3">
-                      <Label className="text-xs">Số chữ số</Label>
-                      <Select value={cd4Settings.digits.toString()} onValueChange={(v) => setCd4Settings(s => ({ ...s, digits: parseInt(v) }))}>
-                        <SelectTrigger className="h-8"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="1">1 chữ số</SelectItem>
-                          <SelectItem value="2">2 chữ số</SelectItem>
-                          <SelectItem value="3">3 chữ số</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-3">
-                      <Label className="text-xs">Phép tính</Label>
-                      <Select value={cd4Settings.operation} onValueChange={(v) => setCd4Settings(s => ({ ...s, operation: v }))}>
-                        <SelectTrigger className="h-8"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="plus">Cộng (+)</SelectItem>
-                          <SelectItem value="minus">Trừ (-)</SelectItem>
-                          <SelectItem value="mixed">Trộn</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <Label className="text-xs">Có nhớ/mượn</Label>
-                      <Switch checked={cd4Settings.hasCarry} onCheckedChange={(v) => setCd4Settings(s => ({ ...s, hasCarry: v }))} />
-                    </div>
                   </PopoverContent>
                 </Popover>
               </div>
@@ -443,7 +444,6 @@ export default function ArchimedesMixerPage() {
                 <div key={batch.id} className="p-3 flex items-center justify-between">
                   <div className="space-y-0.5">
                     <div className="flex items-center gap-2"><span className="text-sm font-bold">{batch.topicTitle}</span><Badge variant="secondary" className="text-[9px] h-4">{batch.count} câu</Badge></div>
-                    <p className="text-[9px] text-muted-foreground truncate max-w-[200px]">Cấu hình: {batch.topicId === 4 ? `${batch.settings.digits} số, R:${batch.settings.rangeResult.max}` : 'Chuẩn'}</p>
                   </div>
                   <Button variant="ghost" size="icon" onClick={() => removeBatch(batch.id)} className="size-7 text-destructive"><Trash2 className="size-3" /></Button>
                 </div>
@@ -455,12 +455,13 @@ export default function ArchimedesMixerPage() {
         <div className="lg:col-span-7 space-y-4">
           <Card className="border-none shadow-2xl min-h-[700px] flex flex-col bg-white overflow-hidden">
             <CardHeader className="no-print border-b bg-muted/20 flex flex-row items-center justify-between">
-              <div><CardTitle className="text-xl flex items-center gap-2"><FileText className="size-5 text-primary" /> Xem trước đề thi</CardTitle></div>
-              {allProblems.length > 0 && <Button variant="outline" size="icon" onClick={() => setCart([])} className="rounded-full text-destructive"><Trash2 className="size-4" /></Button>}
+              <div><CardTitle className="text-xl flex items-center gap-2"><FileText className="size-5 text-primary" /> Xem trước phiếu bài tập</CardTitle></div>
+              {cart.length > 0 && <Button variant="outline" size="icon" onClick={() => setCart([])} className="rounded-full text-destructive"><Trash2 className="size-4" /></Button>}
             </CardHeader>
             <CardContent className="flex-1 p-0 relative">
-              {allProblems.length > 0 ? (
+              {cart.length > 0 ? (
                 <div className="p-10 print:p-0" ref={contentRef}>
+                  {/* MAIN TEST PAGE */}
                   <div className="print-only w-[210mm] min-h-[297mm] mx-auto p-[15mm] bg-white text-black font-sans relative">
                     <div className="flex justify-between items-start mb-10 border-b-2 border-blue-600 pb-6">
                       <div className="flex items-center gap-3">
@@ -472,43 +473,43 @@ export default function ArchimedesMixerPage() {
                         <p className="text-sm font-medium">Ngày: ...........................................................</p>
                       </div>
                     </div>
+                    
                     <div className="mb-12 text-center">
                       <h2 className="text-4xl font-black text-blue-600 mb-2 uppercase tracking-tight">Phiếu Bài Tập Tổng Hợp</h2>
-                      <p className="text-lg italic text-blue-400 font-medium">Thử thách vượt qua các bài toán tư duy nhé!</p>
+                      <p className="text-lg italic text-blue-400 font-medium">Thử thách vượt qua các chuyên đề toán tư duy!</p>
                     </div>
-                    <div className="grid grid-cols-2 gap-x-12 gap-y-12">
-                      <div className="space-y-10">{allProblems.slice(0, mid).map((res, idx) => <ProblemRow key={idx} index={idx + 1} problem={res} />)}</div>
-                      <div className="space-y-10">{allProblems.slice(mid).map((res, idx) => <ProblemRow key={idx} index={idx + 1 + mid} problem={res} />)}</div>
-                    </div>
-                    <div className="absolute bottom-[15mm] left-[15mm] right-[15mm]">
-                      <div className="flex justify-between items-end border-t border-gray-100 pt-8">
-                         <div className="space-y-4"><div className="inline-flex items-center gap-2 bg-green-50 text-green-700 px-6 py-2 rounded-full font-bold text-sm">🏆 Cố lên, bạn làm được mà!</div><p className="text-[10px] text-gray-400">© 2024 MathLab Educational Tools.</p></div>
-                         <div className="flex flex-col items-center gap-1"><QrCode className="size-10 text-gray-200" /><span className="text-[8px] text-gray-400 font-bold uppercase">Quét để xem đáp án</span></div>
-                      </div>
+
+                    <div className="space-y-12">
+                      {cart.map((batch, idx) => (
+                        <TopicSection key={batch.id} batch={batch} batchIdx={idx} />
+                      ))}
                     </div>
                   </div>
+
+                  {/* ANSWER KEY PAGE */}
                   {showAnswers && (
                     <div className="print-only w-[210mm] min-h-[297mm] mx-auto p-[15mm] bg-white text-black font-sans relative page-break">
-                       <div className="mb-10 border-b-2 border-red-600 pb-6"><h1 className="text-2xl font-black text-red-600 uppercase">Đáp Án Chi Tiết</h1></div>
-                       <div className="grid grid-cols-2 gap-x-12 gap-y-12">
-                          <div className="space-y-10">{allProblems.slice(0, mid).map((res, idx) => <ProblemRow key={idx} index={idx + 1} problem={res} isAnswer />)}</div>
-                          <div className="space-y-10">{allProblems.slice(mid).map((res, idx) => <ProblemRow key={idx} index={idx + 1 + mid} problem={res} isAnswer />)}</div>
+                       <div className="mb-10 border-b-2 border-red-600 pb-6">
+                          <h1 className="text-2xl font-black text-red-600 uppercase">Đáp Án Chi Tiết</h1>
+                       </div>
+                       <div className="space-y-12">
+                          {cart.map((batch, idx) => (
+                            <TopicSection key={batch.id} batch={batch} batchIdx={idx} isAnswer />
+                          ))}
                        </div>
                     </div>
                   )}
-                  <div className="no-print space-y-4 p-8">
-                     <div className="grid grid-cols-1 md:grid-cols-2 gap-y-12 gap-x-12">
-                        {allProblems.map((res, index) => (
-                           <div key={index} className="flex items-center gap-4 border-b border-dashed pb-8">
-                              <ProblemRow index={index + 1} problem={res} />
-                           </div>
-                        ))}
-                     </div>
+
+                  {/* WEB VIEW PREVIEW */}
+                  <div className="no-print space-y-12 p-8">
+                     {cart.map((batch, idx) => (
+                        <TopicSection key={batch.id} batch={batch} batchIdx={idx} />
+                     ))}
                   </div>
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center h-[600px] text-muted-foreground gap-6">
-                   <Sparkles className="size-16 text-primary/30 animate-pulse" /><p className="font-black text-2xl text-foreground text-center">Giỏ hàng đang trống!</p>
+                   <Sparkles className="size-16 text-primary/30 animate-pulse" /><p className="font-black text-2xl text-foreground text-center">Phiếu bài tập đang trống!</p>
                 </div>
               )}
             </CardContent>
