@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -19,7 +20,7 @@ import {
   Heart,
   ChevronDown
 } from "lucide-react"
-import { useReactToPrint } from "react-to-print"
+import { useReactToPrint } from "react-use-print"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -645,7 +646,7 @@ export default function ArchimedesMixerPage() {
                         />
                       </div>
                       <div className="text-center flex-1 px-4">
-                        <h1 className="text-2xl font-black text-primary tracking-tighter uppercase leading-tight italic">Phiếu Bài Tập Tổng Hợp</h1>
+                        <h1 className="text-2xl font-black text-primary tracking-tighter uppercase leading-tight italic">BƠ HỌC TOÁN</h1>
                         <p className="text-[10px] italic text-accent font-bold font-serif">Number Garden - Vũ trụ số học cho bé</p>
                       </div>
                       <div className="text-right space-y-1 pt-1 shrink-0 w-[160px]">

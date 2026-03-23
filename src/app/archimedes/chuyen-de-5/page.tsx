@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -27,6 +28,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { generateSequenceProblems } from "@/ai/flows/generate-sequence-problems"
 import { useToast } from "@/hooks/use-toast"
 import { Badge } from "@/components/ui/badge"
+import Image from "next/image"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 
@@ -220,7 +222,7 @@ export default function ChuyenDe5Page() {
             <CardHeader className="no-print border-b bg-muted/20 flex flex-row items-center justify-between">
               <div>
                 <CardTitle className="text-lg">Xem trước bài tập</CardTitle>
-                <CardDescription>Mẫu quy luật chuẩn MathLab.</CardDescription>
+                <CardDescription>Mẫu quy luật chuẩn BƠ HỌC TOÁN.</CardDescription>
               </div>
               {results.length > 0 && (
                 <Button onClick={() => handlePrint()} className="gap-2 bg-primary text-white font-bold">
@@ -236,11 +238,17 @@ export default function ChuyenDe5Page() {
                     <div className="print-only w-[210mm] min-h-[297mm] mx-auto p-[15mm] bg-white text-black font-sans relative">
                       <div className="flex justify-between items-start mb-10 border-b-2 border-primary pb-6">
                         <div className="flex items-center gap-3">
-                          <div className="p-2 bg-primary rounded-lg">
-                             <Calculator className="size-8 text-white" />
+                          <div className="p-2 bg-primary rounded-lg flex items-center justify-center overflow-hidden">
+                             <Image 
+                              src="https://storage.googleapis.com/demos-pipeline-artifacts-0f3d548b-3061-46c7-9857-e696cc86535d/image_15.png" 
+                              alt="Logo" 
+                              width={40} 
+                              height={40}
+                              className="object-contain"
+                            />
                           </div>
                           <div>
-                            <h1 className="text-3xl font-black text-primary leading-none italic uppercase">MathLab</h1>
+                            <h1 className="text-3xl font-black text-primary leading-none uppercase">BƠ HỌC TOÁN</h1>
                             <p className="text-[10px] text-accent font-bold uppercase tracking-wider mt-1">Number Garden Edition</p>
                           </div>
                         </div>

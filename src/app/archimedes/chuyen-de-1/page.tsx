@@ -30,6 +30,7 @@ import { useToast } from "@/hooks/use-toast"
 import { Badge } from "@/components/ui/badge"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
+import Image from "next/image"
 import Link from "next/link"
 
 const formSchema = z.object({
@@ -239,7 +240,7 @@ export default function ChuyenDe1Page() {
             <CardHeader className="no-print border-b bg-muted/20 flex flex-row items-center justify-between">
               <div>
                 <CardTitle className="text-lg">Xem trước bài tập</CardTitle>
-                <CardDescription>Bản thiết kế MathLab Number Garden.</CardDescription>
+                <CardDescription>Bản thiết kế BƠ HỌC TOÁN Number Garden.</CardDescription>
               </div>
               {problems.length > 0 && (
                 <div className="flex items-center gap-2">
@@ -261,14 +262,20 @@ export default function ChuyenDe1Page() {
                 <div className="p-8 print:p-0">
                   <div ref={contentRef}>
                     <div className="print-only w-[210mm] h-[297mm] mx-auto p-[15mm] bg-white text-black font-sans relative">
-                      <div className="flex justify-between items-start mb-10 border-b-2 border-blue-600 pb-6">
+                      <div className="flex justify-between items-start mb-10 border-b-2 border-primary pb-6">
                         <div className="flex items-center gap-3">
-                          <div className="p-2 bg-blue-600 rounded-lg">
-                            <Settings2 className="size-8 text-white" />
+                          <div className="p-2 bg-primary rounded-lg overflow-hidden flex items-center justify-center">
+                            <Image 
+                              src="https://storage.googleapis.com/demos-pipeline-artifacts-0f3d548b-3061-46c7-9857-e696cc86535d/image_15.png" 
+                              alt="Logo" 
+                              width={40} 
+                              height={40}
+                              className="object-contain"
+                            />
                           </div>
                           <div>
-                            <h1 className="text-3xl font-black text-blue-600 leading-none">MathLab</h1>
-                            <p className="text-[10px] text-blue-400 font-bold uppercase tracking-wider mt-1">Number Garden Edition</p>
+                            <h1 className="text-3xl font-black text-primary leading-none uppercase">BƠ HỌC TOÁN</h1>
+                            <p className="text-[10px] text-accent font-bold uppercase tracking-wider mt-1">Number Garden Edition</p>
                           </div>
                         </div>
                         <div className="text-right space-y-3 pt-2">
@@ -278,8 +285,8 @@ export default function ChuyenDe1Page() {
                       </div>
 
                       <div className="mb-12 text-center">
-                        <h2 className="text-4xl font-black text-blue-600 mb-2">Tìm số còn thiếu</h2>
-                        <p className="text-lg italic text-blue-400 font-medium">Thử thách điền số thích hợp vào chỗ trống nhé!</p>
+                        <h2 className="text-4xl font-black text-primary mb-2">Tìm số còn thiếu</h2>
+                        <p className="text-lg italic text-accent font-medium">Thử thách điền số thích hợp vào chỗ trống nhé!</p>
                       </div>
 
                       <div className="grid grid-cols-2 gap-x-16 gap-y-10">
@@ -292,26 +299,6 @@ export default function ChuyenDe1Page() {
                           {rightCol.map((prob, idx) => (
                              <ProblemRow key={idx} index={idx + 1 + mid} problem={prob} />
                           ))}
-                        </div>
-                      </div>
-
-                      <div className="absolute bottom-[15mm] left-[15mm] right-[15mm]">
-                        <div className="flex justify-between items-end border-t border-gray-100 pt-8">
-                           <div className="space-y-4">
-                              <div className="inline-flex items-center gap-2 bg-green-50 text-green-700 px-6 py-2 rounded-full font-bold text-sm">
-                                 <span className="text-lg">🏆</span>
-                                 Cố lên, bạn làm được mà!
-                              </div>
-                              <p className="text-[10px] text-gray-400">
-                                 © 2024 MathLab Educational Tools. Bản quyền thuộc về MathLab.
-                              </p>
-                           </div>
-                           <div className="flex flex-col items-center gap-1">
-                              <div className="size-16 border-2 border-gray-100 rounded-lg flex items-center justify-center">
-                                 <QrCode className="size-10 text-gray-200" />
-                              </div>
-                              <span className="text-[8px] text-gray-400 font-bold uppercase">Quét để xem đáp án</span>
-                           </div>
                         </div>
                       </div>
                     </div>
