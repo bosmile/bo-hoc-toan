@@ -5,7 +5,7 @@ import * as React from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
-import { Printer, RefreshCw, Settings2, Trash2, Calculator, Layers, QrCode } from "lucide-react"
+import { Printer, RefreshCw, Settings2, Trash2, Calculator, Layers, QrCode, PlusCircle } from "lucide-react"
 import { useReactToPrint } from "react-to-print"
 
 import { Button } from "@/components/ui/button"
@@ -30,6 +30,7 @@ import { useToast } from "@/hooks/use-toast"
 import { Badge } from "@/components/ui/badge"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
+import Link from "next/link"
 
 const formSchema = z.object({
   unknownVariable: z.enum(["A", "B", "C", "D"]),
@@ -128,6 +129,12 @@ export default function ChuyenDe1Page() {
             Dạng toán $A \pm B \pm C = D$ giúp bé rèn luyện tư duy tính toán trung gian.
           </p>
         </div>
+        <Button variant="outline" asChild className="gap-2">
+          <Link href="/archimedes">
+            <PlusCircle className="size-4" />
+            Vào Bộ trộn đề
+          </Link>
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -252,7 +259,6 @@ export default function ChuyenDe1Page() {
             <CardContent className="flex-1 p-0 relative">
               {problems.length > 0 ? (
                 <div className="p-8 print:p-0">
-                  {/* Container for Printing via react-to-print */}
                   <div ref={contentRef}>
                     <div className="print-only w-[210mm] h-[297mm] mx-auto p-[15mm] bg-white text-black font-sans relative">
                       <div className="flex justify-between items-start mb-10 border-b-2 border-blue-600 pb-6">
@@ -311,7 +317,6 @@ export default function ChuyenDe1Page() {
                     </div>
                   </div>
 
-                  {/* Browser Preview (No-Print) */}
                   <div className="no-print grid grid-cols-1 md:grid-cols-2 gap-8 p-6">
                     {problems.map((problem, index) => (
                       <div key={index} className="flex items-center gap-4 text-xl font-bold border-b border-dashed pb-4">

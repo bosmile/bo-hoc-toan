@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -14,7 +15,10 @@ import {
   ArrowRight,
   FileText,
   QrCode,
-  AlertCircle
+  AlertCircle,
+  X,
+  PlusCircle,
+  CheckCircle2
 } from "lucide-react"
 import { useReactToPrint } from "react-to-print"
 
@@ -25,7 +29,6 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Switch } from "@/components/ui/switch"
 import { Progress } from "@/components/ui/progress"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -34,41 +37,14 @@ import { generateMultiplicationProblems } from "@/ai/flows/generate-multiplicati
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
 
-type TopicConfig = {
-  id: number;
-  title: string;
-  formula: string;
+type QuestionBatch = {
+  id: string;
+  topicId: number;
+  topicTitle: string;
   count: number;
   settings: any;
-  enabled: boolean;
+  problems: { question: string, answer: string }[];
 };
-
-const initialTopics: TopicConfig[] = [
-  {
-    id: 1,
-    title: "Chuyên đề 1: Biểu thức ba số hạng",
-    formula: "A ± B ± C = D",
-    count: 10,
-    settings: {
-      unknownVariable: "D",
-      operationMode: "mixed",
-      maxRange: 20,
-    },
-    enabled: true,
-  },
-  {
-    id: 2,
-    title: "Chuyên đề 2: Phép nhân cơ bản",
-    formula: "A x B = C",
-    count: 10,
-    settings: {
-      tables: [2, 5, 10],
-      unknownVariable: "C",
-      shuffle: true,
-    },
-    enabled: true,
-  }
-];
 
 const ProblemRow = ({ index, problem, isAnswer = false }: { index: number, problem: string, isAnswer?: boolean }) => {
   const parts = problem.replace(/([+\-x=])/g, ' $1 ').replace(/\s+/g, ' ').trim().split(' ');
@@ -78,6 +54,11 @@ const ProblemRow = ({ index, problem, isAnswer = false }: { index: number, probl
       <span className="text-blue-600 font-sans w-6 text-right shrink-0">{index}.</span>
       <div className="flex items-center">
         {parts.map((part, i) => {
+          if (part === '_') {
+            return (
+              <div key={i} className="w-14 h-10 bg-blue-50 border-2 border-blue-100 rounded-md mx-1 shadow-inner shrink-0" />
+            );
+          }
           if (part === '=') return <span key={i} className="mx-2 text-blue-600">=</span>;
           if (part === 'x') return <span key={i} className="mx-2 text-blue-400">×</span>;
           if (part === '+' || part === '-') return <span key={i} className="mx-2 text-primary">{part}</span>;
@@ -90,24 +71,31 @@ const ProblemRow = ({ index, problem, isAnswer = false }: { index: number, probl
 };
 
 export default function ArchimedesMixerPage() {
-  const [topics, setTopics] = React.useState<TopicConfig[]>(initialTopics)
-  const [mixedResults, setMixedResults] = React.useState<{question: string, answer: string}[]>([])
+  const [cart, setCart] = React.useState<QuestionBatch[]>([])
   const [isLoading, setIsLoading] = React.useState(false)
   const [showAnswers, setShowAnswers] = React.useState(false)
+  
+  // Topic specific temporary settings
+  const [cd1Settings, setCd1Settings] = React.useState({
+    count: 5,
+    unknownVariable: "D" as "A" | "B" | "C" | "D",
+    operationMode: "mixed" as "plus" | "minus" | "mixed",
+    maxRange: 20
+  })
+
+  const [cd2Settings, setCd2Settings] = React.useState({
+    count: 5,
+    tables: [2, 5, 10],
+    unknownVariable: "C" as "A" | "B" | "C",
+    shuffle: true
+  })
+
   const { toast } = useToast()
 
   const contentRef = React.useRef<HTMLDivElement>(null)
   const handlePrint = useReactToPrint({ contentRef })
 
-  const updateTopicCount = (id: number, count: number) => {
-    setTopics(prev => prev.map(t => t.id === id ? { ...t, count: Math.max(0, count) } : t))
-  }
-
-  const updateTopicSetting = (id: number, key: string, value: any) => {
-    setTopics(prev => prev.map(t => t.id === id ? { ...t, settings: { ...t.settings, [key]: value } } : t))
-  }
-
-  const totalCount = topics.reduce((acc, t) => acc + (t.enabled ? t.count : 0), 0)
+  const totalCount = cart.reduce((acc, batch) => acc + batch.count, 0)
   const densityPercent = Math.min((totalCount / 20) * 100, 150)
   
   const getDensityColor = () => {
@@ -116,40 +104,56 @@ export default function ArchimedesMixerPage() {
     return "bg-primary";
   }
 
-  async function handleGenerateMixedTest() {
-    if (totalCount === 0) {
-      toast({ title: "Lỗi", description: "Vui lòng chọn ít nhất 1 câu hỏi.", variant: "destructive" })
-      return
-    }
+  const removeBatch = (id: string) => {
+    setCart(prev => prev.filter(b => b.id !== id))
+    toast({ title: "Đã xóa", description: "Đã xóa nhóm câu hỏi khỏi đề thi." })
+  }
 
+  async function addToExam(topicId: number) {
     setIsLoading(true)
     try {
-      const allProblems: {question: string, answer: string}[] = [];
+      let newBatch: QuestionBatch;
       
-      const cd1 = topics.find(t => t.id === 1 && t.enabled && t.count > 0)
-      if (cd1) {
+      if (topicId === 1) {
         const res = await generateArchimedesMathProblems({
-          ...cd1.settings,
-          numProblems: cd1.count,
-          rangeA: { min: 0, max: cd1.settings.maxRange },
-          rangeB: { min: 0, max: Math.floor(cd1.settings.maxRange / 2) },
-          rangeC: { min: 0, max: Math.floor(cd1.settings.maxRange / 2) },
-          rangeD: { min: 0, max: cd1.settings.maxRange * 2 },
+          unknownVariable: cd1Settings.unknownVariable,
+          operationMode: cd1Settings.operationMode,
+          numProblems: cd1Settings.count,
+          rangeA: { min: 0, max: cd1Settings.maxRange },
+          rangeB: { min: 0, max: Math.floor(cd1Settings.maxRange / 2) },
+          rangeC: { min: 0, max: Math.floor(cd1Settings.maxRange / 2) },
+          rangeD: { min: 0, max: cd1Settings.maxRange * 2 },
         })
-        allProblems.push(...res.problems.map(p => ({ question: p, answer: p.replace('_', '??') })))
-      }
-
-      const cd2 = topics.find(t => t.id === 2 && t.enabled && t.count > 0)
-      if (cd2) {
+        newBatch = {
+          id: Math.random().toString(36).substr(2, 9),
+          topicId: 1,
+          topicTitle: "Biểu thức 3 số",
+          count: cd1Settings.count,
+          settings: { ...cd1Settings },
+          problems: res.problems.map(p => ({ question: p, answer: p.replace('_', '??') })) // Answer logic placeholder
+        }
+      } else {
         const res = await generateMultiplicationProblems({
-          ...cd2.settings,
-          numProblems: cd2.count,
+          tables: cd2Settings.tables,
+          unknownVariable: cd2Settings.unknownVariable,
+          numProblems: cd2Settings.count,
+          shuffle: cd2Settings.shuffle
         })
-        allProblems.push(...res.problems)
+        newBatch = {
+          id: Math.random().toString(36).substr(2, 9),
+          topicId: 2,
+          topicTitle: "Phép nhân",
+          count: cd2Settings.count,
+          settings: { ...cd2Settings },
+          problems: res.problems
+        }
       }
 
-      setMixedResults(allProblems)
-      toast({ title: "Thành công!", description: `Đã tạo đề tổng hợp gồm ${allProblems.length} câu.` })
+      setCart(prev => [...prev, newBatch])
+      toast({ 
+        title: "Thành công!", 
+        description: `Đã thêm ${newBatch.count} câu vào giỏ hàng.` 
+      })
     } catch (error) {
       toast({ variant: "destructive", title: "Lỗi", description: "Không thể kết nối với AI." })
     } finally {
@@ -157,7 +161,8 @@ export default function ArchimedesMixerPage() {
     }
   }
 
-  const mid = Math.ceil(mixedResults.length / 2);
+  const allProblems = cart.flatMap(batch => batch.problems)
+  const mid = Math.ceil(allProblems.length / 2);
 
   return (
     <div className="space-y-8 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -165,11 +170,11 @@ export default function ArchimedesMixerPage() {
         <div className="space-y-4 flex-1">
           <div className="space-y-2">
             <Badge variant="outline" className="text-primary border-primary/20 bg-primary/5 px-3 py-1">
-              Archimedes Mixer v1.5
+              Archimedes Mixer v2.0
             </Badge>
-            <h1 className="text-4xl font-black tracking-tight text-primary">BỘ ĐIỀU PHỐI ĐỀ THI</h1>
+            <h1 className="text-4xl font-black tracking-tight text-primary">GIỎ HÀNG CÂU HỎI</h1>
             <p className="text-muted-foreground max-w-xl">
-              Tùy chỉnh và trộn các chuyên đề. Khuyến nghị: 20 câu để tối ưu trang in A4.
+              Chọn cấu hình từ các chuyên đề và "Thêm vào đề thi". Tổng 20 câu để tối ưu A4.
             </p>
           </div>
           
@@ -196,115 +201,159 @@ export default function ArchimedesMixerPage() {
           </div>
           <Button 
             size="lg" 
-            onClick={handleGenerateMixedTest} 
-            disabled={isLoading || totalCount === 0}
-            className="w-full gap-2 font-black py-7 text-lg shadow-xl"
+            onClick={() => handlePrint()} 
+            disabled={allProblems.length === 0}
+            className="w-full gap-2 font-black py-7 text-lg shadow-xl bg-primary"
           >
-            {isLoading ? <Layers className="animate-spin" /> : <Sparkles />}
-            {isLoading ? "ĐANG TRỘN ĐỀ..." : "TẠO ĐỀ TỔNG HỢP"}
+            <Printer className="size-5" />
+            IN ĐỀ TOÁN (A4)
           </Button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        <div className="lg:col-span-5 space-y-4 no-print">
+        <div className="lg:col-span-5 space-y-6 no-print">
           <h3 className="text-lg font-bold flex items-center gap-2 px-2 text-primary/80">
-            <Settings2 className="size-5" />
-            Cấu hình Chuyên đề
+            <PlusCircle className="size-5" />
+            Chọn chuyên đề
           </h3>
-          {topics.map((topic) => (
-            <Card key={topic.id} className={cn("border-none shadow-md overflow-hidden transition-all", !topic.enabled && "opacity-60 grayscale-[0.5]")}>
-              <div className={cn("h-1.5 w-full", topic.id === 1 ? "bg-primary" : "bg-accent")} />
-              <CardHeader className="p-5 pb-2">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <CardTitle className="text-base">{topic.title}</CardTitle>
-                    <CardDescription className="font-mono text-[10px] mt-1">{topic.formula}</CardDescription>
-                  </div>
+          
+          {/* CD1 Section */}
+          <Card className="border-none shadow-md overflow-hidden bg-white">
+            <div className="h-1.5 w-full bg-primary" />
+            <CardHeader className="p-5 pb-2">
+              <CardTitle className="text-base flex justify-between items-center">
+                Chuyên đề 1: Biểu thức 3 số
+                <Badge variant="outline" className="font-mono text-[10px]">A ± B ± C = D</Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-5 pt-2 space-y-4">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-2">
+                  <Label className="text-[10px] font-bold text-muted-foreground">SỐ CÂU:</Label>
+                  <Input 
+                    type="number" 
+                    value={cd1Settings.count} 
+                    onChange={(e) => setCd1Settings(s => ({ ...s, count: parseInt(e.target.value) || 0 }))}
+                    className="w-14 h-8 text-center font-bold"
+                  />
                 </div>
-              </CardHeader>
-              <CardContent className="p-5 pt-2 flex items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <Label className="text-xs font-bold text-muted-foreground">SỐ CÂU:</Label>
-                  <div className="flex items-center gap-1">
-                    <Button 
-                      variant="outline" 
-                      size="icon" 
-                      className="size-8 rounded-full"
-                      onClick={() => updateTopicCount(topic.id, topic.count - 1)}
-                      disabled={!topic.enabled || topic.count <= 0}
-                    >
-                      <Minus className="size-3" />
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="ghost" size="sm" className="gap-2 text-primary font-bold">
+                      <Settings2 className="size-4" /> Cấu hình
                     </Button>
-                    <Input 
-                      type="number" 
-                      value={topic.count} 
-                      onChange={(e) => updateTopicCount(topic.id, parseInt(e.target.value) || 0)}
-                      className="w-14 h-8 text-center font-bold"
-                      disabled={!topic.enabled}
-                    />
-                    <Button 
-                      variant="outline" 
-                      size="icon" 
-                      className="size-8 rounded-full"
-                      onClick={() => updateTopicCount(topic.id, topic.count + 1)}
-                      disabled={!topic.enabled}
-                    >
-                      <Plus className="size-3" />
-                    </Button>
-                  </div>
-                </div>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-80 space-y-4 p-6 shadow-2xl">
+                    <div className="space-y-3">
+                      <Label className="text-[10px] uppercase font-bold">Phạm vi số (Max)</Label>
+                      <Select value={cd1Settings.maxRange.toString()} onValueChange={(v) => setCd1Settings(s => ({ ...s, maxRange: parseInt(v) }))}>
+                        <SelectTrigger className="h-8"><SelectValue /></SelectTrigger>
+                        <SelectContent><SelectItem value="10">10</SelectItem><SelectItem value="20">20</SelectItem><SelectItem value="50">50</SelectItem></SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-3">
+                      <Label className="text-[10px] uppercase font-bold">Vị trí ẩn</Label>
+                      <Select value={cd1Settings.unknownVariable} onValueChange={(v: any) => setCd1Settings(s => ({ ...s, unknownVariable: v }))}>
+                        <SelectTrigger className="h-8"><SelectValue /></SelectTrigger>
+                        <SelectContent><SelectItem value="A">Ẩn A</SelectItem><SelectItem value="B">Ẩn B</SelectItem><SelectItem value="C">Ẩn C</SelectItem><SelectItem value="D">Ẩn D</SelectItem></SelectContent>
+                      </Select>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <Button onClick={() => addToExam(1)} disabled={isLoading} className="w-full gap-2 font-bold bg-primary/10 text-primary hover:bg-primary/20">
+                {isLoading ? <Layers className="size-4 animate-spin" /> : <PlusCircle className="size-4" />}
+                Thêm vào đề thi
+              </Button>
+            </CardContent>
+          </Card>
 
-                {topic.enabled && (
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="ghost" size="sm" className="gap-2 text-primary font-bold">
-                        <Settings2 className="size-4" />
-                        Cấu hình
+          {/* CD2 Section */}
+          <Card className="border-none shadow-md overflow-hidden bg-white">
+            <div className="h-1.5 w-full bg-accent" />
+            <CardHeader className="p-5 pb-2">
+              <CardTitle className="text-base flex justify-between items-center">
+                Chuyên đề 2: Phép nhân
+                <Badge variant="outline" className="font-mono text-[10px]">A x B = C</Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-5 pt-2 space-y-4">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-2">
+                  <Label className="text-[10px] font-bold text-muted-foreground">SỐ CÂU:</Label>
+                  <Input 
+                    type="number" 
+                    value={cd2Settings.count} 
+                    onChange={(e) => setCd2Settings(s => ({ ...s, count: parseInt(e.target.value) || 0 }))}
+                    className="w-14 h-8 text-center font-bold"
+                  />
+                </div>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="ghost" size="sm" className="gap-2 text-primary font-bold">
+                      <Settings2 className="size-4" /> Cấu hình
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-80 space-y-4 p-6 shadow-2xl">
+                    <div className="space-y-3">
+                      <Label className="text-[10px] uppercase font-bold">Bảng cửu chương</Label>
+                      <div className="grid grid-cols-4 gap-2">
+                        {[2,3,4,5,6,7,8,9].map(n => (
+                          <div key={n} className="flex items-center gap-1">
+                            <Checkbox 
+                              checked={cd2Settings.tables.includes(n)}
+                              onCheckedChange={(c) => {
+                                const next = c ? [...cd2Settings.tables, n] : cd2Settings.tables.filter(x => x !== n);
+                                setCd2Settings(s => ({ ...s, tables: next }));
+                              }}
+                            />
+                            <span className="text-xs">{n}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <Button onClick={() => addToExam(2)} disabled={isLoading} className="w-full gap-2 font-bold bg-accent/10 text-accent-foreground hover:bg-accent/20">
+                {isLoading ? <Layers className="size-4 animate-spin" /> : <PlusCircle className="size-4" />}
+                Thêm vào đề thi
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Cart Table */}
+          {cart.length > 0 && (
+            <div className="space-y-2 animate-in slide-in-from-left duration-300">
+              <h4 className="text-xs font-bold uppercase text-muted-foreground px-2">Nhóm câu hỏi đã thêm</h4>
+              <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
+                <div className="divide-y">
+                  {cart.map((batch) => (
+                    <div key={batch.id} className="p-3 flex items-center justify-between hover:bg-muted/30 transition-colors">
+                      <div className="space-y-0.5">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-bold">{batch.topicTitle}</span>
+                          <Badge variant="secondary" className="text-[9px] h-4">{batch.count} câu</Badge>
+                        </div>
+                        <p className="text-[9px] text-muted-foreground truncate max-w-[200px]">
+                          Vị trí ẩn: {batch.settings.unknownVariable}
+                        </p>
+                      </div>
+                      <Button variant="ghost" size="icon" onClick={() => removeBatch(batch.id)} className="size-7 text-destructive hover:bg-destructive/10">
+                        <Trash2 className="size-3" />
                       </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-80 space-y-4 p-6 shadow-2xl">
-                       {topic.id === 1 ? (
-                         <div className="space-y-3">
-                            <Label className="text-[10px] uppercase font-bold">Phạm vi số (Max)</Label>
-                            <Select 
-                              value={topic.settings.maxRange?.toString()} 
-                              onValueChange={(v) => updateTopicSetting(topic.id, "maxRange", parseInt(v))}
-                            >
-                              <SelectTrigger className="h-8"><SelectValue /></SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="10">10</SelectItem>
-                                <SelectItem value="20">20</SelectItem>
-                                <SelectItem value="50">50</SelectItem>
-                              </SelectContent>
-                            </Select>
-                         </div>
-                       ) : (
-                         <div className="space-y-3">
-                            <Label className="text-[10px] uppercase font-bold">Bảng cửu chương</Label>
-                            <div className="grid grid-cols-4 gap-2">
-                               {[2,3,4,5,6,7,8,9].map(n => (
-                                 <div key={n} className="flex items-center gap-1">
-                                    <Checkbox 
-                                      checked={topic.settings.tables?.includes(n)}
-                                      onCheckedChange={(c) => {
-                                        const curr = topic.settings.tables || [];
-                                        const next = c ? [...curr, n] : curr.filter((x: number) => x !== n);
-                                        updateTopicSetting(topic.id, "tables", next);
-                                      }}
-                                    />
-                                    <span className="text-xs">{n}</span>
-                                 </div>
-                               ))}
-                            </div>
-                         </div>
-                       )}
-                    </PopoverContent>
-                  </Popover>
-                )}
-              </CardContent>
-            </Card>
-          ))}
+                    </div>
+                  ))}
+                </div>
+                <div className="p-3 bg-muted/20 border-t text-center">
+                  <Button variant="ghost" size="sm" onClick={() => setCart([])} className="text-[10px] font-bold text-destructive">
+                    Xóa tất cả đề
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="lg:col-span-7 space-y-4">
@@ -317,20 +366,14 @@ export default function ArchimedesMixerPage() {
                 </CardTitle>
                 <CardDescription>Mật độ hiện tại: {totalCount}/20 câu.</CardDescription>
               </div>
-              {mixedResults.length > 0 && (
-                <div className="flex items-center gap-2">
-                  <Button onClick={() => handlePrint()} className="gap-2 bg-primary text-white font-bold">
-                    <Printer className="size-4" />
-                    In đề toán
-                  </Button>
-                  <Button variant="destructive" size="icon" onClick={() => setMixedResults([])} className="rounded-full">
-                    <Trash2 className="size-4" />
-                  </Button>
-                </div>
+              {allProblems.length > 0 && (
+                <Button variant="outline" size="icon" onClick={() => setCart([])} className="rounded-full text-destructive">
+                  <Trash2 className="size-4" />
+                </Button>
               )}
             </CardHeader>
             <CardContent className="flex-1 p-0 relative">
-              {mixedResults.length > 0 ? (
+              {allProblems.length > 0 ? (
                 <div className="p-10 print:p-0">
                   <div ref={contentRef}>
                     <div className="print-only w-[210mm] min-h-[297mm] mx-auto p-[15mm] bg-white text-black font-sans relative">
@@ -357,12 +400,12 @@ export default function ArchimedesMixerPage() {
 
                       <div className="grid grid-cols-2 gap-x-16 gap-y-10">
                         <div className="space-y-10">
-                          {mixedResults.slice(0, mid).map((res, idx) => (
+                          {allProblems.slice(0, mid).map((res, idx) => (
                              <ProblemRow key={idx} index={idx + 1} problem={res.question} />
                           ))}
                         </div>
                         <div className="space-y-10">
-                          {mixedResults.slice(mid).map((res, idx) => (
+                          {allProblems.slice(mid).map((res, idx) => (
                              <ProblemRow key={idx} index={idx + 1 + mid} problem={res.question} />
                           ))}
                         </div>
@@ -391,12 +434,12 @@ export default function ArchimedesMixerPage() {
                          </div>
                          <div className="grid grid-cols-2 gap-x-16 gap-y-8">
                             <div className="space-y-6">
-                              {mixedResults.slice(0, mid).map((res, idx) => (
+                              {allProblems.slice(0, mid).map((res, idx) => (
                                 <ProblemRow key={idx} index={idx + 1} problem={res.answer} isAnswer />
                               ))}
                             </div>
                             <div className="space-y-6">
-                              {mixedResults.slice(mid).map((res, idx) => (
+                              {allProblems.slice(mid).map((res, idx) => (
                                 <ProblemRow key={idx} index={idx + 1 + mid} problem={res.answer} isAnswer />
                               ))}
                             </div>
@@ -407,7 +450,7 @@ export default function ArchimedesMixerPage() {
 
                   <div className="no-print space-y-4 p-8">
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {mixedResults.map((res, index) => (
+                        {allProblems.map((res, index) => (
                            <div key={index} className="flex items-center gap-4 text-xl font-bold border-b border-dashed pb-4">
                               <span className="text-xs bg-primary/10 text-primary size-6 rounded-full flex items-center justify-center shrink-0">{index + 1}</span>
                               <div className="font-mono">{showAnswers ? res.answer : res.question}</div>
@@ -419,7 +462,10 @@ export default function ArchimedesMixerPage() {
               ) : (
                 <div className="flex flex-col items-center justify-center h-[600px] text-muted-foreground gap-6">
                    <Sparkles className="size-16 text-primary/30 animate-pulse" />
-                   <p className="font-black text-2xl text-foreground">Sẵn sàng để "Trộn Đề"?</p>
+                   <p className="font-black text-2xl text-foreground text-center">
+                     Giỏ hàng đang trống!<br/>
+                     <span className="text-sm font-normal text-muted-foreground">Hãy thêm câu hỏi từ menu bên trái.</span>
+                   </p>
                 </div>
               )}
             </CardContent>

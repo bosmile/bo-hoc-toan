@@ -1,10 +1,11 @@
+
 "use client"
 
 import * as React from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
-import { Printer, RefreshCw, Settings2, Trash2, Calculator, Sparkles, CheckCircle2 } from "lucide-react"
+import { Printer, RefreshCw, Settings2, Trash2, Calculator, Sparkles, CheckCircle2, PlusCircle } from "lucide-react"
 import { useReactToPrint } from "react-to-print"
 
 import { Button } from "@/components/ui/button"
@@ -29,7 +30,7 @@ import { useToast } from "@/hooks/use-toast"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
-import { cn } from "@/lib/utils"
+import Link from "next/link"
 
 const formSchema = z.object({
   tables: z.array(z.number()),
@@ -107,6 +108,12 @@ export default function ChuyenDe2Page() {
             Luyện tập bảng cửu chương và tìm thừa số chưa biết.
           </p>
         </div>
+        <Button variant="outline" asChild className="gap-2">
+          <Link href="/archimedes">
+            <PlusCircle className="size-4" />
+            Vào Bộ trộn đề
+          </Link>
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
