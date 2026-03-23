@@ -1,0 +1,17 @@
+
+{
+  "placeholderImages": [
+    {
+      "id": "hero-math",
+      "description": "A child happily learning math with colorful blocks",
+      "imageUrl": "https://picsum.photos/seed/math1/1200/600",
+      "imageHint": "child math"
+    },
+    {
+      "id": "avocado-mascot",
+      "description": "A cute avocado character holding a calculator",
+      "imageUrl": "https://picsum.photos/seed/avocado/400/400",
+      "imageHint": "avocado cartoon"
+    }
+  ]
+}
