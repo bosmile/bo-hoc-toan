@@ -14,6 +14,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormDescription,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { 
@@ -29,11 +30,15 @@ import { useToast } from "@/hooks/use-toast"
 import { Badge } from "@/components/ui/badge"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
 import Link from "next/link"
+import { cn } from "@/lib/utils"
 
 const formSchema = z.object({
   operation: z.enum(["plus", "minus", "mixed"]),
-  level: z.enum(["easy", "medium", "hard"]),
+  digits: z.coerce.number().min(1).max(3),
+  hasCarry: z.boolean(),
+  hideTarget: z.enum(["result", "operands", "mixed"]),
   numProblems: z.coerce.number().min(1).max(50),
 })
 
@@ -55,20 +60,16 @@ const VerticalProblem = ({ index, problem }: { index: number, problem: any }) =>
     <div className="flex items-start gap-4">
       <span className="text-blue-600 font-sans font-bold text-sm shrink-0 pt-2">{index}.</span>
       <div className="flex flex-col items-end gap-1 relative pt-2">
-        {/* Top Number */}
         <div className="flex gap-1">
           {topDigits.map((d: string, i: number) => <DigitBox key={i} digit={d} />)}
         </div>
-        {/* Bottom Number & Operator */}
         <div className="flex items-center gap-1">
-          <span className="text-2xl font-bold text-blue-500 mr-2">{problem.operator === '+' ? '+' : '-'}</span>
+          <span className="text-2xl font-bold text-blue-500 mr-2">{problem.operator}</span>
           <div className="flex gap-1">
             {bottomDigits.map((d: string, i: number) => <DigitBox key={i} digit={d} />)}
           </div>
         </div>
-        {/* Separator */}
         <div className="w-full h-1 bg-black rounded-full my-1" />
-        {/* Result */}
         <div className="flex gap-1">
           {resultDigits.map((d: string, i: number) => <DigitBox key={i} digit={d} />)}
         </div>
@@ -83,13 +84,17 @@ export default function ChuyenDe4Page() {
   const { toast } = useToast()
   
   const contentRef = React.useRef<HTMLDivElement>(null)
-  const handlePrint = useReactToPrint({ contentRef })
+  const handlePrint = useReactToPrint({ 
+    contentRef,
+  })
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      operation: "mixed",
-      level: "medium",
+      operation: "plus",
+      digits: 2,
+      hasCarry: false,
+      hideTarget: "mixed",
       numProblems: 20,
     },
   })
@@ -139,24 +144,6 @@ export default function ChuyenDe4Page() {
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                   <FormField
                     control={form.control}
-                    name="level"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Cấp độ thử thách</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
-                          <SelectContent>
-                            <SelectItem value="easy">Dễ (Ẩn 1 số, không nhớ/mượn)</SelectItem>
-                            <SelectItem value="medium">Trung bình (Ẩn 2 số, có nhớ/mượn)</SelectItem>
-                            <SelectItem value="hard">Khó (Ẩn nhiều số, suy luận logic)</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
                     name="operation"
                     render={({ field }) => (
                       <FormItem className="space-y-3">
@@ -181,6 +168,63 @@ export default function ChuyenDe4Page() {
                             </div>
                           </RadioGroup>
                         </FormControl>
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="digits"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Số chữ số</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value.toString()}>
+                          <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                          <SelectContent>
+                            <SelectItem value="1">1 chữ số</SelectItem>
+                            <SelectItem value="2">2 chữ số</SelectItem>
+                            <SelectItem value="3">3 chữ số</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="hasCarry"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                        <div className="space-y-0.5">
+                          <FormLabel>Có nhớ / Có mượn</FormLabel>
+                          <FormDescription className="text-[10px]">
+                            Bật để tạo các phép tính đòi hỏi kỹ thuật nhớ/mượn.
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="hideTarget"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Vị trí ô trống</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                          <SelectContent>
+                            <SelectItem value="result">Chỉ ở kết quả</SelectItem>
+                            <SelectItem value="operands">Chỉ ở số hạng</SelectItem>
+                            <SelectItem value="mixed">Hỗn hợp ngẫu nhiên</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </FormItem>
                     )}
                   />

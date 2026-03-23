@@ -1,6 +1,6 @@
 'use server';
 /**
- * @fileOverview A Genkit flow for generating vertical math problems with missing digits.
+ * @fileOverview A Genkit flow for generating vertical math problems with detailed digit control.
  *
  * - generateVerticalMathProblems - Generates vertical addition/subtraction problems.
  */
@@ -9,16 +9,18 @@ import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 
 const VerticalProblemSchema = z.object({
-  top: z.string().describe('First operand (2 digits), e.g., "4_" or "_5"'),
-  bottom: z.string().describe('Second operand (2 digits), e.g., "2_" or "18"'),
-  result: z.string().describe('The result (2 or 3 digits), e.g., "63" or "10_"'),
+  top: z.string().describe('First operand with underscores, e.g., "4_"'),
+  bottom: z.string().describe('Second operand with underscores, e.g., "2_"'),
+  result: z.string().describe('The result with underscores, e.g., "63"'),
   operator: z.enum(['+', '-']),
   fullEquation: z.string().describe('The complete equation for reference, e.g., "45 + 18 = 63"'),
 });
 
 const GenerateVerticalInputSchema = z.object({
   operation: z.enum(['plus', 'minus', 'mixed']),
-  level: z.enum(['easy', 'medium', 'hard']),
+  digits: z.number().int().min(1).max(3).default(2).describe('Number of digits for operands.'),
+  hasCarry: z.boolean().optional().describe('True for problems with carry/borrow, false for no carry/borrow.'),
+  hideTarget: z.enum(['result', 'operands', 'mixed']).default('mixed').describe('Where to place the underscores.'),
   numProblems: z.number().int().min(1).max(50).default(20),
 });
 
@@ -44,17 +46,23 @@ const verticalPrompt = ai.definePrompt({
 Generate {{numProblems}} unique problems.
 
 Rules:
-1. Range: All numbers (operands and results) must be between 10 and 99 (except results of addition can be up to 150).
-2. Difficulty Levels:
-   - easy: Hide 1 digit in either top or bottom number. No carry (for +) and no borrow (for -).
-   - medium: Hide 2 digits across top, bottom, or result. Simple carry/borrow allowed.
-   - hard: Hide multiple digits (3-4). Must involve carry/borrow to require logical deduction.
-3. Steps:
-   - Ensure the math is correct.
-   - Use '_' for hidden digits.
+1. Digits: Operands should have exactly {{digits}} digits.
+2. Operation: Use {{operation}} (+ for plus, - for minus, or mixed).
+3. Carry/Borrow Logic:
+   - If hasCarry is true:
+     - For Addition (+): Must involve at least one "carry" (sum of digits in a column >= 10).
+     - For Subtraction (-): Must involve at least one "borrow" (top digit < bottom digit in a column).
+   - If hasCarry is false:
+     - For Addition (+): No carries allowed (sum of digits in every column < 10).
+     - For Subtraction (-): No borrows allowed (top digit >= bottom digit in every column).
+4. Hide Target Strategy:
+   - If hideTarget is 'result': Only hide digits in the result (bottom number). Operands are full.
+   - If hideTarget is 'operands': Only hide digits in the top and bottom operands. Result is full.
+   - If hideTarget is 'mixed': Hide digits randomly across top, bottom, and result.
+5. Difficulty/Logic:
    - For '-' operations, ensure top >= bottom.
-4. Output: Return an array of objects with top, bottom, result, operator, and fullEquation.
-   Example for 45 + 18 = 63 (Hard): top: "4_", bottom: "_8", result: "6_", operator: "+"`,
+   - Use '_' for hidden digits. Hide 1-2 digits per problem depending on {{digits}}.
+6. Output: Return an array of objects with top, bottom, result, operator, and fullEquation.`,
 });
 
 const generateVerticalMathProblemsFlow = ai.defineFlow(
