@@ -383,7 +383,6 @@ export default function ArchimedesMixerPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div className="lg:col-span-5 space-y-6 no-print">
-          {/* Chuyên đề Selection Cards (same as before but updated primary) */}
           {[
             { id: 1, title: "CĐ1: Biểu thức 3 số", color: "bg-primary", icon: Calculator, settings: cd1Settings, setter: setCd1Settings },
             { id: 2, title: "CĐ2: Phép nhân", color: "bg-accent", icon: Sparkles, settings: cd2Settings, setter: setCd2Settings },
@@ -418,7 +417,6 @@ export default function ArchimedesMixerPage() {
                               ))}
                            </div>
                         )}
-                        {/* Other settings same as previous implementations */}
                       </div>
                     </PopoverContent>
                   </Popover>
@@ -454,9 +452,7 @@ export default function ArchimedesMixerPage() {
             <CardContent className="flex-1 p-0 relative">
               {cart.length > 0 ? (
                 <div className="p-10 print:p-0" ref={contentRef}>
-                  {/* MAIN TEST PAGE */}
                   <div className="print-only w-[210mm] min-h-[297mm] mx-auto p-[15mm] bg-white text-black font-sans relative overflow-hidden">
-                    {/* Watermark */}
                     <div className="watermark">BƠ HỌC TOÁN</div>
                     <div className="absolute top-[40%] left-[20%] opacity-[0.03] pointer-events-none rotate-12">
                        <Heart className="size-[400px]" />
@@ -464,14 +460,14 @@ export default function ArchimedesMixerPage() {
 
                     <div className="flex justify-between items-start mb-12 border-b-4 border-primary pb-8">
                       <div className="flex items-center gap-5">
-                        <div className="size-20 rounded-full border-4 border-primary/20 flex items-center justify-center overflow-hidden bg-white">
+                        <div className="size-24 rounded-full border-4 border-primary/20 flex items-center justify-center overflow-hidden bg-white shadow-sm">
                            <Image 
-                            src="https://picsum.photos/seed/bo-logo/400/400" 
+                            src="https://storage.googleapis.com/demos-pipeline-artifacts-0f3d548b-3061-46c7-9857-e696cc86535d/image_15.png" 
                             alt="Logo" 
-                            width={80} 
-                            height={80}
-                            className="object-cover"
-                            data-ai-hint="child logo"
+                            width={96} 
+                            height={96}
+                            className="object-contain p-1"
+                            data-ai-hint="bo math logo"
                           />
                         </div>
                         <div>
@@ -496,7 +492,6 @@ export default function ArchimedesMixerPage() {
                       ))}
                     </div>
 
-                    {/* Footer Signature */}
                     <div className="absolute bottom-[10mm] left-[15mm] right-[15mm] border-t-2 border-primary/5 pt-6 flex justify-between items-end opacity-50">
                        <p className="text-[10px] font-bold text-primary">© 2024 BƠ HỌC TOÁN - NUMBER GARDEN EDITION</p>
                        <div className="flex items-center gap-2">
@@ -506,7 +501,6 @@ export default function ArchimedesMixerPage() {
                     </div>
                   </div>
 
-                  {/* ANSWER KEY PAGE */}
                   {showAnswers && (
                     <div className="print-only w-[210mm] min-h-[297mm] mx-auto p-[15mm] bg-white text-black font-sans relative page-break overflow-hidden">
                        <div className="mb-12 border-b-4 border-destructive pb-8">
@@ -520,7 +514,6 @@ export default function ArchimedesMixerPage() {
                     </div>
                   )}
 
-                  {/* WEB VIEW PREVIEW */}
                   <div className="no-print space-y-16 p-10 bg-slate-50/30">
                      {cart.map((batch, idx) => (
                         <TopicSection key={batch.id} batch={batch} batchIdx={idx} />

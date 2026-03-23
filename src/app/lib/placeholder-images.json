@@ -2,6 +2,12 @@
 {
   "placeholderImages": [
     {
+      "id": "bo-logo-main",
+      "description": "Logo chính thức Bơ Học Toán - Number Garden Edition",
+      "imageUrl": "https://storage.googleapis.com/demos-pipeline-artifacts-0f3d548b-3061-46c7-9857-e696cc86535d/image_15.png",
+      "imageHint": "bo math logo"
+    },
+    {
       "id": "hero-math",
       "description": "A child happily learning math with colorful blocks",
       "imageUrl": "https://picsum.photos/seed/math1/1200/600",

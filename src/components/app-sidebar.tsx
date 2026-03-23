@@ -8,7 +8,6 @@ import { usePathname } from "next/navigation"
 import { 
   Home, 
   Calculator, 
-  BrainCircuit,
   Settings,
   List,
   Scale,
@@ -50,19 +49,19 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" className="border-r border-primary/10">
       <SidebarHeader className="border-b px-4 py-6 bg-primary/5">
         <Link href="/" className="flex items-center gap-3">
-          <div className="flex aspect-square size-10 items-center justify-center rounded-full bg-white shadow-sm overflow-hidden border-2 border-primary/20">
+          <div className="flex aspect-square size-12 items-center justify-center rounded-full bg-white shadow-sm overflow-hidden border-2 border-primary/20 shrink-0">
              <Image 
-                src="https://picsum.photos/seed/bo-logo/200/200" 
+                src="https://storage.googleapis.com/demos-pipeline-artifacts-0f3d548b-3061-46c7-9857-e696cc86535d/image_15.png" 
                 alt="Logo" 
-                width={40} 
-                height={40}
-                className="object-cover"
-                data-ai-hint="child logo"
+                width={48} 
+                height={48}
+                className="object-contain p-0.5"
+                data-ai-hint="bo math logo"
               />
           </div>
-          <div className="flex flex-col gap-0.5 leading-none">
-            <span className="font-black text-lg text-primary tracking-tighter uppercase">BƠ HỌC TOÁN</span>
-            <span className="text-[9px] text-accent font-bold uppercase tracking-wider">Number Garden Edition</span>
+          <div className="flex flex-col gap-0.5 leading-none overflow-hidden">
+            <span className="font-black text-lg text-primary tracking-tighter uppercase truncate">BƠ HỌC TOÁN</span>
+            <span className="text-[8px] text-accent font-bold uppercase tracking-wider truncate">Number Garden Edition</span>
           </div>
         </Link>
       </SidebarHeader>
