@@ -104,7 +104,7 @@ const VerticalProblemRow = ({ index, problem, isAnswer = false }: { index: numbe
 };
 
 const ProblemRow = ({ index, problem, isAnswer = false }: { index: number, problem: any, isAnswer?: boolean }) => {
-  // Check if it's a vertical problem (object format or question field as object)
+  // Check if it's a vertical problem
   if (problem.question && typeof problem.question === 'object') {
      return <VerticalProblemRow index={index} problem={isAnswer ? problem : problem.question} isAnswer={isAnswer} />;
   }
@@ -151,7 +151,16 @@ export default function ArchimedesMixerPage() {
   const [cd1Settings, setCd1Settings] = React.useState({ count: 5, unknownVariable: "D" as any, operationMode: "mixed" as any, maxRange: 20 })
   const [cd2Settings, setCd2Settings] = React.useState({ count: 5, tables: [2, 5, 10], unknownVariable: "C" as any, shuffle: true })
   const [cd3Settings, setCd3Settings] = React.useState({ count: 5, level: "1" as any, maxRange: 20, operationMode: "mixed" as any })
-  const [cd4Settings, setCd4Settings] = React.useState({ count: 5, operation: "plus" as any, digits: 2, hasCarry: false, hideTarget: "mixed" as any })
+  const [cd4Settings, setCd4Settings] = React.useState({ 
+    count: 5, 
+    operation: "plus" as any, 
+    digits: 2, 
+    hasCarry: false, 
+    hideTarget: "mixed" as any,
+    rangeN1: { min: 0, max: 99 },
+    rangeN2: { min: 0, max: 99 },
+    rangeResult: { min: 0, max: 99 }
+  })
 
   const { toast } = useToast()
   const contentRef = React.useRef<HTMLDivElement>(null)
@@ -195,7 +204,10 @@ export default function ArchimedesMixerPage() {
           digits: cd4Settings.digits, 
           hasCarry: cd4Settings.hasCarry, 
           hideTarget: cd4Settings.hideTarget, 
-          numProblems: cd4Settings.count 
+          numProblems: cd4Settings.count,
+          rangeN1: cd4Settings.rangeN1,
+          rangeN2: cd4Settings.rangeN2,
+          rangeResult: cd4Settings.rangeResult
         })
         newBatch = { id: Math.random().toString(36).substr(2, 9), topicId: 4, topicTitle: "Tính hàng dọc", count: cd4Settings.count, settings: { ...cd4Settings }, problems: res.problems.map(p => ({ question: p, answer: p })) }
       }
@@ -356,7 +368,34 @@ export default function ArchimedesMixerPage() {
                 </div>
                 <Popover>
                   <PopoverTrigger asChild><Button variant="ghost" size="sm" className="gap-2 text-primary font-bold"><Settings2 className="size-4" /> Cấu hình</Button></PopoverTrigger>
-                  <PopoverContent className="w-64 p-4 space-y-4">
+                  <PopoverContent className="w-80 p-4 space-y-4">
+                    <div className="space-y-4">
+                      <Label className="text-xs font-bold uppercase text-muted-foreground">Phạm vi số học</Label>
+                      <div className="space-y-3">
+                        <div className="space-y-1">
+                          <Label className="text-[10px]">Số hạng 1 (Min - Max)</Label>
+                          <div className="flex items-center gap-2">
+                            <Input type="number" value={cd4Settings.rangeN1.min} onChange={(e) => setCd4Settings(s => ({ ...s, rangeN1: { ...s.rangeN1, min: parseInt(e.target.value) || 0 } }))} className="h-7 text-xs" />
+                            <Input type="number" value={cd4Settings.rangeN1.max} onChange={(e) => setCd4Settings(s => ({ ...s, rangeN1: { ...s.rangeN1, max: parseInt(e.target.value) || 0 } }))} className="h-7 text-xs" />
+                          </div>
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-[10px]">Số hạng 2 (Min - Max)</Label>
+                          <div className="flex items-center gap-2">
+                            <Input type="number" value={cd4Settings.rangeN2.min} onChange={(e) => setCd4Settings(s => ({ ...s, rangeN2: { ...s.rangeN2, min: parseInt(e.target.value) || 0 } }))} className="h-7 text-xs" />
+                            <Input type="number" value={cd4Settings.rangeN2.max} onChange={(e) => setCd4Settings(s => ({ ...s, rangeN2: { ...s.rangeN2, max: parseInt(e.target.value) || 0 } }))} className="h-7 text-xs" />
+                          </div>
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-[10px]">Kết quả (Min - Max)</Label>
+                          <div className="flex items-center gap-2">
+                            <Input type="number" value={cd4Settings.rangeResult.min} onChange={(e) => setCd4Settings(s => ({ ...s, rangeResult: { ...s.rangeResult, min: parseInt(e.target.value) || 0 } }))} className="h-7 text-xs" />
+                            <Input type="number" value={cd4Settings.rangeResult.max} onChange={(e) => setCd4Settings(s => ({ ...s, rangeResult: { ...s.rangeResult, max: parseInt(e.target.value) || 0 } }))} className="h-7 text-xs" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
                     <div className="space-y-3">
                       <Label className="text-xs">Số chữ số</Label>
                       <Select value={cd4Settings.digits.toString()} onValueChange={(v) => setCd4Settings(s => ({ ...s, digits: parseInt(v) }))}>
@@ -383,17 +422,6 @@ export default function ArchimedesMixerPage() {
                       <Label className="text-xs">Có nhớ/mượn</Label>
                       <Switch checked={cd4Settings.hasCarry} onCheckedChange={(v) => setCd4Settings(s => ({ ...s, hasCarry: v }))} />
                     </div>
-                    <div className="space-y-3">
-                      <Label className="text-xs">Vị trí ô trống</Label>
-                      <Select value={cd4Settings.hideTarget} onValueChange={(v) => setCd4Settings(s => ({ ...s, hideTarget: v }))}>
-                        <SelectTrigger className="h-8"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="result">Kết quả</SelectItem>
-                          <SelectItem value="operands">Số hạng</SelectItem>
-                          <SelectItem value="mixed">Hỗn hợp</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
                   </PopoverContent>
                 </Popover>
               </div>
@@ -409,7 +437,7 @@ export default function ArchimedesMixerPage() {
                 <div key={batch.id} className="p-3 flex items-center justify-between">
                   <div className="space-y-0.5">
                     <div className="flex items-center gap-2"><span className="text-sm font-bold">{batch.topicTitle}</span><Badge variant="secondary" className="text-[9px] h-4">{batch.count} câu</Badge></div>
-                    <p className="text-[9px] text-muted-foreground truncate max-w-[200px]">Cấu hình: {batch.topicId === 4 ? `${batch.settings.digits} số, ${batch.settings.hasCarry ? 'có nhớ' : 'ko nhớ'}` : 'Chuẩn'}</p>
+                    <p className="text-[9px] text-muted-foreground truncate max-w-[200px]">Cấu hình: {batch.topicId === 4 ? `${batch.settings.digits} số, R:${batch.settings.rangeResult.max}` : 'Chuẩn'}</p>
                   </div>
                   <Button variant="ghost" size="icon" onClick={() => removeBatch(batch.id)} className="size-7 text-destructive"><Trash2 className="size-3" /></Button>
                 </div>

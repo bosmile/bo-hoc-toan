@@ -8,6 +8,11 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 
+const VariableRangeSchema = z.object({
+  min: z.number().int().min(0).describe('The minimum value (inclusive).'),
+  max: z.number().int().min(0).describe('The maximum value (inclusive).'),
+}).describe('Min/Max range configuration.');
+
 const VerticalProblemSchema = z.object({
   top: z.string().describe('First operand with underscores, e.g., "4_"'),
   bottom: z.string().describe('Second operand with underscores, e.g., "2_"'),
@@ -22,6 +27,9 @@ const GenerateVerticalInputSchema = z.object({
   hasCarry: z.boolean().optional().describe('True for problems with carry/borrow, false for no carry/borrow.'),
   hideTarget: z.enum(['result', 'operands', 'mixed']).default('mixed').describe('Where to place the underscores.'),
   numProblems: z.number().int().min(1).max(50).default(20),
+  rangeN1: VariableRangeSchema.optional().describe('Range for the first operand.'),
+  rangeN2: VariableRangeSchema.optional().describe('Range for the second operand.'),
+  rangeResult: VariableRangeSchema.optional().describe('Range for the final result (Sum or Difference).'),
 });
 
 export type GenerateVerticalInput = z.infer<typeof GenerateVerticalInputSchema>;
@@ -43,7 +51,12 @@ const verticalPrompt = ai.definePrompt({
   input: { schema: GenerateVerticalInputSchema },
   output: { schema: GenerateVerticalOutputSchema },
   prompt: `You are a math teacher creating "Missing Digit" vertical problems for primary students.
-Generate {{numProblems}} unique problems.
+Generate exactly {{numProblems}} unique problems.
+
+Arithmetic Constraints (STRICT):
+{{#if rangeN1}}- Operand 1 (N1): [{{rangeN1.min}}, {{rangeN1.max}}]{{/if}}
+{{#if rangeN2}}- Operand 2 (N2): [{{rangeN2.min}}, {{rangeN2.max}}]{{/if}}
+{{#if rangeResult}}- Result: [{{rangeResult.min}}, {{rangeResult.max}}]{{/if}}
 
 Rules:
 1. Digits: Operands should have exactly {{digits}} digits.

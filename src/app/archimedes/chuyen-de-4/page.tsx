@@ -34,12 +34,20 @@ import { Switch } from "@/components/ui/switch"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 
+const rangeSchema = z.object({
+  min: z.coerce.number().min(0),
+  max: z.coerce.number().min(0),
+})
+
 const formSchema = z.object({
   operation: z.enum(["plus", "minus", "mixed"]),
   digits: z.coerce.number().min(1).max(3),
   hasCarry: z.boolean(),
   hideTarget: z.enum(["result", "operands", "mixed"]),
   numProblems: z.coerce.number().min(1).max(50),
+  rangeN1: rangeSchema,
+  rangeN2: rangeSchema,
+  rangeResult: rangeSchema,
 })
 
 const DigitBox = ({ digit }: { digit: string }) => {
@@ -96,6 +104,9 @@ export default function ChuyenDe4Page() {
       hasCarry: false,
       hideTarget: "mixed",
       numProblems: 20,
+      rangeN1: { min: 0, max: 99 },
+      rangeN2: { min: 0, max: 99 },
+      rangeResult: { min: 0, max: 99 },
     },
   })
 
@@ -142,6 +153,57 @@ export default function ChuyenDe4Page() {
             <CardContent className="pt-6">
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                  {/* Phạm vi số học nâng cao */}
+                  <div className="space-y-4">
+                    <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                      Ràng buộc phạm vi số học
+                    </Label>
+                    
+                    <div className="space-y-3 p-3 rounded-lg border bg-muted/5">
+                      <div className="space-y-2">
+                        <Label className="text-[11px]">Số hạng 1 (Min - Max)</Label>
+                        <div className="flex items-center gap-2">
+                          <FormField control={form.control} name="rangeN1.min" render={({ field }) => (
+                            <FormControl><Input type="number" className="h-8" {...field} /></FormControl>
+                          )} />
+                          <span className="text-muted-foreground">-</span>
+                          <FormField control={form.control} name="rangeN1.max" render={({ field }) => (
+                            <FormControl><Input type="number" className="h-8" {...field} /></FormControl>
+                          )} />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-[11px]">Số hạng 2 (Min - Max)</Label>
+                        <div className="flex items-center gap-2">
+                          <FormField control={form.control} name="rangeN2.min" render={({ field }) => (
+                            <FormControl><Input type="number" className="h-8" {...field} /></FormControl>
+                          )} />
+                          <span className="text-muted-foreground">-</span>
+                          <FormField control={form.control} name="rangeN2.max" render={({ field }) => (
+                            <FormControl><Input type="number" className="h-8" {...field} /></FormControl>
+                          )} />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-[11px]">Kết quả (Min - Max)</Label>
+                        <div className="flex items-center gap-2">
+                          <FormField control={form.control} name="rangeResult.min" render={({ field }) => (
+                            <FormControl><Input type="number" className="h-8" {...field} /></FormControl>
+                          )} />
+                          <span className="text-muted-foreground">-</span>
+                          <FormField control={form.control} name="rangeResult.max" render={({ field }) => (
+                            <FormControl><Input type="number" className="h-8" {...field} /></FormControl>
+                          )} />
+                        </div>
+                      </div>
+                      <p className="text-[10px] text-muted-foreground italic">
+                        * Ví dụ: Để tạo phép cộng phạm vi 30, đặt Kết quả Max = 30.
+                      </p>
+                    </div>
+                  </div>
+
                   <FormField
                     control={form.control}
                     name="operation"
