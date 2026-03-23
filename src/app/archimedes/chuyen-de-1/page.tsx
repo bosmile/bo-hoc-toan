@@ -117,6 +117,17 @@ export default function ChuyenDe1Page() {
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      {/* Floating Print Button according to sample */}
+      {problems.length > 0 && (
+        <Button 
+          onClick={() => window.print()} 
+          className="no-print fixed right-6 top-[55%] -translate-y-1/2 z-50 gap-3 rounded-full shadow-2xl px-6 py-7 bg-primary hover:bg-primary/90 text-white font-black text-sm transition-all hover:scale-105 active:scale-95"
+        >
+          <Printer className="size-5" />
+          In trang này
+        </Button>
+      )}
+
       <div className="no-print flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div className="space-y-1">
           <Badge variant="outline" className="text-primary border-primary/20 bg-primary/5">Toán Archimedes</Badge>
@@ -124,14 +135,6 @@ export default function ChuyenDe1Page() {
           <p className="text-muted-foreground max-w-2xl">
             Dạng toán $A \pm B \pm C = D$ giúp bé rèn luyện tư duy tính toán trung gian.
           </p>
-        </div>
-        <div className="flex items-center gap-2">
-          {problems.length > 0 && (
-            <Button variant="outline" onClick={() => window.print()} className="gap-2">
-              <Printer className="size-4" />
-              In bài tập (PDF)
-            </Button>
-          )}
         </div>
       </div>
 

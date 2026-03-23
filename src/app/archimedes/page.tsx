@@ -149,6 +149,17 @@ export default function ArchimedesMixerPage() {
 
   return (
     <div className="space-y-8 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      {/* Floating Print Button according to sample */}
+      {mixedProblems.length > 0 && (
+        <Button 
+          onClick={() => window.print()} 
+          className="no-print fixed right-6 top-[55%] -translate-y-1/2 z-50 gap-3 rounded-full shadow-2xl px-6 py-7 bg-primary hover:bg-primary/90 text-white font-black text-sm transition-all hover:scale-105 active:scale-95"
+        >
+          <Printer className="size-5" />
+          In trang này
+        </Button>
+      )}
+
       {/* Header Section */}
       <div className="no-print flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 rounded-3xl shadow-sm border">
         <div className="space-y-2">
@@ -323,10 +334,6 @@ export default function ArchimedesMixerPage() {
                 <div className="flex gap-2">
                   <Button variant="destructive" size="icon" onClick={() => setMixedProblems([])} className="rounded-full">
                     <Trash2 className="size-4" />
-                  </Button>
-                  <Button onClick={() => window.print()} className="gap-2 rounded-full font-bold">
-                    <Printer className="size-4" />
-                    In đề (PDF)
                   </Button>
                 </div>
               )}
