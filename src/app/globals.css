@@ -59,10 +59,12 @@
     padding: 0 !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+    line-height: 1.3 !important; /* Thu gọn giãn dòng toàn cục */
+    font-size: 12pt !important;
   }
 
   .print-container {
-    padding: 10mm;
+    padding: 5mm; /* Giảm padding container để chứa nhiều nội dung hơn */
     min-height: 257mm;
     display: flex;
     flex-direction: column;
@@ -85,6 +87,16 @@
 
   .page-break {
     page-break-before: always;
+  }
+
+  /* Tối ưu hóa khoảng cách khi in */
+  .topic-section-header {
+    margin-bottom: 2mm !important;
+  }
+  
+  .topic-instruction {
+    margin-top: 1mm !important;
+    margin-bottom: 3mm !important;
   }
 }
 
