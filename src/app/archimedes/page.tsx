@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -63,12 +64,19 @@ const ComparisonBox = () => (
 const DigitBox = ({ digit, isAnswer = false }: { digit: string, isAnswer?: boolean }) => {
   if (digit === '_') {
     return (
-      <div className="size-10 bg-blue-50 border-2 border-blue-200 rounded-md shadow-inner flex items-center justify-center" />
+      <div className="size-9 bg-blue-50 border border-blue-200 rounded-md shadow-inner flex items-center justify-center relative overflow-hidden">
+         <div className="absolute inset-0 opacity-10 pointer-events-none" 
+          style={{ 
+            backgroundImage: 'linear-gradient(#3b82f6 1px, transparent 1px), linear-gradient(90deg, #3b82f6 1px, transparent 1px)',
+            backgroundSize: '8px 8px' 
+          }} 
+        />
+      </div>
     );
   }
   return (
     <div className={cn(
-      "size-10 flex items-center justify-center font-mono text-2xl font-bold",
+      "size-9 flex items-center justify-center font-mono text-xl font-bold",
       isAnswer && "text-red-500 underline decoration-dotted"
     )}>
       {digit}
@@ -82,21 +90,19 @@ const VerticalProblemRow = ({ index, problem, isAnswer = false }: { index: numbe
   const resultDigits = (isAnswer ? problem.fullEquation.split(' ')[4] : problem.result).split('');
 
   return (
-    <div className="flex items-start gap-4">
-      <span className="text-blue-600 font-sans font-bold text-sm shrink-0 pt-2">{index}.</span>
-      <div className="flex flex-col items-end gap-1 relative pt-2">
+    <div className="flex items-start gap-2">
+      <span className="text-blue-600 font-sans font-bold text-[10px] shrink-0 pt-3">{index}.</span>
+      <div className="flex flex-col items-end gap-1 relative pt-2 pr-2">
+        <span className="absolute left-[-20px] top-[54px] text-xl font-bold text-blue-500">{problem.operator}</span>
         <div className="flex gap-1">
-          {topDigits.map((d: string, i: number) => <DigitBox key={i} digit={d} isAnswer={isAnswer && problem.top[i] === '_'} />)}
+          {topDigits.map((d: string, i: number) => <DigitBox key={i} digit={d} isAnswer={isAnswer && (isAnswer ? problem.top[i] === '_' : false)} />)}
         </div>
-        <div className="flex items-center gap-1">
-          <span className="text-2xl font-bold text-blue-500 mr-2">{problem.operator}</span>
-          <div className="flex gap-1">
-            {bottomDigits.map((d: string, i: number) => <DigitBox key={i} digit={d} isAnswer={isAnswer && problem.bottom[i] === '_'} />)}
-          </div>
-        </div>
-        <div className="w-full h-1 bg-black rounded-full my-1" />
         <div className="flex gap-1">
-          {resultDigits.map((d: string, i: number) => <DigitBox key={i} digit={d} isAnswer={isAnswer && problem.result[i] === '_'} />)}
+          {bottomDigits.map((d: string, i: number) => <DigitBox key={i} digit={d} isAnswer={isAnswer && (isAnswer ? problem.bottom[i] === '_' : false)} />)}
+        </div>
+        <div className="w-full h-[1.5px] bg-black my-0.5" />
+        <div className="flex gap-1">
+          {resultDigits.map((d: string, i: number) => <DigitBox key={i} digit={d} isAnswer={isAnswer && (isAnswer ? problem.result[i] === '_' : false)} />)}
         </div>
       </div>
     </div>
@@ -230,7 +236,7 @@ export default function ArchimedesMixerPage() {
         <div className="space-y-4 flex-1">
           <div className="space-y-2">
             <Badge variant="outline" className="text-primary border-primary/20 bg-primary/5 px-3 py-1">Archimedes Mixer v2.5</Badge>
-            <h1 className="text-4xl font-black tracking-tight text-primary uppercase">Bộ Trộn Đề Archimedes</h1>
+            <h1 className="text-4xl font-black tracking-tight text-primary uppercase leading-none">Bộ Trộn Đề Archimedes</h1>
             <p className="text-muted-foreground max-w-xl">Chọn cấu hình từ các chuyên đề và "Thêm vào đề thi". Tổng 20 câu để tối ưu A4.</p>
           </div>
           <div className="max-w-md space-y-2">
@@ -459,7 +465,7 @@ export default function ArchimedesMixerPage() {
                     <div className="flex justify-between items-start mb-10 border-b-2 border-blue-600 pb-6">
                       <div className="flex items-center gap-3">
                         <div className="p-2 bg-blue-600 rounded-lg"><Settings2 className="size-8 text-white" /></div>
-                        <div><h1 className="text-3xl font-black text-blue-600 leading-none">MathLab</h1><p className="text-[10px] text-blue-400 font-bold uppercase tracking-wider mt-1">Number Garden Edition</p></div>
+                        <div><h1 className="text-3xl font-black text-blue-600 leading-none tracking-tight">MathLab</h1><p className="text-[10px] text-blue-400 font-bold uppercase tracking-wider mt-1">Number Garden Edition</p></div>
                       </div>
                       <div className="text-right space-y-3 pt-2">
                         <p className="text-sm font-medium">Họ và tên: .....................................................</p>
@@ -467,7 +473,7 @@ export default function ArchimedesMixerPage() {
                       </div>
                     </div>
                     <div className="mb-12 text-center">
-                      <h2 className="text-4xl font-black text-blue-600 mb-2 uppercase">Phiếu Bài Tập Tổng Hợp</h2>
+                      <h2 className="text-4xl font-black text-blue-600 mb-2 uppercase tracking-tight">Phiếu Bài Tập Tổng Hợp</h2>
                       <p className="text-lg italic text-blue-400 font-medium">Thử thách vượt qua các bài toán tư duy nhé!</p>
                     </div>
                     <div className="grid grid-cols-2 gap-x-12 gap-y-12">
@@ -491,7 +497,7 @@ export default function ArchimedesMixerPage() {
                     </div>
                   )}
                   <div className="no-print space-y-4 p-8">
-                     <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-y-12 gap-x-12">
                         {allProblems.map((res, index) => (
                            <div key={index} className="flex items-center gap-4 border-b border-dashed pb-8">
                               <ProblemRow index={index + 1} problem={res} />

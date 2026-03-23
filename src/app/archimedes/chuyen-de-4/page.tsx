@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -53,10 +54,17 @@ const formSchema = z.object({
 const DigitBox = ({ digit }: { digit: string }) => {
   if (digit === '_') {
     return (
-      <div className="size-10 bg-blue-50 border-2 border-blue-200 rounded-md shadow-inner flex items-center justify-center" />
+      <div className="size-9 bg-blue-50 border border-blue-200 rounded-md shadow-inner flex items-center justify-center relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10 pointer-events-none" 
+          style={{ 
+            backgroundImage: 'linear-gradient(#3b82f6 1px, transparent 1px), linear-gradient(90deg, #3b82f6 1px, transparent 1px)',
+            backgroundSize: '8px 8px' 
+          }} 
+        />
+      </div>
     );
   }
-  return <div className="size-10 flex items-center justify-center font-mono text-2xl font-bold">{digit}</div>;
+  return <div className="size-9 flex items-center justify-center font-mono text-xl font-bold">{digit}</div>;
 };
 
 const VerticalProblem = ({ index, problem }: { index: number, problem: any }) => {
@@ -65,19 +73,19 @@ const VerticalProblem = ({ index, problem }: { index: number, problem: any }) =>
   const resultDigits = problem.result.split('');
 
   return (
-    <div className="flex items-start gap-4">
-      <span className="text-blue-600 font-sans font-bold text-sm shrink-0 pt-2">{index}.</span>
-      <div className="flex flex-col items-end gap-1 relative pt-2">
+    <div className="flex items-start gap-2">
+      <span className="text-blue-600 font-sans font-bold text-[10px] shrink-0 pt-3">{index}.</span>
+      <div className="flex flex-col items-end gap-1 relative pt-2 pr-2">
+        {/* Operator positioned to the left of the bottom number */}
+        <span className="absolute left-[-20px] top-[54px] text-xl font-bold text-blue-500">{problem.operator}</span>
+        
         <div className="flex gap-1">
           {topDigits.map((d: string, i: number) => <DigitBox key={i} digit={d} />)}
         </div>
-        <div className="flex items-center gap-1">
-          <span className="text-2xl font-bold text-blue-500 mr-2">{problem.operator}</span>
-          <div className="flex gap-1">
-            {bottomDigits.map((d: string, i: number) => <DigitBox key={i} digit={d} />)}
-          </div>
+        <div className="flex gap-1">
+          {bottomDigits.map((d: string, i: number) => <DigitBox key={i} digit={d} />)}
         </div>
-        <div className="w-full h-1 bg-black rounded-full my-1" />
+        <div className="w-full h-[1.5px] bg-black my-0.5" />
         <div className="flex gap-1">
           {resultDigits.map((d: string, i: number) => <DigitBox key={i} digit={d} />)}
         </div>
@@ -349,11 +357,11 @@ export default function ChuyenDe4Page() {
                       </div>
 
                       <div className="mb-12 text-center">
-                        <h2 className="text-4xl font-black text-blue-600 mb-2 uppercase">Thử thách hàng dọc</h2>
+                        <h2 className="text-4xl font-black text-blue-600 mb-2 uppercase tracking-tight">Thử thách hàng dọc</h2>
                         <p className="text-lg italic text-blue-400 font-medium">Tìm các chữ số còn thiếu để hoàn thành phép tính nhé!</p>
                       </div>
 
-                      <div className="grid grid-cols-4 gap-y-12 gap-x-8">
+                      <div className="grid grid-cols-5 gap-y-12 gap-x-4">
                         {results.map((prob, idx) => (
                            <VerticalProblem key={idx} index={idx + 1} problem={prob} />
                         ))}
@@ -379,7 +387,7 @@ export default function ChuyenDe4Page() {
                     </div>
                   </div>
 
-                  <div className="no-print grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 p-6">
+                  <div className="no-print grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-y-10 gap-x-6 p-6">
                     {results.map((prob, idx) => (
                        <VerticalProblem key={idx} index={idx + 1} problem={prob} />
                     ))}
