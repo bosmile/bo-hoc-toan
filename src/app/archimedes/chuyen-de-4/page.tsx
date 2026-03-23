@@ -104,9 +104,9 @@ export default function ChuyenDe4Page() {
       hasCarry: false,
       hideTarget: "mixed",
       numProblems: 20,
-      rangeN1: { min: 0, max: 99 },
-      rangeN2: { min: 0, max: 99 },
-      rangeResult: { min: 0, max: 99 },
+      rangeN1: { min: 10, max: 99 },
+      rangeN2: { min: 10, max: 99 },
+      rangeResult: { min: 0, max: 198 },
     },
   })
 
@@ -153,7 +153,6 @@ export default function ChuyenDe4Page() {
             <CardContent className="pt-6">
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                  {/* Phạm vi số học nâng cao */}
                   <div className="space-y-4">
                     <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
                       Ràng buộc phạm vi số học
@@ -209,7 +208,7 @@ export default function ChuyenDe4Page() {
                     name="operation"
                     render={({ field }) => (
                       <FormItem className="space-y-3">
-                        <FormLabel>Loại phép tính</FormLabel>
+                        <FormLabel>Loại phép tính (Strict)</FormLabel>
                         <FormControl>
                           <RadioGroup
                             onValueChange={field.onChange}

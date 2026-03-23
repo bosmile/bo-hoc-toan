@@ -53,28 +53,33 @@ const verticalPrompt = ai.definePrompt({
   prompt: `You are a math teacher creating "Missing Digit" vertical problems for primary students.
 Generate exactly {{numProblems}} unique problems.
 
+STRICT OPERATOR RULE:
+- If operation is 'plus', you MUST ONLY use the '+' operator.
+- If operation is 'minus', you MUST ONLY use the '-' operator.
+- If operation is 'mixed', you can use both '+' and '-'.
+
 Arithmetic Constraints (STRICT):
 {{#if rangeN1}}- Operand 1 (N1): [{{rangeN1.min}}, {{rangeN1.max}}]{{/if}}
 {{#if rangeN2}}- Operand 2 (N2): [{{rangeN2.min}}, {{rangeN2.max}}]{{/if}}
 {{#if rangeResult}}- Result: [{{rangeResult.min}}, {{rangeResult.max}}]{{/if}}
 
 Rules:
-1. Digits: Operands should have exactly {{digits}} digits.
-2. Operation: Use {{operation}} (+ for plus, - for minus, or mixed).
+1. Digits: Operands N1 and N2 should have exactly {{digits}} digits.
+2. Operator: Use only {{operation}} (+ for plus, - for minus, or mixed).
 3. Carry/Borrow Logic:
    - If hasCarry is true:
-     - For Addition (+): Must involve at least one "carry" (sum of digits in a column >= 10).
-     - For Subtraction (-): Must involve at least one "borrow" (top digit < bottom digit in a column).
+     - For Addition (+): Must involve at least one "carry" (column sum >= 10).
+     - For Subtraction (-): Must involve at least one "borrow" (top digit < bottom digit).
    - If hasCarry is false:
-     - For Addition (+): No carries allowed (sum of digits in every column < 10).
-     - For Subtraction (-): No borrows allowed (top digit >= bottom digit in every column).
-4. Hide Target Strategy:
-   - If hideTarget is 'result': Only hide digits in the result (bottom number). Operands are full.
-   - If hideTarget is 'operands': Only hide digits in the top and bottom operands. Result is full.
-   - If hideTarget is 'mixed': Hide digits randomly across top, bottom, and result.
-5. Difficulty/Logic:
-   - For '-' operations, ensure top >= bottom.
-   - Use '_' for hidden digits. Hide 1-2 digits per problem depending on {{digits}}.
+     - For Addition (+): NO carries allowed.
+     - For Subtraction (-): NO borrows allowed.
+4. Hide Target Strategy (STRICT COMPLIANCE):
+   - If hideTarget is 'result': ONLY hide digits in the 'result' field. 'top' and 'bottom' MUST BE COMPLETE NUMBERS.
+   - If hideTarget is 'operands': ONLY hide digits in 'top' and 'bottom'. 'result' MUST BE A COMPLETE NUMBER.
+   - If hideTarget is 'mixed': Randomly hide digits across all fields.
+5. Mathematical Validity:
+   - For '-' operations, ensure top >= bottom (N1 >= N2).
+   - Use '_' for hidden digits. Hide exactly 1-2 digits per problem.
 6. Output: Return an array of objects with top, bottom, result, operator, and fullEquation.`,
 });
 
