@@ -5,7 +5,7 @@ import * as React from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
-import { Printer, RefreshCw, Send, Settings2, Trash2, CheckCircle2 } from "lucide-react"
+import { Printer, RefreshCw, Send, Settings2, Trash2, CheckCircle2, Calculator } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
