@@ -1,14 +1,10 @@
-
 "use client"
 
 import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { 
-  BookOpen, 
-  ChevronRight, 
   Home, 
-  LayoutDashboard, 
   Calculator, 
   BrainCircuit,
   Settings,
@@ -20,39 +16,28 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
-  SidebarGroupContent,
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import { cn } from "@/lib/utils"
 
 const navigation = {
   archimedes: {
     title: "Toán Archimedes",
-    icon: Calculator,
-    url: "/archimedes",
     chapters: [
       { title: "Mục lục chính", url: "/archimedes", icon: List },
-      { title: "Chuyên đề 1: A ± B ± C = D", url: "/archimedes/chuyen-de-1", icon: Calculator },
-      { title: "Chuyên đề 2: Tìm x", url: "/archimedes/chuyen-de-2", icon: Calculator },
-      { title: "Chuyên đề 3: Logic", url: "/archimedes/chuyen-de-3", icon: Calculator },
+      { title: "CĐ1: Biểu thức 3 số", url: "/archimedes/chuyen-de-1", icon: Calculator },
+      { title: "CĐ2: Phép nhân", url: "/archimedes/chuyen-de-2", icon: Calculator },
     ],
   },
   singapore: {
     title: "Toán Singapore",
-    icon: BrainCircuit,
-    url: "/singapore",
     chapters: [
       { title: "Mục lục chính", url: "/singapore", icon: List },
       { title: "Chuyên đề 1", url: "/singapore/chuyen-de-1", icon: BrainCircuit },
-      { title: "Chuyên đề 2", url: "/singapore/chuyen-de-2", icon: BrainCircuit },
     ],
   },
 }
@@ -132,7 +117,7 @@ export function AppSidebar() {
       <SidebarFooter className="border-t p-4">
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <Settings className="size-4" />
-          <span>V1.0.0 Stable</span>
+          <span>V1.5.0 Stable</span>
         </div>
       </SidebarFooter>
       <SidebarRail />
