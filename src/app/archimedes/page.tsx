@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -66,11 +67,12 @@ const ComparisonBox = () => (
 const SequenceBox = ({ value, isAnswer = false }: { value: string, isAnswer?: boolean }) => {
   const isBlank = value === '_';
   return (
-    <div className={`size-11 flex items-center justify-center border-2 font-mono text-xl font-bold shadow-sm ${
+    <div className={cn(
+      "size-11 flex items-center justify-center border-2 font-mono text-xl font-bold shadow-sm",
       isBlank 
         ? "bg-blue-50/50 border-blue-200 rounded-lg shadow-inner relative overflow-hidden" 
-        : "bg-white border-gray-300 rounded-md"
-    } ${isAnswer && isBlank ? "text-red-500 underline decoration-dotted" : ""}`}>
+        : "bg-white border-gray-300 rounded-md text-slate-700"
+    )}>
       {isBlank && (
         <div className="absolute inset-0 opacity-10 pointer-events-none" 
           style={{ 
@@ -79,7 +81,9 @@ const SequenceBox = ({ value, isAnswer = false }: { value: string, isAnswer?: bo
           }} 
         />
       )}
-      {isAnswer && isBlank ? "?" : (isBlank ? "" : value)}
+      {isAnswer && isBlank ? (
+        <span className="text-red-500 underline decoration-dotted decoration-red-200 underline-offset-4 font-black">?</span>
+      ) : (isBlank ? "" : value)}
     </div>
   );
 };
@@ -94,6 +98,7 @@ const DigitBox = ({ digit, isAnswer = false }: { digit: string, isAnswer?: boole
             backgroundSize: '8px 8px' 
           }} 
         />
+        {isAnswer && <span className="text-red-500 font-black text-sm">?</span>}
       </div>
     );
   }
@@ -134,22 +139,59 @@ const VerticalProblemRow = ({ index, problem, isAnswer = false }: { index: numbe
 
 const ProblemRow = ({ index, problem, isAnswer = false }: { index: number, problem: any, isAnswer?: boolean }) => {
   if (problem.grid) {
+     const gridNumbers = problem.grid.filter((v: string) => v !== '_').map(Number);
+     const knownNumbers = Array.from(new Set(gridNumbers));
+     
      return (
-        <div className="col-span-full space-y-4 py-6 border-b border-dashed border-blue-50 break-inside-avoid">
+        <div className="col-span-full space-y-6 py-8 border-b border-dashed border-blue-100 break-inside-avoid">
            <div className="space-y-1">
-              <p className="font-black text-blue-700">Câu {index}: Điền số theo quy luật chu kỳ</p>
-              <p className="text-xs text-gray-600 font-medium italic">{problem.instruction}</p>
+              <p className="text-xl font-black text-blue-700 tracking-tight flex items-center gap-3">
+                <span className="size-8 rounded-full bg-blue-700 text-white flex items-center justify-center text-sm">Câu {index}</span>
+                Điền số theo quy luật chu kỳ
+              </p>
+              <p className="text-sm font-medium text-slate-600 italic">{problem.instruction}</p>
            </div>
-           <div className="flex flex-wrap gap-1">
+           
+           <div className="flex flex-wrap gap-1.5 p-1 bg-slate-50/30 rounded-xl border border-slate-100/50">
               {problem.grid.map((val: string, i: number) => (
                  <SequenceBox key={i} value={val} isAnswer={isAnswer} />
               ))}
            </div>
-           <div className="mt-4 pt-4 border-2 border-dashed border-blue-100 rounded-xl p-5 bg-blue-50/10">
-              <p className="text-[10px] text-blue-400 font-bold uppercase tracking-widest mb-10 flex items-center gap-2">✍️ Phần trình bày của em:</p>
-              <div className="space-y-4 pb-2">
-                <div className="h-px w-full border-t border-dotted border-gray-300" />
-                <div className="h-px w-full border-t border-dotted border-gray-300" />
+           
+           <div className="mt-6 pt-6 border-2 border-dashed border-blue-100 rounded-3xl p-6 bg-blue-50/5">
+              <p className="text-xs font-black text-blue-400 uppercase tracking-[0.2em] mb-8">✍️ Phần trình bày của em:</p>
+              
+              <div className="space-y-6">
+                <div className="flex items-center gap-2 text-lg font-medium text-slate-500 italic font-serif">
+                  <span>Ta có:</span>
+                  {knownNumbers.map((num: any, idx: number) => (
+                    <React.Fragment key={idx}>
+                      <span className="text-slate-700 font-bold not-italic">{num}</span>
+                      <span className="mx-1">+</span>
+                    </React.Fragment>
+                  ))}
+                  <div className="size-8 border-2 border-dashed border-blue-200 rounded flex items-center justify-center bg-white shadow-sm shrink-0">
+                    {isAnswer ? (
+                      <span className="text-red-500 font-black text-sm">?</span>
+                    ) : (
+                      <span className="text-blue-100 text-xs">?</span>
+                    )}
+                  </div>
+                  <span className="mx-1">=</span>
+                  <span className="text-slate-700 font-bold not-italic">{problem.cycleSum}</span>
+                  <span className="ml-2">nên số còn thiếu là:</span>
+                  <span className={cn(
+                    "min-w-[100px] border-b-2 border-dotted border-slate-400 pb-1 text-center font-bold font-sans",
+                    isAnswer && "text-red-500 not-italic"
+                  )}>
+                    {isAnswer ? "XEM ĐÁP ÁN" : ""}
+                  </span>
+                </div>
+                
+                <div className="space-y-5 pb-2">
+                  <div className="h-px w-full border-t border-dotted border-slate-300" />
+                  <div className="h-px w-full border-t border-dotted border-slate-300" />
+                </div>
               </div>
            </div>
         </div>
@@ -168,9 +210,9 @@ const ProblemRow = ({ index, problem, isAnswer = false }: { index: number, probl
       <div className="flex items-center gap-4 text-xl font-bold font-mono py-2 break-inside-avoid">
         <span className="text-blue-600 font-sans w-6 text-right shrink-0">{index}.</span>
         <div className="flex items-center">
-          <span className="whitespace-nowrap">{parts[0].trim()}</span>
+          <span className="whitespace-nowrap text-slate-700">{parts[0].trim()}</span>
           <ComparisonBox />
-          <span className="whitespace-nowrap">{parts[1].trim()}</span>
+          <span className="whitespace-nowrap text-slate-700">{parts[1].trim()}</span>
         </div>
       </div>
     );
@@ -188,7 +230,7 @@ const ProblemRow = ({ index, problem, isAnswer = false }: { index: number, probl
           if (part === '=') return <span key={i} className="mx-2 text-blue-600">=</span>;
           if (part === 'x') return <span key={i} className="mx-2 text-blue-400">×</span>;
           if (part === '+' || part === '-') return <span key={i} className="mx-2 text-primary">{part}</span>;
-          return <span key={i} className={cn("mx-1", isAnswer && "text-red-500 underline decoration-dotted")}>{part}</span>;
+          return <span key={i} className={cn("mx-1 text-slate-700", isAnswer && "text-red-500 underline decoration-dotted decoration-red-200 underline-offset-4 font-black")}>{part}</span>;
         })}
       </div>
     </div>
@@ -213,10 +255,10 @@ const TopicSection = ({ batch, batchIdx, isAnswer = false }: { batch: QuestionBa
   return (
     <div className="mb-12 break-inside-avoid-page">
       <div className="mb-6">
-        <h3 className="text-xl font-black text-blue-700 uppercase tracking-tight">
+        <h3 className="text-2xl font-black text-blue-700 uppercase tracking-tight">
           Bài {batchIdx + 1}: {batch.topicTitle}
         </h3>
-        <p className="text-sm italic text-gray-600 font-medium">
+        <p className="text-sm italic text-slate-600 font-medium font-serif mt-1">
           ({getInstruction(batch.topicId)})
         </p>
       </div>
@@ -329,6 +371,11 @@ export default function ArchimedesMixerPage() {
               <span className={cn(totalCount > 20 && "text-destructive", totalCount === 20 && "text-green-600")}>{totalCount}/20 câu</span>
             </div>
             <Progress value={densityPercent} className="h-2" indicatorClassName={getDensityColor()} />
+            {totalCount % 2 !== 0 && (
+               <div className="flex items-center gap-1 text-[10px] text-orange-500 font-bold">
+                  <AlertCircle className="size-3" /> Cảnh báo: Số câu lẻ sẽ làm lệch bố cục 2 cột.
+               </div>
+            )}
           </div>
         </div>
         <div className="flex flex-col gap-3 min-w-[240px]">

@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -28,6 +29,7 @@ import { generateSequenceProblems } from "@/ai/flows/generate-sequence-problems"
 import { useToast } from "@/hooks/use-toast"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
+import { cn } from "@/lib/utils"
 
 const formSchema = z.object({
   cycleLength: z.coerce.number().min(3).max(4),
@@ -38,11 +40,12 @@ const formSchema = z.object({
 const SequenceBox = ({ value }: { value: string }) => {
   const isBlank = value === '_';
   return (
-    <div className={`size-11 flex items-center justify-center border-2 font-mono text-xl font-bold shadow-sm ${
+    <div className={cn(
+      "size-11 flex items-center justify-center border-2 font-mono text-xl font-bold shadow-sm transition-all",
       isBlank 
         ? "bg-blue-50/50 border-blue-200 rounded-lg shadow-inner relative overflow-hidden" 
-        : "bg-white border-gray-300 rounded-md"
-    }`}>
+        : "bg-white border-gray-300 rounded-md text-slate-700"
+    )}>
       {isBlank ? (
         <div className="absolute inset-0 opacity-10 pointer-events-none" 
           style={{ 
@@ -56,35 +59,58 @@ const SequenceBox = ({ value }: { value: string }) => {
 };
 
 const SequenceProblem = ({ index, problem }: { index: number, problem: any }) => {
+  // Identify the known numbers from the grid to build the hint
+  const gridNumbers = problem.grid.filter((v: string) => v !== '_').map(Number);
+  const knownNumbers = Array.from(new Set(gridNumbers));
+  
   return (
-    <div className="space-y-6 break-inside-avoid py-6">
+    <div className="space-y-6 break-inside-avoid py-8">
       <div className="space-y-2">
-        <h3 className="text-xl font-black text-blue-700 tracking-tight">
-          Bài {index}: Điền số theo quy luật chu kỳ
+        <h3 className="text-xl font-black text-blue-700 tracking-tight flex items-center gap-3">
+          <span className="size-8 rounded-full bg-blue-700 text-white flex items-center justify-center text-sm">Bài {index}</span>
+          Điền số theo quy luật chu kỳ
         </h3>
-        <p className="text-sm font-medium text-gray-700">
+        <p className="text-sm font-medium text-slate-600 leading-relaxed italic">
           {problem.instruction}
         </p>
       </div>
 
-      <div className="flex flex-wrap gap-1">
+      <div className="flex flex-wrap gap-1.5 p-1 bg-slate-50/50 rounded-xl border border-slate-100">
         {problem.grid.map((val: string, i: number) => (
           <SequenceBox key={i} value={val} />
         ))}
       </div>
 
-      <div className="mt-8 pt-4 border-2 border-dashed border-blue-100 rounded-2xl p-6 bg-blue-50/10">
-        <p className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-10 flex items-center gap-2">
+      <div className="mt-8 pt-6 border-2 border-dashed border-blue-100 rounded-3xl p-8 bg-blue-50/5">
+        <p className="text-xs font-black text-blue-500 uppercase tracking-[0.2em] mb-8 flex items-center gap-2">
           <span className="text-xl">✍️</span> Phần trình bày của em:
         </p>
-        <div className="space-y-6 pb-2">
-          <div className="h-px w-full border-t border-dotted border-gray-400" />
-          <div className="h-px w-full border-t border-dotted border-gray-400" />
-          <div className="h-px w-full border-t border-dotted border-gray-400" />
+        
+        <div className="space-y-8">
+          {/* Guided Hint Line */}
+          <div className="flex items-center gap-2 text-lg font-medium text-slate-500 italic font-serif">
+            <span>Ta có:</span>
+            {knownNumbers.map((num: any, idx: number) => (
+              <React.Fragment key={idx}>
+                <span className="text-slate-700 font-bold not-italic">{num}</span>
+                <span className="mx-1">+</span>
+              </React.Fragment>
+            ))}
+            <div className="size-8 border-2 border-dashed border-blue-200 rounded flex items-center justify-center bg-white shadow-sm shrink-0">
+               <span className="text-blue-200 text-xs">?</span>
+            </div>
+            <span className="mx-1">=</span>
+            <span className="text-slate-700 font-bold not-italic">{problem.cycleSum}</span>
+            <span className="ml-2">nên số còn thiếu là:</span>
+            <span className="min-w-[80px] border-b-2 border-dotted border-slate-400"></span>
+          </div>
+
+          {/* Dotted lines for further writing */}
+          <div className="space-y-6 pb-2">
+            <div className="h-px w-full border-t border-dotted border-slate-300" />
+            <div className="h-px w-full border-t border-dotted border-slate-300" />
+          </div>
         </div>
-        <p className="mt-4 text-[10px] text-gray-400 italic text-right">
-          (Gợi ý: Ta có ... + ... + ... = ... nên số còn thiếu là ...)
-        </p>
       </div>
     </div>
   );
@@ -127,7 +153,7 @@ export default function ChuyenDe5Page() {
           <Badge variant="outline" className="text-primary border-primary/20 bg-primary/5">Toán Archimedes</Badge>
           <h1 className="text-3xl font-bold tracking-tight text-primary uppercase">Chuyên đề 5: Quy luật dãy số chu kỳ</h1>
           <p className="text-muted-foreground max-w-2xl">
-            Tìm số hạng khuyết dựa trên tính chất tổng không đổi của các chu kỳ liên tiếp.
+            Sử dụng tính chất tổng không đổi của chu kỳ để tìm các số còn thiếu lẩn trốn trong dãy.
           </p>
         </div>
         <Button variant="outline" asChild className="gap-2">
@@ -204,7 +230,7 @@ export default function ChuyenDe5Page() {
             <CardHeader className="no-print border-b bg-muted/20 flex flex-row items-center justify-between">
               <div>
                 <CardTitle className="text-lg">Xem trước bài tập</CardTitle>
-                <CardDescription>Bố cục quy luật chuẩn MathLab.</CardDescription>
+                <CardDescription>Mẫu quy luật chuẩn MathLab.</CardDescription>
               </div>
               {results.length > 0 && (
                 <Button onClick={() => handlePrint()} className="gap-2 bg-primary text-white font-bold">
@@ -234,7 +260,7 @@ export default function ChuyenDe5Page() {
                         <p className="text-lg italic text-blue-400 font-medium font-serif">Tìm các con số đang lẩn trốn trong dãy số nhé!</p>
                       </div>
 
-                      <div className="space-y-16">
+                      <div className="space-y-12">
                         {results.map((prob, idx) => (
                            <SequenceProblem key={idx} index={idx + 1} problem={prob} />
                         ))}
