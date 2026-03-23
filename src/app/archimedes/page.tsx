@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as React from "react"
@@ -21,7 +20,8 @@ import {
   CheckCircle2,
   Scale,
   Columns2,
-  List
+  List,
+  ListOrdered
 } from "lucide-react"
 import { useReactToPrint } from "react-to-print"
 
@@ -39,6 +39,7 @@ import { generateArchimedesMathProblems } from "@/ai/flows/generate-archimedes-m
 import { generateMultiplicationProblems } from "@/ai/flows/generate-multiplication-problems"
 import { generateComparisonProblems } from "@/ai/flows/generate-comparison-problems"
 import { generateVerticalMathProblems } from "@/ai/flows/generate-vertical-math-problems"
+import { generateSequenceProblems } from "@/ai/flows/generate-sequence-problems"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
 
@@ -61,6 +62,19 @@ const ComparisonBox = () => (
     />
   </div>
 );
+
+const SequenceBox = ({ value, isAnswer = false }: { value: string, isAnswer?: boolean }) => {
+  const isBlank = value === '_';
+  return (
+    <div className={`size-12 flex items-center justify-center border-2 font-mono text-xl font-bold shadow-sm ${
+      isBlank 
+        ? "bg-blue-50 border-blue-200 rounded-lg shadow-inner" 
+        : "bg-white border-gray-200 rounded-md"
+    } ${isAnswer && isBlank ? "text-red-500 underline decoration-dotted" : ""}`}>
+      {isAnswer && isBlank ? "?" : (isBlank ? "" : value)}
+    </div>
+  );
+};
 
 const DigitBox = ({ digit, isAnswer = false }: { digit: string, isAnswer?: boolean }) => {
   if (digit === '_') {
@@ -111,6 +125,23 @@ const VerticalProblemRow = ({ index, problem, isAnswer = false }: { index: numbe
 };
 
 const ProblemRow = ({ index, problem, isAnswer = false }: { index: number, problem: any, isAnswer?: boolean }) => {
+  // Check if it's a sequence problem (Grid)
+  if (problem.grid) {
+     return (
+        <div className="col-span-2 space-y-4 py-4 border-b border-dashed border-gray-100 break-inside-avoid">
+           <p className="font-bold text-blue-700">Câu {index}: {problem.instruction}</p>
+           <div className="flex flex-wrap gap-1">
+              {problem.grid.map((val: string, i: number) => (
+                 <SequenceBox key={i} value={val} isAnswer={isAnswer} />
+              ))}
+           </div>
+           <div className="mt-4 border border-dashed border-gray-200 rounded p-4 h-24 bg-gray-50/20">
+              <p className="text-[10px] text-gray-400 italic">✍️ Lời giải của em:</p>
+           </div>
+        </div>
+     );
+  }
+
   if (problem.top && problem.bottom) {
      return <VerticalProblemRow index={index} problem={problem} isAnswer={isAnswer} />;
   }
@@ -157,11 +188,13 @@ const TopicSection = ({ batch, batchIdx, isAnswer = false }: { batch: QuestionBa
       case 2: return "Bảng nhân thông minh. (Em hãy thực hiện các phép tính nhân sau đây)";
       case 3: return "So sánh số. (Em hãy điền dấu > ; < ; = vào ô trống)";
       case 4: return "Đặt tính rồi tính. (Em hãy thực hiện các phép tính hàng dọc sau đây)";
+      case 5: return "Quy luật chu kỳ. (Em hãy nhận diện quy luật và điền số còn thiếu vào dãy số)";
       default: return "Luyện tập tư duy toán học.";
     }
   };
 
   const isVertical = batch.topicId === 4;
+  const isSequence = batch.topicId === 5;
 
   return (
     <div className="mb-10 break-inside-avoid-page">
@@ -175,7 +208,7 @@ const TopicSection = ({ batch, batchIdx, isAnswer = false }: { batch: QuestionBa
       </div>
       <div className={cn(
         "grid gap-x-12 gap-y-6",
-        isVertical ? "grid-cols-5" : "grid-cols-2"
+        isVertical ? "grid-cols-5" : (isSequence ? "grid-cols-1" : "grid-cols-2")
       )}>
         {batch.problems.map((prob, idx) => (
           <ProblemRow key={idx} index={idx + 1} problem={prob} isAnswer={isAnswer} />
@@ -203,6 +236,7 @@ export default function ArchimedesMixerPage() {
     rangeN2: { min: 0, max: 99 },
     rangeResult: { min: 0, max: 99 }
   })
+  const [cd5Settings, setCd5Settings] = React.useState({ count: 2, cycleLength: 3, maxCycleSum: 30 })
 
   const { toast } = useToast()
   const contentRef = React.useRef<HTMLDivElement>(null)
@@ -240,7 +274,7 @@ export default function ArchimedesMixerPage() {
       } else if (topicId === 3) {
         const res = await generateComparisonProblems({ level: cd3Settings.level, range: { min: 0, max: cd3Settings.maxRange }, operationMode: cd3Settings.operationMode, numProblems: cd3Settings.count })
         newBatch = { id: Math.random().toString(36).substr(2, 9), topicId: 3, topicTitle: "So sánh biểu thức", count: cd3Settings.count, settings: { ...cd3Settings }, problems: res.problems }
-      } else {
+      } else if (topicId === 4) {
         const res = await generateVerticalMathProblems({ 
           operation: cd4Settings.operation, 
           digits: cd4Settings.digits, 
@@ -252,6 +286,9 @@ export default function ArchimedesMixerPage() {
           rangeResult: cd4Settings.rangeResult
         })
         newBatch = { id: Math.random().toString(36).substr(2, 9), topicId: 4, topicTitle: "Tính hàng dọc", count: cd4Settings.count, settings: { ...cd4Settings }, problems: res.problems }
+      } else {
+        const res = await generateSequenceProblems({ cycleLength: cd5Settings.cycleLength, maxCycleSum: cd5Settings.maxCycleSum, numProblems: cd5Settings.count })
+        newBatch = { id: Math.random().toString(36).substr(2, 9), topicId: 5, topicTitle: "Quy luật dãy số", count: cd5Settings.count, settings: { ...cd5Settings }, problems: res.problems }
       }
 
       setCart(prev => [...prev, newBatch])
@@ -433,6 +470,37 @@ export default function ArchimedesMixerPage() {
                 </Popover>
               </div>
               <Button onClick={() => addToExam(4)} disabled={isLoading} className="w-full gap-2 font-bold bg-orange-50 text-orange-600 hover:bg-orange-100">
+                {isLoading ? <Layers className="size-4 animate-spin" /> : <PlusCircle className="size-4" />} Thêm vào đề thi
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Chuyên đề 5 */}
+          <Card className="border-none shadow-md overflow-hidden bg-white">
+            <div className="h-1.5 w-full bg-purple-400" />
+            <CardHeader className="p-5 pb-2">
+              <CardTitle className="text-sm font-bold flex justify-between items-center">
+                CĐ5: Quy luật dãy số
+                <ListOrdered className="size-4 text-purple-400" />
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-5 pt-2 space-y-4">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-2">
+                  <Label className="text-[10px] font-bold">SỐ CÂU:</Label>
+                  <Input type="number" value={cd5Settings.count} onChange={(e) => setCd5Settings(s => ({ ...s, count: parseInt(e.target.value) || 0 }))} className="w-14 h-8 text-center" />
+                </div>
+                <Popover>
+                  <PopoverTrigger asChild><Button variant="ghost" size="sm" className="gap-2 text-primary font-bold"><Settings2 className="size-4" /> Cấu hình</Button></PopoverTrigger>
+                  <PopoverContent className="w-64 p-4 space-y-4">
+                    <Select value={cd5Settings.cycleLength.toString()} onValueChange={(v) => setCd5Settings(s => ({ ...s, cycleLength: parseInt(v) }))}>
+                      <SelectTrigger className="h-8"><SelectValue placeholder="Chu kỳ" /></SelectTrigger>
+                      <SelectContent><SelectItem value="3">Chu kỳ 3</SelectItem><SelectItem value="4">Chu kỳ 4</SelectItem></SelectContent>
+                    </Select>
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <Button onClick={() => addToExam(5)} disabled={isLoading} className="w-full gap-2 font-bold bg-purple-50 text-purple-600 hover:bg-purple-100">
                 {isLoading ? <Layers className="size-4 animate-spin" /> : <PlusCircle className="size-4" />} Thêm vào đề thi
               </Button>
             </CardContent>

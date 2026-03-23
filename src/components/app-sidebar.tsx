@@ -10,7 +10,8 @@ import {
   Settings,
   List,
   Scale,
-  Columns2
+  Columns2,
+  ListOrdered
 } from "lucide-react"
 
 import {
@@ -35,6 +36,7 @@ const navigation = {
       { title: "CĐ2: Phép nhân", url: "/archimedes/chuyen-de-2", icon: Calculator },
       { title: "CĐ3: So sánh biểu thức", url: "/archimedes/chuyen-de-3", icon: Scale },
       { title: "CĐ4: Tính hàng dọc", url: "/archimedes/chuyen-de-4", icon: Columns2 },
+      { title: "CĐ5: Quy luật dãy số", url: "/archimedes/chuyen-de-5", icon: ListOrdered },
     ],
   },
   singapore: {
