@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -39,13 +40,7 @@ const formSchema = z.object({
 })
 
 const ComparisonBox = () => (
-  <div className="size-10 bg-blue-50 border-2 border-blue-200 rounded-md mx-3 shadow-inner shrink-0 relative flex items-center justify-center overflow-hidden">
-    <div className="absolute inset-0 opacity-10 pointer-events-none" 
-      style={{ 
-        backgroundImage: 'linear-gradient(#3b82f6 1px, transparent 1px), linear-gradient(90deg, #3b82f6 1px, transparent 1px)',
-        backgroundSize: '10px 10px' 
-      }} 
-    />
+  <div className="size-10 bg-white border border-gray-400 rounded-md mx-3 shadow-inner shrink-0 relative flex items-center justify-center overflow-hidden">
   </div>
 );
 
@@ -53,7 +48,7 @@ const ProblemRow = ({ index, problem }: { index: number, problem: string }) => {
   const parts = problem.split('_');
   
   return (
-    <div className="flex items-center gap-4 text-xl font-bold font-mono py-2">
+    <div className="flex items-center gap-4 text-[13px] font-bold font-mono py-2">
       <span className="text-blue-600 font-sans w-6 text-right shrink-0">{index}.</span>
       <div className="flex items-center">
         <span className="whitespace-nowrap">{parts[0].trim()}</span>

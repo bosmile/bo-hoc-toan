@@ -42,19 +42,12 @@ const SequenceBox = ({ value }: { value: string }) => {
   const isBlank = value === '_';
   return (
     <div className={cn(
-      "size-8 flex items-center justify-center border-2 font-mono text-base font-bold shadow-sm transition-all p-0",
+      "size-8 flex items-center justify-center border font-mono text-[13px] font-bold shadow-sm transition-all p-0",
       isBlank 
-        ? "bg-blue-50/50 border-blue-200 rounded-lg shadow-inner relative overflow-hidden" 
+        ? "bg-white border-gray-400 rounded-md shadow-inner relative overflow-hidden" 
         : "bg-white border-gray-300 rounded-md text-slate-700"
     )}>
-      {isBlank ? (
-        <div className="absolute inset-0 opacity-10 pointer-events-none" 
-          style={{ 
-            backgroundImage: 'linear-gradient(#3b82f6 1px, transparent 1px), linear-gradient(90deg, #3b82f6 1px, transparent 1px)',
-            backgroundSize: '8px 8px' 
-          }} 
-        />
-      ) : value}
+      {isBlank ? "" : value}
     </div>
   );
 };
@@ -67,7 +60,7 @@ const SequenceProblem = ({ index, problem }: { index: number, problem: any }) =>
     <div className="space-y-4 break-inside-avoid py-4">
       <div className="space-y-1">
         <h3 className="text-lg font-black text-blue-700 tracking-tight flex items-center gap-3">
-          <span className="size-7 rounded-full bg-blue-700 text-white flex items-center justify-center text-xs">Bài {index}</span>
+          <span className="size-7 rounded-full bg-blue-700 text-white flex items-center justify-center text-[9px]">Bài {index}</span>
           Điền số theo quy luật chu kỳ
         </h3>
         <p className="text-xs font-medium text-slate-600 leading-relaxed italic">
@@ -87,7 +80,7 @@ const SequenceProblem = ({ index, problem }: { index: number, problem: any }) =>
         </p>
         
         <div className="space-y-1">
-          <div className="flex items-center gap-1.5 text-sm font-medium text-slate-500 italic font-serif flex-wrap">
+          <div className="flex items-center gap-1.5 text-[13px] font-medium text-slate-500 italic font-serif flex-wrap">
             <span>Ta có:</span>
             {knownNumbers.map((num: any, idx: number) => (
               <React.Fragment key={idx}>

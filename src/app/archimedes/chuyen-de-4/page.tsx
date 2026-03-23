@@ -55,17 +55,11 @@ const formSchema = z.object({
 const DigitBox = ({ digit }: { digit: string }) => {
   if (digit === '_') {
     return (
-      <div className="size-9 bg-blue-50 border border-blue-200 rounded-md shadow-inner flex items-center justify-center relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10 pointer-events-none" 
-          style={{ 
-            backgroundImage: 'linear-gradient(#3b82f6 1px, transparent 1px), linear-gradient(90deg, #3b82f6 1px, transparent 1px)',
-            backgroundSize: '8px 8px' 
-          }} 
-        />
+      <div className="size-9 bg-white border border-gray-400 rounded-md shadow-inner flex items-center justify-center relative overflow-hidden">
       </div>
     );
   }
-  return <div className="size-9 flex items-center justify-center font-mono text-xl font-bold">{digit}</div>;
+  return <div className="size-9 flex items-center justify-center font-mono text-[13px] font-bold">{digit}</div>;
 };
 
 const VerticalProblem = ({ index, problem }: { index: number, problem: any }) => {
@@ -78,7 +72,7 @@ const VerticalProblem = ({ index, problem }: { index: number, problem: any }) =>
       <span className="text-blue-600 font-sans font-bold text-[10px] shrink-0 pt-3">{index}.</span>
       <div className="flex flex-col items-end gap-1 relative pt-2 pr-2">
         {/* Operator positioned to the left of the bottom number */}
-        <span className="absolute left-[-20px] top-[54px] text-xl font-bold text-blue-500">{problem.operator}</span>
+        <span className="absolute left-[-20px] top-[54px] text-lg font-bold text-blue-500">{problem.operator}</span>
         
         <div className="flex gap-1">
           {topDigits.map((d: string, i: number) => <DigitBox key={i} digit={d} />)}

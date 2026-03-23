@@ -47,13 +47,13 @@ const ProblemRow = ({ index, problem }: { index: number, problem: string }) => {
   const parts = problem.replace(/([+\-=])/g, ' $1 ').replace(/\s+/g, ' ').trim().split(' ');
   
   return (
-    <div className="flex items-center gap-4 text-xl font-bold font-mono">
+    <div className="flex items-center gap-4 text-[13px] font-bold font-mono">
       <span className="text-blue-600 font-sans w-6 text-right shrink-0">{index}.</span>
       <div className="flex items-center">
         {parts.map((part, i) => {
           if (part === '_') {
             return (
-              <div key={i} className="w-14 h-10 bg-blue-50 border-2 border-blue-100 rounded-md mx-1 shadow-inner shrink-0" />
+              <div key={i} className="w-14 h-10 bg-white border border-gray-400 rounded-md mx-1 shadow-inner shrink-0" />
             );
           }
           if (part === '=') {
@@ -306,7 +306,7 @@ export default function ChuyenDe1Page() {
 
                   <div className="no-print grid grid-cols-1 md:grid-cols-2 gap-8 p-6">
                     {problems.map((problem, index) => (
-                      <div key={index} className="flex items-center gap-4 text-xl font-bold border-b border-dashed pb-4">
+                      <div key={index} className="flex items-center gap-4 text-[13px] font-bold border-b border-dashed pb-4">
                         <span className="text-xs bg-primary/10 text-primary size-6 rounded-full flex items-center justify-center shrink-0">{index + 1}</span>
                         <div className="font-mono">{problem.replace('=', ' = ')}</div>
                       </div>
