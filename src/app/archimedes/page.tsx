@@ -359,7 +359,6 @@ export default function ArchimedesMixerPage() {
           <div className="space-y-2">
             <Badge variant="outline" className="text-primary border-primary/20 bg-primary/5 px-3 py-1 font-bold">BƠ HỌC TOÁN - Master Mixer</Badge>
             <h1 className="text-4xl font-black tracking-tight text-primary uppercase leading-none italic">Phiếu Bài tập Archimedes</h1>
-            <p className="text-muted-foreground max-w-xl">Tái cấu trúc đề thi theo từng Bài học. Tối ưu hóa trang in.</p>
           </div>
           <div className="max-w-md space-y-2">
             <div className="flex justify-between text-xs font-bold uppercase tracking-wider text-primary">
