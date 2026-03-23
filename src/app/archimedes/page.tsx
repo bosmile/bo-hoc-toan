@@ -20,7 +20,7 @@ import {
   Heart,
   ChevronDown
 } from "lucide-react"
-import { useReactToPrint } from "react-use-print"
+import { useReactToPrint } from "react-to-print"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -146,13 +146,14 @@ const ProblemRow = ({ index, problem, isAnswer = false, topicId }: { index: numb
   if (topicId === 5) { // Sequence
      const gridNumbers = problem.grid.filter((v: string) => v !== '_').map(Number);
      const knownNumbers = Array.from(new Set(gridNumbers));
+     const missingNumber = problem.cycleNumbers.find((n: number) => !knownNumbers.includes(n));
      
      return (
-        <div className="col-span-full space-y-3 py-3 border-b border-dashed border-blue-100 break-inside-avoid">
+        <div className="col-span-full space-y-2 py-2 border-b border-dashed border-blue-100 break-inside-avoid">
            <div className="flex flex-col items-center gap-2">
               <div className="flex items-center gap-2 w-full">
                 <span className="size-5 rounded-full bg-primary text-white flex items-center justify-center text-[9px] font-bold">Câu {index}</span>
-                <p className="text-sm font-black text-primary tracking-tight uppercase">Quy luật chu kỳ</p>
+                <p className="text-xs font-black text-primary tracking-tight uppercase">Quy luật chu kỳ</p>
               </div>
               <div className="flex flex-nowrap items-center justify-center gap-0.5 p-1 bg-slate-50/30 rounded-lg border border-slate-100/50 w-full overflow-hidden">
                 {problem.grid.map((val: string, i: number) => (
@@ -161,7 +162,7 @@ const ProblemRow = ({ index, problem, isAnswer = false, topicId }: { index: numb
               </div>
            </div>
            
-           <div className="pt-1">
+           <div className="pt-0.5">
               <div className="flex items-center gap-1 text-[11px] font-medium text-slate-500 italic font-serif flex-wrap">
                 <span className="text-primary/60 not-italic font-black text-[9px] mr-1 uppercase">Tư duy:</span>
                 <span>Ta có:</span>
@@ -175,7 +176,7 @@ const ProblemRow = ({ index, problem, isAnswer = false, topicId }: { index: numb
                 <span className="mx-0.5">=</span>
                 <span className="text-slate-800 font-bold not-italic">{problem.cycleSum}</span>
                 <span className="ml-1">nên số còn thiếu là:</span>
-                {isAnswer && <span className="text-red-500 font-bold font-sans ml-1 not-italic underline decoration-dotted">{problem.cycleNumbers.find((n: number) => !knownNumbers.includes(n))}</span>}
+                {isAnswer && <span className="text-red-500 font-bold font-sans ml-1 not-italic underline decoration-dotted">{missingNumber}</span>}
               </div>
            </div>
         </div>
@@ -192,8 +193,8 @@ const ProblemRow = ({ index, problem, isAnswer = false, topicId }: { index: numb
   if (topicId === 3 || (typeof probStr === 'string' && probStr.includes('_'))) {
     const parts = probStr.split('_');
     return (
-      <div className="flex items-center gap-1 text-lg font-bold font-mono py-2 break-inside-avoid justify-start pl-4 border-b border-dashed border-slate-100/50">
-        <span className="text-blue-600 font-sans w-6 text-right shrink-0 text-sm">{index}.</span>
+      <div className="flex items-center gap-1 text-lg font-bold font-mono py-1.5 break-inside-avoid justify-start pl-4 border-b border-dashed border-slate-100/50">
+        <span className="text-blue-600 font-sans w-6 text-right shrink-0 text-xs">{index}.</span>
         <div className="flex items-center min-w-[120px]">
           <span className="text-slate-700 text-right min-w-[40px]">{parts[0].trim()}</span>
           <ComparisonBox />
@@ -208,11 +209,11 @@ const ProblemRow = ({ index, problem, isAnswer = false, topicId }: { index: numb
   const parts = cleanStr.replace(/([+\-x=])/g, ' $1 ').replace(/\s+/g, ' ').trim().split(' ');
   
   return (
-    <div className="flex items-center gap-1 text-lg font-bold font-mono py-2 break-inside-avoid justify-start pl-4 border-b border-dashed border-slate-100/50">
-      <span className="text-blue-600 font-sans w-6 text-right shrink-0 text-sm">{index}.</span>
+    <div className="flex items-center gap-1 text-lg font-bold font-mono py-1.5 break-inside-avoid justify-start pl-4 border-b border-dashed border-slate-100/50">
+      <span className="text-blue-600 font-sans w-6 text-right shrink-0 text-xs">{index}.</span>
       <div className="flex items-center flex-wrap">
         {parts.map((part: string, i: number) => {
-          if (part === '_') return <div key={i} className="w-10 h-8 bg-blue-50 border border-blue-100 rounded-md mx-1 shadow-inner shrink-0" />;
+          if (part === '_') return <div key={i} className="w-9 h-7 bg-blue-50 border border-blue-100 rounded-md mx-1 shadow-inner shrink-0" />;
           if (part === '=') return <span key={i} className="mx-1 text-blue-600">=</span>;
           if (part === 'x') return <span key={i} className="mx-1 text-blue-400">×</span>;
           if (part === '+' || part === '-') return <span key={i} className="mx-1 text-primary">{part}</span>;
@@ -239,17 +240,17 @@ const TopicSection = ({ batch, batchIdx, startIndex, isAnswer = false }: { batch
   const isSequence = batch.topicId === 5;
 
   return (
-    <div className="mb-4 break-inside-avoid-page">
+    <div className="mb-3 break-inside-avoid-page">
       <div className="topic-section-header mb-1">
-        <h3 className="text-base font-black text-primary uppercase tracking-tight">
+        <h3 className="text-sm font-black text-primary uppercase tracking-tight">
           Bài {batchIdx + 1}: {batch.topicTitle}
         </h3>
-        <p className="topic-instruction text-[10px] italic text-slate-600 font-medium font-serif">
+        <p className="topic-instruction text-[9px] italic text-slate-600 font-medium font-serif">
           ({getInstruction(batch.topicId)})
         </p>
       </div>
       <div className={cn(
-        "grid gap-x-4 gap-y-1",
+        "grid gap-x-4 gap-y-0.5",
         isVertical ? "grid-cols-5" : (isSequence ? "grid-cols-1" : "grid-cols-2")
       )}>
         {batch.problems.map((prob, idx) => (
