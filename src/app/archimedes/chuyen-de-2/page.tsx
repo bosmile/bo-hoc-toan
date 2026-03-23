@@ -43,13 +43,13 @@ const ProblemRow = ({ index, problem }: { index: number, problem: string }) => {
   const parts = problem.replace(/([x=])/g, ' $1 ').replace(/\s+/g, ' ').trim().split(' ');
   
   return (
-    <div className="flex items-center gap-4 text-[13px] font-bold font-mono">
+    <div className="flex items-center gap-4 text-[20px] font-bold font-mono">
       <span className="text-blue-600 font-sans w-6 text-right shrink-0">{index}.</span>
       <div className="flex items-center">
         {parts.map((part, i) => {
           if (part === '_') {
             return (
-              <div key={i} className="w-14 h-10 bg-white border border-gray-400 rounded-md mx-1 shadow-inner shrink-0" />
+              <div key={i} className="w-20 h-14 bg-white border border-gray-400 rounded-md mx-1 shadow-inner shrink-0" />
             );
           }
           if (part === '=') return <span key={i} className="mx-2 text-blue-600">=</span>;

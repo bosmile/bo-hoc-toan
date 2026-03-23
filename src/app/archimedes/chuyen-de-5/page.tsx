@@ -42,7 +42,7 @@ const SequenceBox = ({ value }: { value: string }) => {
   const isBlank = value === '_';
   return (
     <div className={cn(
-      "size-8 flex items-center justify-center border font-mono text-[13px] font-bold shadow-sm transition-all p-0",
+      "size-8 flex items-center justify-center border font-mono text-[20px] font-bold shadow-sm transition-all p-0",
       isBlank 
         ? "bg-white border-gray-400 rounded-md shadow-inner relative overflow-hidden" 
         : "bg-white border-gray-300 rounded-md text-slate-700"
@@ -80,17 +80,17 @@ const SequenceProblem = ({ index, problem }: { index: number, problem: any }) =>
         </p>
         
         <div className="space-y-1">
-          <div className="flex items-center gap-1.5 text-[13px] font-medium text-slate-500 italic font-serif flex-wrap">
+          <div className="flex items-center gap-1.5 text-[20px] font-medium text-slate-500 italic font-serif flex-wrap">
             <span>Ta có:</span>
             {knownNumbers.map((num: any, idx: number) => (
               <React.Fragment key={idx}>
-                <span className="text-slate-700 font-bold not-italic text-[13px]">{num}</span>
+                <span className="text-slate-700 font-bold not-italic text-[20px]">{num}</span>
                 <span className="mx-0.5">+</span>
               </React.Fragment>
             ))}
             <span className="font-bold text-primary not-italic">?</span>
             <span className="mx-0.5">=</span>
-            <span className="text-slate-700 font-bold not-italic text-[13px]">{problem.cycleSum}</span>
+            <span className="text-slate-700 font-bold not-italic text-[20px]">{problem.cycleSum}</span>
             <span className="ml-1">nên số còn thiếu là:</span>
           </div>
         </div>
@@ -235,8 +235,8 @@ export default function ChuyenDe5Page() {
                              <Image 
                               src="/logo.png" 
                               alt="Logo" 
-                              width={40} 
-                              height={40}
+                              width={80} 
+                              height={80}
                               className="object-contain"
                             />
                           </div>

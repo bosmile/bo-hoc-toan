@@ -42,6 +42,7 @@ const navigation = {
       { title: "CĐ3: So sánh biểu thức", url: "/archimedes/chuyen-de-3", icon: Scale },
       { title: "CĐ4: Tính hàng dọc", url: "/archimedes/chuyen-de-4", icon: Columns2 },
       { title: "CĐ5: Quy luật dãy số", url: "/archimedes/chuyen-de-5", icon: ListOrdered },
+      { title: "CĐ6: Kim tự tháp số", url: "/archimedes/chuyen-de-6", icon: Shapes },
     ],
   },
   singapore: {

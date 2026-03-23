@@ -48,7 +48,7 @@ const ProblemRow = ({ index, problem }: { index: number, problem: string }) => {
   const parts = problem.split('_');
   
   return (
-    <div className="flex items-center gap-4 text-[13px] font-bold font-mono py-2">
+    <div className="flex items-center gap-4 text-[20px] font-bold font-mono py-2">
       <span className="text-blue-600 font-sans w-6 text-right shrink-0">{index}.</span>
       <div className="flex items-center">
         <span className="whitespace-nowrap">{parts[0].trim()}</span>

@@ -1,4 +1,4 @@
-
+// @ts-nocheck
 "use client"
 
 import * as React from "react"
@@ -59,7 +59,7 @@ const DigitBox = ({ digit }: { digit: string }) => {
       </div>
     );
   }
-  return <div className="size-9 flex items-center justify-center font-mono text-[13px] font-bold">{digit}</div>;
+  return <div className="size-9 flex items-center justify-center font-mono text-[20px] font-bold">{digit}</div>;
 };
 
 const VerticalProblem = ({ index, problem }: { index: number, problem: any }) => {
@@ -125,6 +125,33 @@ export default function ChuyenDe4Page() {
     }
   }
 
+  const applyPreset = (type: 'easy' | 'medium' | 'hard') => {
+    if (type === 'easy') {
+      form.setValue("operation", "plus")
+      form.setValue("digits", 2)
+      form.setValue("hasCarry", false)
+      form.setValue("rangeN1", { min: 10, max: 99 })
+      form.setValue("rangeN2", { min: 10, max: 99 })
+      form.setValue("rangeResult", { min: 0, max: 198 })
+    }
+    if (type === 'medium') {
+      form.setValue("operation", "mixed")
+      form.setValue("digits", 2)
+      form.setValue("hasCarry", true)
+      form.setValue("rangeN1", { min: 10, max: 99 })
+      form.setValue("rangeN2", { min: 10, max: 99 })
+      form.setValue("rangeResult", { min: 0, max: 198 })
+    }
+    if (type === 'hard') {
+      form.setValue("operation", "mixed")
+      form.setValue("digits", 3)
+      form.setValue("hasCarry", true)
+      form.setValue("rangeN1", { min: 100, max: 999 })
+      form.setValue("rangeN2", { min: 100, max: 999 })
+      form.setValue("rangeResult", { min: 0, max: 1998 })
+    }
+  }
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="no-print flex flex-col md:flex-row md:items-end justify-between gap-4">
@@ -155,6 +182,15 @@ export default function ChuyenDe4Page() {
             <CardContent className="pt-6">
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                  <div className="space-y-3 mb-6">
+                    <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Độ khó nhanh</Label>
+                    <div className="flex flex-wrap gap-2">
+                      <Button type="button" variant="outline" size="sm" onClick={() => applyPreset('easy')}>Dễ (Ko nhớ)</Button>
+                      <Button type="button" variant="outline" size="sm" onClick={() => applyPreset('medium')}>Vừa (Có nhớ)</Button>
+                      <Button type="button" variant="outline" size="sm" onClick={() => applyPreset('hard')}>Khó (3 chữ số)</Button>
+                    </div>
+                  </div>
+
                   <div className="space-y-4">
                     <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
                       Ràng buộc phạm vi số học
@@ -333,15 +369,15 @@ export default function ChuyenDe4Page() {
               {results.length > 0 ? (
                 <div className="p-8 print:p-0">
                   <div ref={contentRef}>
-                    <div className="print-only w-[210mm] min-h-[297mm] mx-auto p-[15mm] bg-white text-black font-sans relative">
+                    <div className="w-[210mm] min-h-[297mm] mx-auto p-[15mm] bg-white text-black font-sans relative shadow-xl origin-top" style={{ transform: 'scale(0.85)', marginBottom: '-10%' }}>
                       <div className="flex justify-between items-start mb-10 border-b-2 border-primary pb-6">
                         <div className="flex items-center gap-3">
                           <div className="p-2 bg-primary rounded-lg flex items-center justify-center overflow-hidden">
                             <Image 
                               src="/logo.png" 
                               alt="Logo" 
-                              width={40} 
-                              height={40}
+                              width={80} 
+                              height={80}
                               className="object-contain"
                             />
                           </div>

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - Kiểm Tra Dữ Liệu</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #4361ee;
+            padding-bottom: 10px;
+        }
+        .info-box {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .data-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background: #4361ee;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background: #f2f2f2;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-primary {
+            background: #4361ee;
+            color: white;
+        }
+        .btn-danger {
+            background: #f72585;
+            color: white;
+        }
+        .btn-success {
+            background: #4cc9f0;
+            color: white;
+        }
+        .status-good {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .status-bad {
+            color: #dc3545;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-bug"></i> Debug - Kiểm Tra Dữ Liệu</h1>
+        
+        <div class="info-box">
+            <h3>Thông tin hệ thống</h3>
+            <p><strong>URL:</strong> <span id="currentUrl"></span></p>
+            <p><strong>LocalStorage support:</strong> <span id="lsSupport"></span></p>
+            <p><strong>Dung lượng còn trống:</strong> <span id="storageSpace"></span></p>
+        </div>
+        
+        <div class="action-buttons">
+            <button class="btn-primary" onclick="loadData()">
+                <i class="fas fa-sync"></i> Tải lại dữ liệu
+            </button>
+            <button class="btn-success" onclick="exportData()">
+                <i class="fas fa-download"></i> Xuất dữ liệu
+            </button>
+            <button class="btn-danger" onclick="clearData()">
+                <i class="fas fa-trash"></i> Xóa tất cả dữ liệu
+            </button>
+            <button class="btn-primary" onclick="goToMain()">
+                <i class="fas fa-home"></i> Về trang chủ
+            </button>
+        </div>
+        
+        <div class="data-section">
+            <h3>Dữ liệu hóa đơn trong localStorage</h3>
+            <div id="dataStatus">Đang tải...</div>
+            <div id="dataContent" style="display: none;">
+                <p><strong>Tổng số hóa đơn:</strong> <span id="totalInvoices">0</span></p>
+                <p><strong>Dữ liệu RAW:</strong></p>
+                <pre id="rawData"></pre>
+                
+                <h4>Chi tiết hóa đơn:</h4>
+                <table id="invoicesTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Phân loại</th>
+                            <th>Ngày</th>
+                            <th>Cửa hàng</th>
+                            <th>Số sản phẩm</th>
+                            <th>Tổng tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody id="invoicesBody">
+                        <!-- Dữ liệu sẽ được thêm ở đây -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <script>
+        // Khởi tạo trang
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('currentUrl').textContent = window.location.href;
+            document.getElementById('lsSupport').textContent = 
+                typeof(Storage) !== 'undefined' ? 'Có hỗ trợ' : 'Không hỗ trợ';
+            
+            // Kiểm tra dung lượng localStorage
+            checkStorageSpace();
+            
+            // Tải dữ liệu
+            loadData();
+        });
+        
+        function checkStorageSpace() {
+            if (typeof(Storage) !== 'undefined') {
+                try {
+                    let total = 0;
+                    for (let key in localStorage) {
+                        if (localStorage.hasOwnProperty(key)) {
+                            total += localStorage[key].length * 2;
+                        }
+                    }
+                    const usedKB = (total / 1024).toFixed(2);
+                    const limitKB = (5 * 1024); // 5MB
+                    const freeKB = (limitKB - usedKB).toFixed(2);
+                    
+                    document.getElementById('storageSpace').innerHTML = 
+                        `<span class="${usedKB > limitKB * 0.9 ? 'status-bad' : 'status-good'}">
+                            ${freeKB} KB còn trống (${usedKB} KB đã dùng)
+                        </span>`;
+                } catch (e) {
+                    document.getElementById('storageSpace').textContent = 'Không thể kiểm tra';
+                }
+            }
+        }
+        
+        function loadData() {
+            try {
+                const invoicesData = localStorage.getItem('invoices');
+                
+                if (!invoicesData) {
+                    document.getElementById('dataStatus').innerHTML = 
+                        '<span class="status-bad">❌ Không có dữ liệu</span>';
+                    document.getElementById('dataContent').style.display = 'none';
+                    return;
+                }
+                
+                const invoices = JSON.parse(invoicesData);
+                
+                if (!Array.isArray(invoices)) {
+                    document.getElementById('dataStatus').innerHTML = 
+                        '<span class="status-bad">❌ Dữ liệu không hợp lệ (không phải mảng)</span>';
+                    document.getElementById('dataContent').style.display = 'none';
+                    return;
+                }
+                
+                document.getElementById('totalInvoices').textContent = invoices.length;
+                document.getElementById('rawData').textContent = JSON.stringify(invoices, null, 2);
+                
+                // Hiển thị bảng
+                const tbody = document.getElementById('invoicesBody');
+                tbody.innerHTML = '';
+                
+                invoices.forEach(invoice => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${invoice.id}</td>
+                        <td>${invoice.category || 'N/A'}</td>
+                        <td>${invoice.date || 'N/A'}</td>
+                        <td>${invoice.store || 'N/A'}</td>
+                        <td>${invoice.products ? invoice.products.length : 0}</td>
+                        <td>${invoice.total ? invoice.total.toLocaleString('vi-VN') + ' ₫' : 'N/A'}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+                
+                document.getElementById('dataStatus').innerHTML = 
+                    `<span class="status-good">✅ Đã tải ${invoices.length} hóa đơn</span>`;
+                document.getElementById('dataContent').style.display = 'block';
+                
+            } catch (error) {
+                document.getElementById('dataStatus').innerHTML = 
+                    `<span class="status-bad">❌ Lỗi khi tải dữ liệu: ${error.message}</span>`;
+                document.getElementById('dataContent').style.display = 'none';
+            }
+        }
+        
+        function exportData() {
+            try {
+                const invoicesData = localStorage.getItem('invoices');
+                if (!invoicesData) {
+                    alert('Không có dữ liệu để xuất');
+                    return;
+                }
+                
+                const blob = new Blob([invoicesData], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `invoices_backup_${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                alert('Đã xuất dữ liệu thành công!');
+            } catch (error) {
+                alert('Lỗi khi xuất dữ liệu: ' + error.message);
+            }
+        }
+        
+        function clearData() {
+            if (confirm('Bạn có CHẮC CHẮN muốn xóa TẤT CẢ dữ liệu? Hành động này không thể hoàn tác!')) {
+                localStorage.removeItem('invoices');
+                alert('Đã xóa tất cả dữ liệu');
+                loadData();
+                checkStorageSpace();
+            }
+        }
+        
+        function goToMain() {
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

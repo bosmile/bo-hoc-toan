@@ -65,8 +65,54 @@ const generateSequenceProblemsFlow = ai.defineFlow(
     outputSchema: GenerateSequenceOutputSchema,
   },
   async (input) => {
-    const { output } = await sequencePrompt(input);
-    if (!output) throw new Error('Failed to generate sequence problems.');
-    return output;
+    const { cycleLength = 3, maxCycleSum = 30, numProblems = 2 } = input;
+    const problems = [];
+    const seen = new Set<string>();
+    const maxTries = 5000;
+    let tries = 0;
+
+    const randomInt = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+    while (problems.length < numProblems && tries < maxTries) {
+      tries++;
+      const cycle = [];
+      const used = new Set<number>();
+      for (let i = 0; i < cycleLength; i++) {
+        let n = 0;
+        let innerTries = 0;
+        do {
+          n = randomInt(1, Math.max(1, maxCycleSum - cycleLength + 1));
+          innerTries++;
+        } while (used.has(n) && innerTries < 50);
+        used.add(n);
+        cycle.push(n);
+      }
+      
+      const sum = cycle.reduce((a, b) => a + b, 0);
+      if (sum > maxCycleSum) continue;
+
+      const cycleKey = cycle.join(',');
+      if (seen.has(cycleKey)) continue;
+      seen.add(cycleKey);
+
+      // Create grid (length = 12 cells for visual periodic repetition)
+      const grid = Array(12).fill('_');
+      // For first N-1 elements, put them at exactly one periodic position
+      for (let i = 0; i < cycleLength - 1; i++) {
+        const value = cycle[i];
+        const randomPeriod = Math.floor(Math.random() * Math.floor(12 / cycleLength));
+        const index = randomPeriod * cycleLength + i;
+        if (index < 12) grid[index] = value.toString();
+      }
+
+      problems.push({
+        cycleNumbers: cycle,
+        cycleSum: sum,
+        grid,
+        instruction: `Biết tổng của ${cycleLength} số liên tiếp bằng ${sum}. Em hãy tìm số còn thiếu và hoàn thiện bảng sau:`
+      });
+    }
+
+    return { problems };
   }
 );

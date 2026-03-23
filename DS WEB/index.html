@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Hóa Đơn</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1><i class="fas fa-file-invoice-dollar"></i> Quản Lý Hóa Đơn</h1>
+            <div class="user-info">
+                <span>Xin chào, Người dùng</span>
+                <i class="fas fa-user-circle"></i>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <!-- Phần tổng hợp -->
+            <section class="summary-section">
+                <div class="summary-card">
+                    <h2>Tổng chi tiêu tháng 10</h2>
+                    <div class="total-amount" id="monthTotalDisplay">15.450.000 ₫</div>
+                    <div class="change-indicator positive">
+                        <i class="fas fa-arrow-up"></i> <span>+12%</span> so với tháng trước
+                    </div>
+                </div>
+                
+                <div class="controls">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="Tìm kiếm cửa hàng, ghi chú...">
+                    </div>
+                    
+                    <div class="filters">
+                        <select id="monthFilter">
+                            <option>Tháng này</option>
+                            <option>Tháng trước</option>
+                            <option>3 tháng gần nhất</option>
+                            <option>Tất cả</option>
+                        </select>
+                        
+                        <select id="categoryFilter">
+                            <option value="all">Phân loại: Tất cả</option>
+                            <option value="BIGC">BIGC</option>
+                            <option value="SP/LZD">SP/LZD</option>
+                            <option value="Khác">Khác</option>
+                        </select>
+                        
+                        <select id="sortFilter">
+                            <option>Sắp xếp: Mới nhất</option>
+                            <option>Sắp xếp: Cũ nhất</option>
+                            <option>Sắp xếp: Giá cao nhất</option>
+                            <option>Sắp xếp: Giá thấp nhất</option>
+                        </select>
+                        
+                        <button class="export-btn" onclick="exportToExcel()">
+                            <i class="fas fa-file-excel"></i> Xuất Excel
+                        </button>
+                        
+                        <button class="add-btn" onclick="window.location.href='add-invoice.html'">
+                            <i class="fas fa-plus"></i> Thêm hóa đơn
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Danh sách hóa đơn (ĐƯỢC TẢI ĐỘNG) -->
+            <section class="invoice-list" id="invoiceListContainer">
+                <!-- Nội dung sẽ được tải động bằng JavaScript -->
+                <div class="loading" style="text-align: center; padding: 40px;">
+                    <div class="spinner"></div>
+                    <p>Đang tải dữ liệu...</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Thêm CSS cho spinner -->
+    <style>
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading {
+            color: #666;
+            font-size: 16px;
+        }
+        
+        .notes {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+            font-style: italic;
+        }
+    </style>
+
+    <script src="script.js"></script>
+    
+    <!-- Thêm script để kiểm tra dữ liệu -->
+    <script>
+        // Kiểm tra localStorage ngay khi trang được tải
+        console.log('====== KIỂM TRA DỮ LIỆU ======');
+        console.log('URL:', window.location.href);
+        
+        // Kiểm tra nếu vừa chuyển từ trang thêm hóa đơn
+        if (window.performance && window.performance.navigation.type === window.performance.navigation.TYPE_BACK_FORWARD) {
+            console.log('Đã quay lại từ trang khác - reload dữ liệu');
+            setTimeout(() => {
+                if (typeof displayInvoices === 'function') {
+                    displayInvoices();
+                }
+            }, 500);
+        }
+        
+        // Thêm nút debug (chỉ hiển thị trong development)
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            const debugBtn = document.createElement('button');
+            debugBtn.innerHTML = '<i class="fas fa-bug"></i> Debug';
+            debugBtn.style.cssText = 'position: fixed; bottom: 20px; right: 20px; z-index: 1000; padding: 10px 15px; background: #333; color: white; border: none; border-radius: 5px; cursor: pointer;';
+            debugBtn.onclick = function() {
+                console.log('====== DEBUG INFO ======');
+                console.log('invoices:', JSON.parse(localStorage.getItem('invoices')) || []);
+                console.log('Số lượng:', (JSON.parse(localStorage.getItem('invoices')) || []).length);
+                alert('Đã log thông tin debug ra console (F12)');
+            };
+            document.body.appendChild(debugBtn);
+        }
+    </script>
+</body>
+</html>

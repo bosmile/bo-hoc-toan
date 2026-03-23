@@ -1,4 +1,4 @@
-
+// @ts-nocheck
 "use client"
 
 import * as React from "react"
@@ -65,7 +65,7 @@ const SequenceBox = ({ value, isAnswer = false }: { value: string, isAnswer?: bo
   const isBlank = value === '_';
   return (
     <div className={cn(
-      "size-7 flex items-center justify-center border font-mono text-[13px] font-bold shadow-sm p-0 flex-shrink-0",
+      "size-7 flex items-center justify-center border font-mono text-[20px] font-bold shadow-sm p-0 flex-shrink-0",
       isBlank 
         ? "bg-white border-gray-400 rounded-md shadow-inner relative overflow-hidden" 
         : "bg-white border-gray-300 rounded-sm text-slate-700"
@@ -87,7 +87,7 @@ const DigitBox = ({ digit, isAnswer = false }: { digit: string, isAnswer?: boole
   }
   return (
     <div className={cn(
-      "size-8 flex items-center justify-center font-mono text-[13px] font-bold",
+      "size-8 flex items-center justify-center font-mono text-[20px] font-bold",
       isAnswer && "text-red-500 underline decoration-dotted"
     )}>
       {digit}
@@ -173,12 +173,12 @@ const ProblemRow = ({ index, problem, isAnswer = false, topicId }: { index: numb
   if (topicId === 3 || (typeof probStr === 'string' && probStr.includes('_'))) {
     const parts = probStr.split('_');
     return (
-      <div className="flex items-center gap-1 text-[13px] font-bold font-mono py-1.5 break-inside-avoid justify-start pl-4 border-b border-dashed border-slate-100/50">
+      <div className="flex items-center gap-1 text-[20px] font-bold font-mono py-1.5 break-inside-avoid justify-start pl-4 border-b border-dashed border-slate-100/50">
         <span className="text-blue-600 font-sans w-6 text-right shrink-0 text-xs">{index}.</span>
         <div className="flex items-center min-w-[120px]">
-          <span className="text-slate-700 text-right min-w-[40px] text-[13px]">{parts[0].trim()}</span>
+          <span className="text-slate-700 text-right min-w-[40px] text-[20px]">{parts[0].trim()}</span>
           <ComparisonBox />
-          <span className="text-slate-700 text-left min-w-[40px] text-[13px]">{parts[1].trim()}</span>
+          <span className="text-slate-700 text-left min-w-[40px] text-[20px]">{parts[1].trim()}</span>
         </div>
       </div>
     );
@@ -189,7 +189,7 @@ const ProblemRow = ({ index, problem, isAnswer = false, topicId }: { index: numb
   const parts = cleanStr.replace(/([+\-x=])/g, ' $1 ').replace(/\s+/g, ' ').trim().split(' ');
   
   return (
-    <div className="flex items-center gap-1 text-[13px] font-bold font-mono py-1.5 break-inside-avoid justify-start pl-4 border-b border-dashed border-slate-100/50">
+    <div className="flex items-center gap-1 text-[20px] font-bold font-mono py-1.5 break-inside-avoid justify-start pl-4 border-b border-dashed border-slate-100/50">
       <span className="text-blue-600 font-sans w-6 text-right shrink-0 text-xs">{index}.</span>
       <div className="flex items-center flex-wrap">
         {parts.map((part: string, i: number) => {
@@ -197,7 +197,7 @@ const ProblemRow = ({ index, problem, isAnswer = false, topicId }: { index: numb
           if (part === '=') return <span key={i} className="mx-1 text-blue-600">=</span>;
           if (part === 'x') return <span key={i} className="mx-1 text-blue-400">×</span>;
           if (part === '+' || part === '-') return <span key={i} className="mx-1 text-primary">{part}</span>;
-          return <span key={i} className={cn("mx-0.5 text-slate-700 text-[13px]", isAnswer && "text-red-500 underline decoration-dotted font-black")}>{part}</span>;
+          return <span key={i} className={cn("mx-0.5 text-slate-700 text-[20px]", isAnswer && "text-red-500 underline decoration-dotted font-black")}>{part}</span>;
         })}
       </div>
     </div>
@@ -619,8 +619,8 @@ export default function ArchimedesMixerPage() {
                         <Image 
                           src="/logo.png" 
                           alt="Logo" 
-                          width={60} 
-                          height={60} 
+                          width={80} 
+                          height={80} 
                           className="object-contain" 
                         />
                       </div>

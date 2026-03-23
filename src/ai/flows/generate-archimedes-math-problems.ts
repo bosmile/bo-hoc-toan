@@ -28,7 +28,10 @@ const GenerateArchimedesMathProblemsInputSchema = z.object({
 export type GenerateArchimedesMathProblemsInput = z.infer<typeof GenerateArchimedesMathProblemsInputSchema>;
 
 const GenerateArchimedesMathProblemsOutputSchema = z.object({
-  problems: z.array(z.string()).describe('An array of generated math problems.'),
+  problems: z.array(z.object({
+    question: z.string(),
+    answer: z.string()
+  })),
 });
 
 export type GenerateArchimedesMathProblemsOutput = z.infer<typeof GenerateArchimedesMathProblemsOutputSchema>;
@@ -78,10 +81,48 @@ const generateArchimedesMathProblemsFlow = ai.defineFlow(
     outputSchema: GenerateArchimedesMathProblemsOutputSchema,
   },
   async (input) => {
-    const { output } = await problemPrompt(input);
-    if (!output) {
-      throw new Error('Failed to generate math problems. Output was empty.');
+    const { unknownVariable, operationMode, rangeA, rangeB, rangeC, rangeD, numProblems } = input;
+    const problems = new Set<string>();
+    const fullProblems = [];
+    const maxTries = 20000;
+    let tries = 0;
+
+    const randomInt = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+    while (problems.size < (numProblems || 10) && tries < maxTries) {
+      tries++;
+      const A = randomInt(rangeA.min, rangeA.max);
+      const B = randomInt(rangeB.min, rangeB.max);
+      const C = randomInt(rangeC.min, rangeC.max);
+      
+      let op1 = operationMode === 'plus' ? '+' : (operationMode === 'minus' ? '-' : (Math.random() > 0.5 ? '+' : '-'));
+      let op2 = operationMode === 'plus' ? '+' : (operationMode === 'minus' ? '-' : (Math.random() > 0.5 ? '+' : '-'));
+
+      const res1 = op1 === '+' ? A + B : A - B;
+      if (res1 < 0) continue;
+
+      const D = op2 === '+' ? res1 + C : res1 - C;
+      if (D < 0 || D < rangeD.min || D > rangeD.max) continue;
+
+      let strA = A.toString();
+      let strB = B.toString();
+      let strC = C.toString();
+      let strD = D.toString();
+
+      if (unknownVariable === 'A') strA = '_';
+      if (unknownVariable === 'B') strB = '_';
+      if (unknownVariable === 'C') strC = '_';
+      if (unknownVariable === 'D') strD = '_';
+
+      const q = `${strA} ${op1} ${strB} ${op2} ${strC} = ${strD}`;
+      const ans = `${A} ${op1} ${B} ${op2} ${C} = ${D}`;
+      
+      if (!problems.has(q)) {
+        problems.add(q);
+        fullProblems.push({ question: q, answer: ans });
+      }
     }
-    return output;
+
+    return { problems: fullProblems };
   }
 );
