@@ -1,8 +1,9 @@
 'use server';
 /**
  * @fileOverview A Genkit flow for generating periodic sequence problems.
- *
+ * 
  * - generateSequenceProblems - Generates problems where a sequence of numbers repeats.
+ * - Strict Pattern Logic: Each distinct number in the cycle appears exactly once in the grid.
  */
 
 import { ai } from '@/ai/genkit';
@@ -11,8 +12,8 @@ import { z } from 'genkit';
 const SequenceProblemSchema = z.object({
   cycleNumbers: z.array(z.number().int()).describe('The numbers forming one repeating cycle.'),
   cycleSum: z.number().int().describe('The sum of one cycle.'),
-  grid: z.array(z.string()).describe('The sequence grid with underscores for blanks, e.g., ["1", "_", "5", "1", "4", "_"]'),
-  instruction: z.string().describe('The instruction text, e.g., "Biết tổng 3 số liên tiếp bằng 10"'),
+  grid: z.array(z.string()).describe('The sequence grid with underscores for blanks.'),
+  instruction: z.string().describe('The instruction text.'),
 });
 
 const GenerateSequenceInputSchema = z.object({
@@ -39,20 +40,21 @@ const sequencePrompt = ai.definePrompt({
   name: 'generateSequenceProblemsPrompt',
   input: { schema: GenerateSequenceInputSchema },
   output: { schema: GenerateSequenceOutputSchema },
-  prompt: `You are a math teacher creating "Periodic Sequence" problems.
+  prompt: `You are a math teacher creating "Strict Periodic Sequence" problems for advanced primary students.
 Generate {{numProblems}} unique problems.
 
 Rules:
-1. Cycle Length: {{cycleLength}} (either 3 or 4).
-2. Cycle Sum: Must be exactly the sum of the cycle numbers, and ≤ {{maxCycleSum}}.
-3. Grid: A sequence of length 12-15.
-4. Clue Logic: 
-   - Hiding Strategy: You must hide some numbers (replace with '_'). 
-   - Ensure the student can logically determine ALL numbers in the cycle.
-   - For a cycle of 3 (a, b, c), provide at least one 'a', one 'b', and one 'c' at different positions in the grid, OR provide two of them and the total sum.
-   - Example (Cycle 3, Sum 10): If numbers are [2, 3, 5], the grid could be ["2", "_", "5", "_", "3", "_", "2", "_", "5"].
-5. Difficulty: The sum should be clearly stated in the instruction.
-6. Output: Return an array of objects with cycleNumbers, cycleSum, grid, and instruction.`,
+1. Cycle Length (N): {{cycleLength}} (either 3 or 4).
+2. Cycle Sum (S): Must be exactly the sum of the N cycle numbers, and ≤ {{maxCycleSum}}.
+3. Grid: A sequence array of length 12-15.
+4. Hiding Strategy (STRICT PATTERN):
+   - For a cycle of length N (e.g., [a, b, c] for N=3), you must provide EXACTLY ONE instance of each number (a, b, c) in the grid at a valid periodic position.
+   - For example, if N=3 and cycle is [2, 3, 5], you might place '2' at index 0, '3' at index 4 (mod 3 = 1), and '5' at index 8 (mod 3 = 2).
+   - ALL OTHER POSITIONS in the grid must be underscores ('_').
+   - This ensures the student sees only one of each number in the entire grid and MUST use the provided sum S to find any missing numbers before filling the rest.
+5. Difficulty: The sum S must be clearly stated in the instruction.
+6. Instruction Format: "Biết tổng của {{cycleLength}} số liên tiếp bằng {{cycleSum}}. Em hãy tìm số còn thiếu và hoàn thiện bảng sau:"
+7. Output: Return an array of objects with cycleNumbers, cycleSum, grid, and instruction.`,
 });
 
 const generateSequenceProblemsFlow = ai.defineFlow(

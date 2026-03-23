@@ -38,24 +38,33 @@ const formSchema = z.object({
 const SequenceBox = ({ value }: { value: string }) => {
   const isBlank = value === '_';
   return (
-    <div className={`size-12 flex items-center justify-center border-2 font-mono text-xl font-bold shadow-sm ${
+    <div className={`size-11 flex items-center justify-center border-2 font-mono text-xl font-bold shadow-sm ${
       isBlank 
-        ? "bg-blue-50 border-blue-200 rounded-lg shadow-inner" 
-        : "bg-white border-gray-200 rounded-md"
+        ? "bg-blue-50/50 border-blue-200 rounded-lg shadow-inner relative overflow-hidden" 
+        : "bg-white border-gray-300 rounded-md"
     }`}>
-      {isBlank ? "" : value}
+      {isBlank ? (
+        <div className="absolute inset-0 opacity-10 pointer-events-none" 
+          style={{ 
+            backgroundImage: 'linear-gradient(#3b82f6 1px, transparent 1px), linear-gradient(90deg, #3b82f6 1px, transparent 1px)',
+            backgroundSize: '8px 8px' 
+          }} 
+        />
+      ) : value}
     </div>
   );
 };
 
 const SequenceProblem = ({ index, problem }: { index: number, problem: any }) => {
   return (
-    <div className="space-y-6 break-inside-avoid py-4">
+    <div className="space-y-6 break-inside-avoid py-6">
       <div className="space-y-2">
-        <h3 className="text-lg font-bold text-blue-700">
-          Bài {index}: {problem.instruction}
+        <h3 className="text-xl font-black text-blue-700 tracking-tight">
+          Bài {index}: Điền số theo quy luật chu kỳ
         </h3>
-        <p className="text-sm italic text-gray-600">Em hãy hoàn thiện bảng dãy số sau:</p>
+        <p className="text-sm font-medium text-gray-700">
+          {problem.instruction}
+        </p>
       </div>
 
       <div className="flex flex-wrap gap-1">
@@ -64,15 +73,18 @@ const SequenceProblem = ({ index, problem }: { index: number, problem: any }) =>
         ))}
       </div>
 
-      <div className="pt-4 border-2 border-dashed border-gray-100 rounded-xl p-6 bg-gray-50/30">
-        <p className="text-sm font-bold text-gray-400 italic mb-10 flex items-center gap-2">
-          <span className="text-xl">✍️</span> Lời giải của em:
+      <div className="mt-8 pt-4 border-2 border-dashed border-blue-100 rounded-2xl p-6 bg-blue-50/10">
+        <p className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-10 flex items-center gap-2">
+          <span className="text-xl">✍️</span> Phần trình bày của em:
         </p>
-        <div className="space-y-4">
-          <div className="h-px bg-gray-200 w-full border-t border-dotted border-gray-400" />
-          <div className="h-px bg-gray-200 w-full border-t border-dotted border-gray-400" />
-          <div className="h-px bg-gray-200 w-full border-t border-dotted border-gray-400" />
+        <div className="space-y-6 pb-2">
+          <div className="h-px w-full border-t border-dotted border-gray-400" />
+          <div className="h-px w-full border-t border-dotted border-gray-400" />
+          <div className="h-px w-full border-t border-dotted border-gray-400" />
         </div>
+        <p className="mt-4 text-[10px] text-gray-400 italic text-right">
+          (Gợi ý: Ta có ... + ... + ... = ... nên số còn thiếu là ...)
+        </p>
       </div>
     </div>
   );
@@ -100,7 +112,7 @@ export default function ChuyenDe5Page() {
     try {
       const result = await generateSequenceProblems(values)
       setResults(result.problems)
-      toast({ title: "Thành công!", description: `Đã tạo ${result.problems.length} câu quy luật.` })
+      toast({ title: "Thành công!", description: `Đã tạo ${result.problems.length} câu quy luật chu kỳ.` })
     } catch (error) {
       toast({ variant: "destructive", title: "Lỗi", description: "Không thể tạo câu hỏi." })
     } finally {
@@ -115,7 +127,7 @@ export default function ChuyenDe5Page() {
           <Badge variant="outline" className="text-primary border-primary/20 bg-primary/5">Toán Archimedes</Badge>
           <h1 className="text-3xl font-bold tracking-tight text-primary uppercase">Chuyên đề 5: Quy luật dãy số chu kỳ</h1>
           <p className="text-muted-foreground max-w-2xl">
-            Điền số vào dãy dựa trên tính chất tổng của các số hạng liên tiếp.
+            Tìm số hạng khuyết dựa trên tính chất tổng không đổi của các chu kỳ liên tiếp.
           </p>
         </div>
         <Button variant="outline" asChild className="gap-2">
@@ -143,12 +155,12 @@ export default function ChuyenDe5Page() {
                     name="cycleLength"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Độ dài chu kỳ</FormLabel>
+                        <FormLabel>Độ dài chu kỳ (N)</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value.toString()}>
                           <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
                           <SelectContent>
-                            <SelectItem value="3">3 số liên tiếp</SelectItem>
-                            <SelectItem value="4">4 số liên tiếp</SelectItem>
+                            <SelectItem value="3">Chu kỳ 3 số</SelectItem>
+                            <SelectItem value="4">Chu kỳ 4 số</SelectItem>
                           </SelectContent>
                         </Select>
                       </FormItem>
@@ -160,7 +172,7 @@ export default function ChuyenDe5Page() {
                     name="maxCycleSum"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Tổng một chu kỳ (Max)</FormLabel>
+                        <FormLabel>Tổng một chu kỳ (S)</FormLabel>
                         <FormControl><Input type="number" {...field} /></FormControl>
                       </FormItem>
                     )}
@@ -171,7 +183,7 @@ export default function ChuyenDe5Page() {
                     name="numProblems"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Số lượng câu hỏi (Max 2 trang/lần)</FormLabel>
+                        <FormLabel>Số lượng câu hỏi (Max 2 câu/trang)</FormLabel>
                         <FormControl><Input type="number" {...field} /></FormControl>
                       </FormItem>
                     )}
@@ -192,7 +204,7 @@ export default function ChuyenDe5Page() {
             <CardHeader className="no-print border-b bg-muted/20 flex flex-row items-center justify-between">
               <div>
                 <CardTitle className="text-lg">Xem trước bài tập</CardTitle>
-                <CardDescription>Mẫu quy luật MathLab.</CardDescription>
+                <CardDescription>Bố cục quy luật chuẩn MathLab.</CardDescription>
               </div>
               {results.length > 0 && (
                 <Button onClick={() => handlePrint()} className="gap-2 bg-primary text-white font-bold">
@@ -219,18 +231,13 @@ export default function ChuyenDe5Page() {
 
                       <div className="mb-12 text-center">
                         <h2 className="text-4xl font-black text-blue-600 mb-2 uppercase tracking-tight">Quy luật chu kỳ</h2>
-                        <p className="text-lg italic text-blue-400 font-medium">Tìm các con số đang lẩn trốn trong dãy số nhé!</p>
+                        <p className="text-lg italic text-blue-400 font-medium font-serif">Tìm các con số đang lẩn trốn trong dãy số nhé!</p>
                       </div>
 
                       <div className="space-y-16">
                         {results.map((prob, idx) => (
                            <SequenceProblem key={idx} index={idx + 1} problem={prob} />
                         ))}
-                      </div>
-
-                      <div className="absolute bottom-[15mm] left-[15mm] right-[15mm] flex justify-between items-end border-t border-gray-100 pt-8">
-                         <p className="text-[10px] text-gray-400">© 2024 MathLab Educational Tools.</p>
-                         <QrCode className="size-10 text-gray-200" />
                       </div>
                     </div>
                   </div>

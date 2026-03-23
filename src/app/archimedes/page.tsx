@@ -66,11 +66,19 @@ const ComparisonBox = () => (
 const SequenceBox = ({ value, isAnswer = false }: { value: string, isAnswer?: boolean }) => {
   const isBlank = value === '_';
   return (
-    <div className={`size-12 flex items-center justify-center border-2 font-mono text-xl font-bold shadow-sm ${
+    <div className={`size-11 flex items-center justify-center border-2 font-mono text-xl font-bold shadow-sm ${
       isBlank 
-        ? "bg-blue-50 border-blue-200 rounded-lg shadow-inner" 
-        : "bg-white border-gray-200 rounded-md"
+        ? "bg-blue-50/50 border-blue-200 rounded-lg shadow-inner relative overflow-hidden" 
+        : "bg-white border-gray-300 rounded-md"
     } ${isAnswer && isBlank ? "text-red-500 underline decoration-dotted" : ""}`}>
+      {isBlank && (
+        <div className="absolute inset-0 opacity-10 pointer-events-none" 
+          style={{ 
+            backgroundImage: 'linear-gradient(#3b82f6 1px, transparent 1px), linear-gradient(90deg, #3b82f6 1px, transparent 1px)',
+            backgroundSize: '8px 8px' 
+          }} 
+        />
+      )}
       {isAnswer && isBlank ? "?" : (isBlank ? "" : value)}
     </div>
   );
@@ -125,18 +133,24 @@ const VerticalProblemRow = ({ index, problem, isAnswer = false }: { index: numbe
 };
 
 const ProblemRow = ({ index, problem, isAnswer = false }: { index: number, problem: any, isAnswer?: boolean }) => {
-  // Check if it's a sequence problem (Grid)
   if (problem.grid) {
      return (
-        <div className="col-span-2 space-y-4 py-4 border-b border-dashed border-gray-100 break-inside-avoid">
-           <p className="font-bold text-blue-700">Câu {index}: {problem.instruction}</p>
+        <div className="col-span-full space-y-4 py-6 border-b border-dashed border-blue-50 break-inside-avoid">
+           <div className="space-y-1">
+              <p className="font-black text-blue-700">Câu {index}: Điền số theo quy luật chu kỳ</p>
+              <p className="text-xs text-gray-600 font-medium italic">{problem.instruction}</p>
+           </div>
            <div className="flex flex-wrap gap-1">
               {problem.grid.map((val: string, i: number) => (
                  <SequenceBox key={i} value={val} isAnswer={isAnswer} />
               ))}
            </div>
-           <div className="mt-4 border border-dashed border-gray-200 rounded p-4 h-24 bg-gray-50/20">
-              <p className="text-[10px] text-gray-400 italic">✍️ Lời giải của em:</p>
+           <div className="mt-4 pt-4 border-2 border-dashed border-blue-100 rounded-xl p-5 bg-blue-50/10">
+              <p className="text-[10px] text-blue-400 font-bold uppercase tracking-widest mb-10 flex items-center gap-2">✍️ Phần trình bày của em:</p>
+              <div className="space-y-4 pb-2">
+                <div className="h-px w-full border-t border-dotted border-gray-300" />
+                <div className="h-px w-full border-t border-dotted border-gray-300" />
+              </div>
            </div>
         </div>
      );
@@ -197,9 +211,9 @@ const TopicSection = ({ batch, batchIdx, isAnswer = false }: { batch: QuestionBa
   const isSequence = batch.topicId === 5;
 
   return (
-    <div className="mb-10 break-inside-avoid-page">
-      <div className="mb-4">
-        <h3 className="text-lg font-black text-blue-700 uppercase tracking-tight">
+    <div className="mb-12 break-inside-avoid-page">
+      <div className="mb-6">
+        <h3 className="text-xl font-black text-blue-700 uppercase tracking-tight">
           Bài {batchIdx + 1}: {batch.topicTitle}
         </h3>
         <p className="text-sm italic text-gray-600 font-medium">
@@ -544,7 +558,7 @@ export default function ArchimedesMixerPage() {
                     
                     <div className="mb-12 text-center">
                       <h2 className="text-4xl font-black text-blue-600 mb-2 uppercase tracking-tight">Phiếu Bài Tập Tổng Hợp</h2>
-                      <p className="text-lg italic text-blue-400 font-medium">Thử thách vượt qua các chuyên đề toán tư duy!</p>
+                      <p className="text-lg italic text-blue-400 font-medium font-serif">Thử thách vượt qua các chuyên đề toán tư duy!</p>
                     </div>
 
                     <div className="space-y-12">
