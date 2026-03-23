@@ -71,7 +71,7 @@ const SequenceBox = ({ value, isAnswer = false }: { value: string, isAnswer?: bo
   const isBlank = value === '_';
   return (
     <div className={cn(
-      "size-7 flex items-center justify-center border-2 font-mono text-sm font-bold shadow-sm p-0",
+      "size-7 flex items-center justify-center border-2 font-mono text-sm font-bold shadow-sm p-0 flex-shrink-0",
       isBlank 
         ? "bg-blue-50/50 border-blue-200 rounded-md shadow-inner relative overflow-hidden" 
         : "bg-white border-gray-300 rounded-sm text-slate-700"
@@ -121,7 +121,7 @@ const VerticalProblemRow = ({ index, problem, isAnswer = false }: { index: numbe
   const resultDigits = (isAnswer ? problem.fullEquation.split(' ')[4] : problem.result).split('');
 
   return (
-    <div className="flex flex-col items-center justify-center break-inside-avoid print:py-2">
+    <div className="flex flex-col items-center justify-center break-inside-avoid print:py-1">
       <div className="flex items-start gap-1">
         <span className="text-blue-600 font-sans font-bold text-[9px] shrink-0 pt-3">{index}.</span>
         <div className="flex flex-col items-end gap-0.5 relative pt-1 pr-1">
@@ -155,7 +155,7 @@ const ProblemRow = ({ index, problem, isAnswer = false, topicId }: { index: numb
                 <span className="size-5 rounded-full bg-primary text-white flex items-center justify-center text-[9px] font-bold">Câu {index}</span>
                 <p className="text-xs font-black text-primary tracking-tight uppercase">Quy luật chu kỳ</p>
               </div>
-              <div className="flex flex-nowrap items-center justify-center gap-0.5 p-1 bg-slate-50/30 rounded-lg border border-slate-100/50 w-full overflow-hidden">
+              <div className="flex flex-nowrap items-center justify-center gap-1 p-1 bg-slate-50/30 rounded-lg border border-slate-100/50 w-full overflow-hidden">
                 {problem.grid.map((val: string, i: number) => (
                   <SequenceBox key={i} value={val} isAnswer={isAnswer} />
                 ))}
@@ -358,7 +358,7 @@ export default function ArchimedesMixerPage() {
         <div className="space-y-4 flex-1">
           <div className="space-y-2">
             <Badge variant="outline" className="text-primary border-primary/20 bg-primary/5 px-3 py-1 font-bold">BƠ HỌC TOÁN - Master Mixer</Badge>
-            <h1 className="text-4xl font-black tracking-tight text-primary uppercase leading-none italic">Bộ Trộn Đề Archimedes</h1>
+            <h1 className="text-4xl font-black tracking-tight text-primary uppercase leading-none italic">Phiếu Bài tập Archimedes</h1>
             <p className="text-muted-foreground max-w-xl">Tái cấu trúc đề thi theo từng Bài học. Tối ưu hóa trang in.</p>
           </div>
           <div className="max-w-md space-y-2">
@@ -625,18 +625,18 @@ export default function ArchimedesMixerPage() {
                 <div className="p-0">
                   <div ref={contentRef} className="print-container bg-white text-black font-sans relative">
                     {/* Watermark Overlay */}
-                    <div className="watermark-overlay fixed inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none z-[-1] overflow-hidden">
+                    <div className="watermark-overlay fixed inset-0 flex items-center justify-center opacity-[0.06] pointer-events-none z-[-1] overflow-hidden">
                        <Image 
                         src="https://storage.googleapis.com/demos-pipeline-artifacts-0f3d548b-3061-46c7-9857-e696cc86535d/image_15.png" 
                         alt="Watermark" 
-                        width={800} 
-                        height={800}
+                        width={600} 
+                        height={600}
                         className="object-contain"
                       />
                     </div>
 
                     {/* Header */}
-                    <div className="flex justify-between items-center mb-6 border-b-4 border-primary pb-4">
+                    <div className="flex justify-between items-center mb-4 border-b-4 border-primary pb-4">
                       <div className="flex items-center gap-4 shrink-0">
                         <Image 
                           src="https://storage.googleapis.com/demos-pipeline-artifacts-0f3d548b-3061-46c7-9857-e696cc86535d/image_15.png" 
@@ -666,6 +666,15 @@ export default function ArchimedesMixerPage() {
                           startIndex={batch.startIndex} 
                         />
                       ))}
+                    </div>
+
+                    {/* Footer Signature */}
+                    <div className="mt-8 pt-4 border-t border-dashed border-primary/20 flex justify-between items-center opacity-40">
+                      <p className="text-[9px] font-bold uppercase tracking-widest text-primary">© BƠ HỌC TOÁN - NUMBER GARDEN EDITION</p>
+                      <div className="flex items-center gap-2">
+                        <Heart className="size-3 text-destructive" />
+                        <span className="text-[9px] font-medium italic">Học toán thật vui cùng bé!</span>
+                      </div>
                     </div>
 
                     {/* Answer Key (Optional) */}
