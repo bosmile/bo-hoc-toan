@@ -8,7 +8,8 @@ import {
   Calculator, 
   BrainCircuit,
   Settings,
-  List
+  List,
+  Scale
 } from "lucide-react"
 
 import {
@@ -31,6 +32,7 @@ const navigation = {
       { title: "Mục lục chính", url: "/archimedes", icon: List },
       { title: "CĐ1: Biểu thức 3 số", url: "/archimedes/chuyen-de-1", icon: Calculator },
       { title: "CĐ2: Phép nhân", url: "/archimedes/chuyen-de-2", icon: Calculator },
+      { title: "CĐ3: So sánh biểu thức", url: "/archimedes/chuyen-de-3", icon: Scale },
     ],
   },
   singapore: {
