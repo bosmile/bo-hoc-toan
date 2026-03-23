@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -15,6 +16,7 @@ import {
   FileText,
   QrCode
 } from "lucide-react"
+import { useReactToPrint } from "react-to-print"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -97,6 +99,11 @@ export default function ArchimedesMixerPage() {
   const [isLoading, setIsLoading] = React.useState(false)
   const { toast } = useToast()
 
+  const contentRef = React.useRef<HTMLDivElement>(null)
+  const handlePrint = useReactToPrint({
+    contentRef,
+  })
+
   const updateTopicCount = (id: number, count: number) => {
     setTopics(prev => prev.map(t => t.id === id ? { ...t, count: Math.max(0, count) } : t))
   }
@@ -138,22 +145,15 @@ export default function ArchimedesMixerPage() {
     }
   }
 
-  const handlePrint = () => {
-    if (typeof window !== "undefined") {
-      window.print();
-    }
-  }
-
   const mid = Math.ceil(mixedProblems.length / 2);
   const leftCol = mixedProblems.slice(0, mid);
   const rightCol = mixedProblems.slice(mid);
 
   return (
     <div className="space-y-8 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      {/* Floating Print Button - Fixed and Functional */}
       {mixedProblems.length > 0 && (
         <Button 
-          onClick={handlePrint} 
+          onClick={() => handlePrint()} 
           className="no-print fixed right-6 top-[55%] -translate-y-1/2 z-50 gap-3 rounded-full shadow-2xl px-6 py-7 bg-primary hover:bg-primary/90 text-white font-black text-sm transition-all hover:scale-105 active:scale-95"
         >
           <Printer className="size-5" />
@@ -339,58 +339,61 @@ export default function ArchimedesMixerPage() {
             <CardContent className="flex-1 p-0 relative overflow-hidden">
               {mixedProblems.length > 0 ? (
                 <div className="p-10 print:p-0">
-                  <div className="print-only w-[210mm] h-[297mm] mx-auto p-[15mm] bg-white text-black font-sans relative">
-                    <div className="flex justify-between items-start mb-10 border-b-2 border-blue-600 pb-6">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-blue-600 rounded-lg">
-                          <Settings2 className="size-8 text-white" />
+                  {/* Print Wrapper */}
+                  <div ref={contentRef}>
+                    <div className="print-only w-[210mm] h-[297mm] mx-auto p-[15mm] bg-white text-black font-sans relative">
+                      <div className="flex justify-between items-start mb-10 border-b-2 border-blue-600 pb-6">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-blue-600 rounded-lg">
+                            <Settings2 className="size-8 text-white" />
+                          </div>
+                          <div>
+                            <h1 className="text-3xl font-black text-blue-600 leading-none">MathLab</h1>
+                            <p className="text-[10px] text-blue-400 font-bold uppercase tracking-wider mt-1">Number Garden Edition</p>
+                          </div>
                         </div>
-                        <div>
-                          <h1 className="text-3xl font-black text-blue-600 leading-none">MathLab</h1>
-                          <p className="text-[10px] text-blue-400 font-bold uppercase tracking-wider mt-1">Number Garden Edition</p>
+                        <div className="text-right space-y-3 pt-2">
+                          <p className="text-sm font-medium">Họ và tên: .....................................................</p>
+                          <p className="text-sm font-medium">Ngày: ...........................................................</p>
                         </div>
                       </div>
-                      <div className="text-right space-y-3 pt-2">
-                        <p className="text-sm font-medium">Họ và tên: .....................................................</p>
-                        <p className="text-sm font-medium">Ngày: ...........................................................</p>
-                      </div>
-                    </div>
 
-                    <div className="mb-12 text-center">
-                      <h2 className="text-4xl font-black text-blue-600 mb-2">Tìm số còn thiếu</h2>
-                      <p className="text-lg italic text-blue-400 font-medium">Thử thách điền số thích hợp vào chỗ trống nhé!</p>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-x-16 gap-y-10">
-                      <div className="space-y-10">
-                        {leftCol.map((prob, idx) => (
-                           <ProblemRow key={idx} index={idx + 1} problem={prob} />
-                        ))}
+                      <div className="mb-12 text-center">
+                        <h2 className="text-4xl font-black text-blue-600 mb-2">Tìm số còn thiếu</h2>
+                        <p className="text-lg italic text-blue-400 font-medium">Thử thách điền số thích hợp vào chỗ trống nhé!</p>
                       </div>
-                      <div className="space-y-10">
-                        {rightCol.map((prob, idx) => (
-                           <ProblemRow key={idx} index={idx + 1 + mid} problem={prob} />
-                        ))}
-                      </div>
-                    </div>
 
-                    <div className="absolute bottom-[15mm] left-[15mm] right-[15mm]">
-                      <div className="flex justify-between items-end border-t border-gray-100 pt-8">
-                         <div className="space-y-4">
-                            <div className="inline-flex items-center gap-2 bg-green-50 text-green-700 px-6 py-2 rounded-full font-bold text-sm">
-                               <span className="text-lg">🏆</span>
-                               Cố lên, bạn làm được mà!
-                            </div>
-                            <p className="text-[10px] text-gray-400">
-                               © 2024 MathLab Educational Tools. Bản quyền thuộc về MathLab.
-                            </p>
-                         </div>
-                         <div className="flex flex-col items-center gap-1">
-                            <div className="size-16 border-2 border-gray-100 rounded-lg flex items-center justify-center">
-                               <QrCode className="size-10 text-gray-200" />
-                            </div>
-                            <span className="text-[8px] text-gray-400 font-bold uppercase">Quét để xem đáp án</span>
-                         </div>
+                      <div className="grid grid-cols-2 gap-x-16 gap-y-10">
+                        <div className="space-y-10">
+                          {leftCol.map((prob, idx) => (
+                             <ProblemRow key={idx} index={idx + 1} problem={prob} />
+                          ))}
+                        </div>
+                        <div className="space-y-10">
+                          {rightCol.map((prob, idx) => (
+                             <ProblemRow key={idx} index={idx + 1 + mid} problem={prob} />
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="absolute bottom-[15mm] left-[15mm] right-[15mm]">
+                        <div className="flex justify-between items-end border-t border-gray-100 pt-8">
+                           <div className="space-y-4">
+                              <div className="inline-flex items-center gap-2 bg-green-50 text-green-700 px-6 py-2 rounded-full font-bold text-sm">
+                                 <span className="text-lg">🏆</span>
+                                 Cố lên, bạn làm được mà!
+                              </div>
+                              <p className="text-[10px] text-gray-400">
+                                 © 2024 MathLab Educational Tools. Bản quyền thuộc về MathLab.
+                              </p>
+                           </div>
+                           <div className="flex flex-col items-center gap-1">
+                              <div className="size-16 border-2 border-gray-100 rounded-lg flex items-center justify-center">
+                                 <QrCode className="size-10 text-gray-200" />
+                              </div>
+                              <span className="text-[8px] text-gray-400 font-bold uppercase">Quét để xem đáp án</span>
+                           </div>
+                        </div>
                       </div>
                     </div>
                   </div>

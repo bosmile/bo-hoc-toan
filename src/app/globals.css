@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -84,7 +85,7 @@
   }
   @page {
     size: A4;
-    margin: 0;
+    margin: 10mm;
   }
   .page-break {
     page-break-after: always;
