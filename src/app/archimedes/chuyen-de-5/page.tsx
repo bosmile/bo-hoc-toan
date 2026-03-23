@@ -40,7 +40,7 @@ const SequenceBox = ({ value }: { value: string }) => {
   const isBlank = value === '_';
   return (
     <div className={cn(
-      "size-11 flex items-center justify-center border-2 font-mono text-xl font-bold shadow-sm transition-all",
+      "size-8 flex items-center justify-center border-2 font-mono text-base font-bold shadow-sm transition-all p-0",
       isBlank 
         ? "bg-blue-50/50 border-blue-200 rounded-lg shadow-inner relative overflow-hidden" 
         : "bg-white border-gray-300 rounded-md text-slate-700"
@@ -58,46 +58,45 @@ const SequenceBox = ({ value }: { value: string }) => {
 };
 
 const SequenceProblem = ({ index, problem }: { index: number, problem: any }) => {
-  // Identify the known numbers from the grid to build the hint
   const gridNumbers = problem.grid.filter((v: string) => v !== '_').map(Number);
   const knownNumbers = Array.from(new Set(gridNumbers));
   
   return (
-    <div className="space-y-6 break-inside-avoid py-8">
-      <div className="space-y-2">
-        <h3 className="text-xl font-black text-blue-700 tracking-tight flex items-center gap-3">
-          <span className="size-8 rounded-full bg-blue-700 text-white flex items-center justify-center text-sm">Bài {index}</span>
+    <div className="space-y-4 break-inside-avoid py-4">
+      <div className="space-y-1">
+        <h3 className="text-lg font-black text-blue-700 tracking-tight flex items-center gap-3">
+          <span className="size-7 rounded-full bg-blue-700 text-white flex items-center justify-center text-xs">Bài {index}</span>
           Điền số theo quy luật chu kỳ
         </h3>
-        <p className="text-sm font-medium text-slate-600 leading-relaxed italic">
+        <p className="text-xs font-medium text-slate-600 leading-relaxed italic">
           {problem.instruction}
         </p>
       </div>
 
-      <div className="flex flex-wrap gap-1.5 p-1 bg-slate-50/50 rounded-xl border border-slate-100">
+      <div className="flex flex-nowrap items-center justify-center gap-0.5 p-1 bg-slate-50/50 rounded-xl border border-slate-100 overflow-hidden w-full">
         {problem.grid.map((val: string, i: number) => (
           <SequenceBox key={i} value={val} />
         ))}
       </div>
 
-      <div className="mt-8 pt-6 rounded-3xl p-0 bg-blue-50/5">
-        <p className="text-xs font-black text-blue-500 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-          <span className="text-xl">✍️</span> Phần trình bày của em:
+      <div className="mt-2 pt-2 bg-blue-50/5">
+        <p className="text-[10px] font-black text-blue-500 uppercase tracking-wider mb-2 flex items-center gap-2">
+          Phần trình bày của em:
         </p>
         
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 text-lg font-medium text-slate-500 italic font-serif flex-wrap">
+        <div className="space-y-1">
+          <div className="flex items-center gap-1.5 text-sm font-medium text-slate-500 italic font-serif flex-wrap">
             <span>Ta có:</span>
             {knownNumbers.map((num: any, idx: number) => (
               <React.Fragment key={idx}>
                 <span className="text-slate-700 font-bold not-italic">{num}</span>
-                <span className="mx-1">+</span>
+                <span className="mx-0.5">+</span>
               </React.Fragment>
             ))}
             <span className="font-bold text-primary not-italic">?</span>
-            <span className="mx-1">=</span>
+            <span className="mx-0.5">=</span>
             <span className="text-slate-700 font-bold not-italic">{problem.cycleSum}</span>
-            <span className="ml-2">nên số còn thiếu là:</span>
+            <span className="ml-1">nên số còn thiếu là:</span>
           </div>
         </div>
       </div>
@@ -145,12 +144,14 @@ export default function ChuyenDe5Page() {
             Sử dụng tính chất tổng không đổi của chu kỳ để tìm các số còn thiếu lẩn trốn trong dãy.
           </p>
         </div>
-        <Button variant="outline" asChild className="gap-2">
-          <Link href="/archimedes">
-            <PlusCircle className="size-4" />
-            Vào Bộ trộn đề
-          </Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" asChild className="gap-2">
+            <Link href="/archimedes">
+              <PlusCircle className="size-4" />
+              Bộ trộn đề
+            </Link>
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -198,7 +199,7 @@ export default function ChuyenDe5Page() {
                     name="numProblems"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Số lượng câu hỏi (Max 2 câu/trang)</FormLabel>
+                        <FormLabel>Số lượng câu hỏi</FormLabel>
                         <FormControl><Input type="number" {...field} /></FormControl>
                       </FormItem>
                     )}
@@ -233,10 +234,15 @@ export default function ChuyenDe5Page() {
                 <div className="p-8 print:p-0">
                   <div ref={contentRef}>
                     <div className="print-only w-[210mm] min-h-[297mm] mx-auto p-[15mm] bg-white text-black font-sans relative">
-                      <div className="flex justify-between items-start mb-10 border-b-2 border-blue-600 pb-6">
+                      <div className="flex justify-between items-start mb-10 border-b-2 border-primary pb-6">
                         <div className="flex items-center gap-3">
-                          <div className="p-2 bg-blue-600 rounded-lg"><Settings2 className="size-8 text-white" /></div>
-                          <div><h1 className="text-3xl font-black text-blue-600 leading-none">MathLab</h1><p className="text-[10px] text-blue-400 font-bold uppercase tracking-wider mt-1">Number Garden Edition</p></div>
+                          <div className="p-2 bg-primary rounded-lg">
+                             <Calculator className="size-8 text-white" />
+                          </div>
+                          <div>
+                            <h1 className="text-3xl font-black text-primary leading-none italic uppercase">MathLab</h1>
+                            <p className="text-[10px] text-accent font-bold uppercase tracking-wider mt-1">Number Garden Edition</p>
+                          </div>
                         </div>
                         <div className="text-right space-y-3 pt-2">
                           <p className="text-sm font-medium">Họ và tên: .....................................................</p>
@@ -245,11 +251,11 @@ export default function ChuyenDe5Page() {
                       </div>
 
                       <div className="mb-12 text-center">
-                        <h2 className="text-4xl font-black text-blue-600 mb-2 uppercase tracking-tight">Quy luật chu kỳ</h2>
-                        <p className="text-lg italic text-blue-400 font-medium font-serif">Tìm các con số đang lẩn trốn trong dãy số nhé!</p>
+                        <h2 className="text-4xl font-black text-primary mb-2 uppercase tracking-tight italic">Quy luật chu kỳ</h2>
+                        <p className="text-lg italic text-accent font-medium font-serif">Tìm các con số đang lẩn trốn trong dãy số nhé!</p>
                       </div>
 
-                      <div className="space-y-12">
+                      <div className="space-y-8">
                         {results.map((prob, idx) => (
                            <SequenceProblem key={idx} index={idx + 1} problem={prob} />
                         ))}

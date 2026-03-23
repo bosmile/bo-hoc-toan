@@ -70,10 +70,10 @@ const SequenceBox = ({ value, isAnswer = false }: { value: string, isAnswer?: bo
   const isBlank = value === '_';
   return (
     <div className={cn(
-      "size-9 flex items-center justify-center border-2 font-mono text-lg font-bold shadow-sm p-0.5",
+      "size-7 flex items-center justify-center border-2 font-mono text-sm font-bold shadow-sm p-0",
       isBlank 
-        ? "bg-blue-50/50 border-blue-200 rounded-lg shadow-inner relative overflow-hidden" 
-        : "bg-white border-gray-300 rounded-md text-slate-700"
+        ? "bg-blue-50/50 border-blue-200 rounded-md shadow-inner relative overflow-hidden" 
+        : "bg-white border-gray-300 rounded-sm text-slate-700"
     )}>
       {isBlank && (
         <div className="absolute inset-0 opacity-10 pointer-events-none" 
@@ -84,7 +84,7 @@ const SequenceBox = ({ value, isAnswer = false }: { value: string, isAnswer?: bo
         />
       )}
       {isAnswer && isBlank ? (
-        <span className="text-red-500 underline decoration-dotted decoration-red-200 underline-offset-2 font-black">?</span>
+        <span className="text-red-500 underline decoration-dotted decoration-red-200 underline-offset-2 font-black text-xs">?</span>
       ) : (isBlank ? "" : value)}
     </div>
   );
@@ -147,22 +147,22 @@ const ProblemRow = ({ index, problem, isAnswer = false, topicId }: { index: numb
      const knownNumbers = Array.from(new Set(gridNumbers));
      
      return (
-        <div className="col-span-full space-y-2 py-3 border-b border-dashed border-blue-100 break-inside-avoid">
-           <div className="flex items-center justify-between gap-4 flex-wrap">
-              <p className="text-base font-black text-primary tracking-tight flex items-center gap-2">
-                <span className="size-6 rounded-full bg-primary text-white flex items-center justify-center text-[10px]">Câu {index}</span>
-                Quy luật chu kỳ
-              </p>
-              <div className="flex flex-wrap gap-1 p-0.5 bg-slate-50/30 rounded-lg border border-slate-100/50">
+        <div className="col-span-full space-y-3 py-3 border-b border-dashed border-blue-100 break-inside-avoid">
+           <div className="flex flex-col items-center gap-2">
+              <div className="flex items-center gap-2 w-full">
+                <span className="size-5 rounded-full bg-primary text-white flex items-center justify-center text-[9px] font-bold">Câu {index}</span>
+                <p className="text-sm font-black text-primary tracking-tight uppercase">Quy luật chu kỳ</p>
+              </div>
+              <div className="flex flex-nowrap items-center justify-center gap-0.5 p-1 bg-slate-50/30 rounded-lg border border-slate-100/50 w-full overflow-hidden">
                 {problem.grid.map((val: string, i: number) => (
                   <SequenceBox key={i} value={val} isAnswer={isAnswer} />
                 ))}
               </div>
            </div>
            
-           <div className="pt-2 pl-8">
-              <div className="flex items-center gap-1.5 text-sm font-medium text-slate-500 italic font-serif flex-wrap">
-                <span className="text-blue-600/60 not-italic font-bold text-[10px] mr-1 uppercase">Tư duy:</span>
+           <div className="pt-1">
+              <div className="flex items-center gap-1 text-[11px] font-medium text-slate-500 italic font-serif flex-wrap">
+                <span className="text-primary/60 not-italic font-black text-[9px] mr-1 uppercase">Tư duy:</span>
                 <span>Ta có:</span>
                 {knownNumbers.map((num: any, idx: number) => (
                   <React.Fragment key={idx}>
@@ -356,7 +356,7 @@ export default function ArchimedesMixerPage() {
         <div className="space-y-4 flex-1">
           <div className="space-y-2">
             <Badge variant="outline" className="text-primary border-primary/20 bg-primary/5 px-3 py-1 font-bold">BƠ HỌC TOÁN - Master Mixer</Badge>
-            <h1 className="text-4xl font-black tracking-tight text-primary uppercase leading-none">Bộ Trộn Đề Archimedes</h1>
+            <h1 className="text-4xl font-black tracking-tight text-primary uppercase leading-none italic">Bộ Trộn Đề Archimedes</h1>
             <p className="text-muted-foreground max-w-xl">Tái cấu trúc đề thi theo từng Bài học. Tối ưu hóa trang in.</p>
           </div>
           <div className="max-w-md space-y-2">
