@@ -151,16 +151,6 @@ export default function ArchimedesMixerPage() {
 
   return (
     <div className="space-y-8 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      {mixedProblems.length > 0 && (
-        <Button 
-          onClick={() => handlePrint()} 
-          className="no-print fixed right-6 top-[55%] -translate-y-1/2 z-50 gap-3 rounded-full shadow-2xl px-6 py-7 bg-primary hover:bg-primary/90 text-white font-black text-sm transition-all hover:scale-105 active:scale-95"
-        >
-          <Printer className="size-5" />
-          In trang này
-        </Button>
-      )}
-
       <div className="no-print flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 rounded-3xl shadow-sm border">
         <div className="space-y-2">
           <Badge variant="outline" className="text-primary border-primary/20 bg-primary/5 px-3 py-1">
@@ -329,7 +319,14 @@ export default function ArchimedesMixerPage() {
                 <CardDescription>Phiếu bài tập tổng hợp chuẩn A4.</CardDescription>
               </div>
               {mixedProblems.length > 0 && (
-                <div className="flex gap-2">
+                <div className="flex items-center gap-2">
+                  <Button 
+                    onClick={() => handlePrint()} 
+                    className="gap-2 bg-primary hover:bg-primary/90 text-white font-bold"
+                  >
+                    <Printer className="size-4" />
+                    In đề toán
+                  </Button>
                   <Button variant="destructive" size="icon" onClick={() => setMixedProblems([])} className="rounded-full">
                     <Trash2 className="size-4" />
                   </Button>

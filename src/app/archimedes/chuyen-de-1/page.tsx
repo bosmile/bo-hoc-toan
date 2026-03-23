@@ -120,16 +120,6 @@ export default function ChuyenDe1Page() {
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      {problems.length > 0 && (
-        <Button 
-          onClick={() => handlePrint()} 
-          className="no-print fixed right-6 top-[55%] -translate-y-1/2 z-50 gap-3 rounded-full shadow-2xl px-6 py-7 bg-primary hover:bg-primary/90 text-white font-black text-sm transition-all hover:scale-105 active:scale-95"
-        >
-          <Printer className="size-5" />
-          In trang này
-        </Button>
-      )}
-
       <div className="no-print flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div className="space-y-1">
           <Badge variant="outline" className="text-primary border-primary/20 bg-primary/5">Toán Archimedes</Badge>
@@ -245,9 +235,18 @@ export default function ChuyenDe1Page() {
                 <CardDescription>Bản thiết kế MathLab Number Garden.</CardDescription>
               </div>
               {problems.length > 0 && (
-                <Button variant="ghost" size="icon" onClick={() => setProblems([])} className="text-destructive">
-                  <Trash2 className="size-5" />
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button 
+                    onClick={() => handlePrint()} 
+                    className="gap-2 bg-primary hover:bg-primary/90 text-white font-bold"
+                  >
+                    <Printer className="size-4" />
+                    In đề toán
+                  </Button>
+                  <Button variant="ghost" size="icon" onClick={() => setProblems([])} className="text-destructive">
+                    <Trash2 className="size-5" />
+                  </Button>
+                </div>
               )}
             </CardHeader>
             <CardContent className="flex-1 p-0 relative">
