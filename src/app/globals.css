@@ -10,19 +10,19 @@
     --card-foreground: 222 47% 11%;
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
-    --primary: 221 83% 25%; /* Deep Galaxy Blue */
+    --primary: 199 89% 48%; /* Bright Sky Blue */
     --primary-foreground: 210 40% 98%;
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222 22.2% 47.4%;
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 45 90% 45%; /* Number Garden Gold */
+    --accent: 185 94% 45%; /* Vibrant Cyan Accent */
     --accent-foreground: 222.2 47.4% 11.2%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 221 83% 25%;
+    --ring: 199 89% 48%;
     --radius: 0.75rem;
   }
 }
@@ -34,8 +34,8 @@
   body {
     @apply bg-background text-foreground font-body;
     background-image: 
-      radial-gradient(at 0% 0%, hsla(221, 83%, 25%, 0.05) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, hsla(45, 90%, 45%, 0.05) 0px, transparent 50%);
+      radial-gradient(at 0% 0%, hsla(199, 89%, 48%, 0.05) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, hsla(185, 94%, 45%, 0.05) 0px, transparent 50%);
   }
 }
 
@@ -59,12 +59,12 @@
     padding: 0 !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
-    line-height: 1.3 !important; /* Thu gọn giãn dòng toàn cục */
+    line-height: 1.3 !important;
     font-size: 12pt !important;
   }
 
   .print-container {
-    padding: 5mm; /* Giảm padding container để chứa nhiều nội dung hơn */
+    padding: 5mm;
     min-height: 257mm;
     display: flex;
     flex-direction: column;
@@ -72,7 +72,6 @@
     z-index: 1;
   }
 
-  /* Watermark logic */
   .watermark-overlay {
     position: fixed;
     top: 50%;
@@ -89,7 +88,6 @@
     page-break-before: always;
   }
 
-  /* Tối ưu hóa khoảng cách khi in */
   .topic-section-header {
     margin-bottom: 2mm !important;
   }
