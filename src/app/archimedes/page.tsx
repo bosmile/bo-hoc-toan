@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as React from "react"
@@ -15,7 +14,8 @@ import {
   ArrowRight,
   FileText,
   Clock,
-  ChevronRight
+  ChevronRight,
+  QrCode
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -28,6 +28,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { generateArchimedesMathProblems } from "@/ai/flows/generate-archimedes-math-problems"
 import { useToast } from "@/hooks/use-toast"
+import { cn } from "@/lib/utils"
 
 type TopicConfig = {
   id: number;
@@ -59,7 +60,7 @@ const initialTopics: TopicConfig[] = [
     id: 2,
     title: "Chuyên đề 2: Tìm x cơ bản",
     formula: "A + x = B",
-    count: 5,
+    count: 10,
     settings: {
       unknownVariable: "B",
       operationMode: "plus",
@@ -68,6 +69,31 @@ const initialTopics: TopicConfig[] = [
     enabled: false, // Sắp ra mắt
   }
 ];
+
+// Helper Component for Problem Rows with Styled Boxes
+const ProblemRow = ({ index, problem }: { index: number, problem: string }) => {
+  // Normalize problem for parsing: ensure spaces around operators
+  const parts = problem.replace(/([+\-=])/g, ' $1 ').replace(/\s+/g, ' ').trim().split(' ');
+  
+  return (
+    <div className="flex items-center gap-4 text-xl font-bold font-mono">
+      <span className="text-blue-600 font-sans w-6 text-right shrink-0">{index}.</span>
+      <div className="flex items-center">
+        {parts.map((part, i) => {
+          if (part === '_') {
+            return (
+              <div key={i} className="w-14 h-10 bg-blue-50 border-2 border-blue-100 rounded-md mx-1 shadow-inner shrink-0" />
+            );
+          }
+          if (part === '=') {
+            return <span key={i} className="mx-2 text-blue-600">=</span>;
+          }
+          return <span key={i} className="mx-1">{part}</span>;
+        })}
+      </div>
+    </div>
+  );
+};
 
 export default function ArchimedesMixerPage() {
   const [topics, setTopics] = React.useState<TopicConfig[]>(initialTopics)
@@ -93,7 +119,6 @@ export default function ArchimedesMixerPage() {
 
     setIsLoading(true)
     try {
-      // Hiện tại chỉ CĐ1 có flow AI, chúng ta sẽ gọi flow này với số lượng yêu cầu
       const activeTopic = topics.find(t => t.id === 1 && t.enabled)
       if (activeTopic) {
         const result = await generateArchimedesMathProblems({
@@ -116,6 +141,11 @@ export default function ArchimedesMixerPage() {
       setIsLoading(false)
     }
   }
+
+  // Split problems for 2-column print layout
+  const mid = Math.ceil(mixedProblems.length / 2);
+  const leftCol = mixedProblems.slice(0, mid);
+  const rightCol = mixedProblems.slice(mid);
 
   return (
     <div className="space-y-8 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -155,8 +185,8 @@ export default function ArchimedesMixerPage() {
             Cấu hình Chuyên đề
           </h3>
           {topics.map((topic) => (
-            <Card key={topic.id} className={`border-none shadow-md overflow-hidden transition-all ${!topic.enabled && "opacity-60 grayscale-[0.5]"}`}>
-              <div className={`h-1.5 w-full ${topic.id === 1 ? "bg-primary" : "bg-blue-400"}`} />
+            <Card key={topic.id} className={cn("border-none shadow-md overflow-hidden transition-all", !topic.enabled && "opacity-60 grayscale-[0.5]")}>
+              <div className={cn("h-1.5 w-full", topic.id === 1 ? "bg-primary" : "bg-blue-400")} />
               <CardHeader className="p-5 pb-2">
                 <div className="flex justify-between items-start">
                   <div>
@@ -301,56 +331,81 @@ export default function ArchimedesMixerPage() {
                 </div>
               )}
             </CardHeader>
-            <CardContent className="flex-1 p-0 relative">
+            <CardContent className="flex-1 p-0 relative overflow-hidden">
               {mixedProblems.length > 0 ? (
                 <div className="p-10 print:p-0">
-                  {/* Print Header */}
-                  <div className="print-only mb-10 text-center border-b-2 border-black pb-6 space-y-4">
-                    <div className="flex justify-between items-start">
-                      <div className="text-left">
-                        <p className="text-xs font-bold">Website: BOHOCTOAN.VN</p>
-                        <p className="text-[10px] italic">Học toán cùng Bơ 🥑</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-xs font-bold uppercase">Ngày: {new Date().toLocaleDateString('vi-VN')}</p>
-                        <p className="text-[10px]">Mã đề: ARCH-{Math.random().toString(36).substr(2, 6).toUpperCase()}</p>
-                      </div>
-                    </div>
-                    
-                    <h1 className="text-3xl font-black uppercase tracking-[0.2em] border-y-2 border-black py-2">
-                      PHIẾU BÀI TẬP TOÁN TƯ DUY
-                    </h1>
-
-                    <div className="grid grid-cols-3 gap-4 text-sm font-medium pt-2">
-                      <div className="text-left">Họ và tên: .......................................</div>
-                      <div>Lớp: ...................</div>
-                      <div className="text-right">Thời gian: 45 phút</div>
-                    </div>
-                  </div>
-
-                  {/* Problems Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 print:grid-cols-2 gap-x-12 gap-y-8">
-                    {mixedProblems.map((problem, index) => (
-                      <div key={index} className="flex items-center gap-4 text-xl font-bold border-b border-dashed border-muted pb-4">
-                        <span className="text-xs font-black bg-primary/10 text-primary size-6 rounded flex items-center justify-center shrink-0">
-                          {index + 1}
-                        </span>
-                        <div className="tracking-[0.15em] font-mono">
-                          {problem.replace('=', ' = ')}
+                  {/* Print Layout: MathLab Brand */}
+                  <div className="print-only w-[210mm] h-[297mm] mx-auto p-[15mm] bg-white text-black font-sans relative">
+                    {/* MathLab Header */}
+                    <div className="flex justify-between items-start mb-10 border-b-2 border-blue-600 pb-6">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-blue-600 rounded-lg">
+                          <Settings2 className="size-8 text-white" />
+                        </div>
+                        <div>
+                          <h1 className="text-3xl font-black text-blue-600 leading-none">MathLab</h1>
+                          <p className="text-[10px] text-blue-400 font-bold uppercase tracking-wider mt-1">Number Garden Edition</p>
                         </div>
                       </div>
-                    ))}
+                      <div className="text-right space-y-3 pt-2">
+                        <p className="text-sm font-medium">Họ và tên: .....................................................</p>
+                        <p className="text-sm font-medium">Ngày: ...........................................................</p>
+                      </div>
+                    </div>
+
+                    {/* Main Content */}
+                    <div className="mb-12 text-center">
+                      <h2 className="text-4xl font-black text-blue-600 mb-2">Tìm số còn thiếu</h2>
+                      <p className="text-lg italic text-blue-400 font-medium">Thử thách điền số thích hợp vào chỗ trống nhé!</p>
+                    </div>
+
+                    {/* Problems Grid (2 Columns) */}
+                    <div className="grid grid-cols-2 gap-x-16 gap-y-10">
+                      <div className="space-y-10">
+                        {leftCol.map((prob, idx) => (
+                           <ProblemRow key={idx} index={idx + 1} problem={prob} />
+                        ))}
+                      </div>
+                      <div className="space-y-10">
+                        {rightCol.map((prob, idx) => (
+                           <ProblemRow key={idx} index={idx + 1 + mid} problem={prob} />
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* MathLab Footer */}
+                    <div className="absolute bottom-[15mm] left-[15mm] right-[15mm]">
+                      <div className="flex justify-between items-end border-t border-gray-100 pt-8">
+                         <div className="space-y-4">
+                            <div className="inline-flex items-center gap-2 bg-green-50 text-green-700 px-6 py-2 rounded-full font-bold text-sm">
+                               <span className="text-lg">🏆</span>
+                               Cố lên, bạn làm được mà!
+                            </div>
+                            <p className="text-[10px] text-gray-400">
+                               © 2024 MathLab Educational Tools. Bản quyền thuộc về MathLab.
+                            </p>
+                         </div>
+                         <div className="flex flex-col items-center gap-1">
+                            <div className="size-16 border-2 border-gray-100 rounded-lg flex items-center justify-center">
+                               <QrCode className="size-10 text-gray-200" />
+                            </div>
+                            <span className="text-[8px] text-gray-400 font-bold uppercase">Quét để xem đáp án</span>
+                         </div>
+                      </div>
+                    </div>
                   </div>
 
-                  {/* Print Footer */}
-                  <div className="print-only mt-20 text-center border-t border-muted pt-4">
-                    <p className="text-xs italic text-muted-foreground">
-                      "Kiên trì mỗi ngày, bé sẽ thành tài"
-                    </p>
-                    <div className="mt-8 flex justify-around text-sm font-bold opacity-30">
-                       <div className="flex flex-col gap-10"><span>Chữ ký phụ huynh</span><div className="h-px w-32 bg-black" /></div>
-                       <div className="flex flex-col gap-10"><span>Nhận xét của thầy cô</span><div className="h-px w-32 bg-black" /></div>
-                    </div>
+                  {/* Browser Preview (Simplified for screen) */}
+                  <div className="no-print space-y-4 max-w-4xl mx-auto p-8">
+                     <h3 className="text-lg font-bold text-primary mb-6">Bản xem trước nội dung:</h3>
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        {mixedProblems.map((problem, index) => (
+                           <div key={index} className="flex items-center gap-4 text-xl font-bold border-b border-dashed pb-4">
+                              <span className="text-xs bg-primary/10 text-primary size-6 rounded-full flex items-center justify-center shrink-0">{index + 1}</span>
+                              <div className="font-mono">{problem.replace('=', ' = ')}</div>
+                           </div>
+                        ))}
+                     </div>
                   </div>
                 </div>
               ) : (
@@ -367,7 +422,7 @@ export default function ArchimedesMixerPage() {
                     onClick={handleGenerateMixedTest}
                     className="border-primary text-primary hover:bg-primary/5 py-6 px-8 font-bold rounded-2xl"
                    >
-                     Tạo đề mẫu 15 câu ngay
+                     Tạo đề mẫu 20 câu ngay
                    </Button>
                 </div>
               )}

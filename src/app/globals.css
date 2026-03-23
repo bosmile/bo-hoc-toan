@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -11,7 +10,7 @@
     --card-foreground: 105 50% 10%;
     --popover: 0 0% 100%;
     --popover-foreground: 105 50% 10%;
-    --primary: 105 50% 40%;
+    --primary: 221 83% 53%; /* Blue-600 for MathLab branding */
     --primary-foreground: 0 0% 100%;
     --secondary: 105 30% 90%;
     --secondary-foreground: 105 50% 20%;
@@ -23,16 +22,16 @@
     --destructive-foreground: 0 0% 98%;
     --border: 105 20% 85%;
     --input: 105 20% 85%;
-    --ring: 105 50% 40%;
+    --ring: 221 83% 53%;
     --radius: 0.75rem;
     --sidebar-background: 105 25% 98%;
     --sidebar-foreground: 105 50% 20%;
-    --sidebar-primary: 105 50% 40%;
+    --sidebar-primary: 221 83% 53%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 105 30% 92%;
     --sidebar-accent-foreground: 105 50% 25%;
     --sidebar-border: 105 20% 90%;
-    --sidebar-ring: 105 50% 40%;
+    --sidebar-ring: 221 83% 53%;
   }
   .dark {
     --background: 105 30% 5%;
@@ -41,7 +40,7 @@
     --card-foreground: 105 10% 95%;
     --popover: 105 30% 8%;
     --popover-foreground: 105 10% 95%;
-    --primary: 105 50% 45%;
+    --primary: 221 83% 53%;
     --primary-foreground: 0 0% 100%;
     --secondary: 105 30% 15%;
     --secondary-foreground: 105 10% 95%;
@@ -53,7 +52,7 @@
     --destructive-foreground: 0 0% 98%;
     --border: 105 30% 15%;
     --input: 105 30% 15%;
-    --ring: 105 50% 45%;
+    --ring: 221 83% 53%;
   }
 }
 
@@ -80,10 +79,12 @@
     background: white !important;
     margin: 0;
     padding: 0;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
   @page {
     size: A4;
-    margin: 1.5cm;
+    margin: 0;
   }
   .page-break {
     page-break-after: always;
@@ -91,11 +92,8 @@
   main {
     padding: 0 !important;
   }
-  .shadow-2xl, .shadow-md, .shadow-sm {
+  .shadow-2xl, .shadow-md, .shadow-sm, .shadow-xl {
     box-shadow: none !important;
-  }
-  .border {
-    border: none !important;
   }
 }
 
