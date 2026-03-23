@@ -13,13 +13,11 @@ import {
   Sparkles,
   ArrowRight,
   FileText,
-  Clock,
-  ChevronRight,
   QrCode
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -66,13 +64,11 @@ const initialTopics: TopicConfig[] = [
       operationMode: "plus",
       maxRange: 10,
     },
-    enabled: false, // Sắp ra mắt
+    enabled: false,
   }
 ];
 
-// Helper Component for Problem Rows with Styled Boxes
 const ProblemRow = ({ index, problem }: { index: number, problem: string }) => {
-  // Normalize problem for parsing: ensure spaces around operators
   const parts = problem.replace(/([+\-=])/g, ' $1 ').replace(/\s+/g, ' ').trim().split(' ');
   
   return (
@@ -142,17 +138,22 @@ export default function ArchimedesMixerPage() {
     }
   }
 
-  // Split problems for 2-column print layout
+  const handlePrint = () => {
+    if (typeof window !== "undefined") {
+      window.print();
+    }
+  }
+
   const mid = Math.ceil(mixedProblems.length / 2);
   const leftCol = mixedProblems.slice(0, mid);
   const rightCol = mixedProblems.slice(mid);
 
   return (
     <div className="space-y-8 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      {/* Floating Print Button according to sample */}
+      {/* Floating Print Button - Fixed and Functional */}
       {mixedProblems.length > 0 && (
         <Button 
-          onClick={() => window.print()} 
+          onClick={handlePrint} 
           className="no-print fixed right-6 top-[55%] -translate-y-1/2 z-50 gap-3 rounded-full shadow-2xl px-6 py-7 bg-primary hover:bg-primary/90 text-white font-black text-sm transition-all hover:scale-105 active:scale-95"
         >
           <Printer className="size-5" />
@@ -160,7 +161,6 @@ export default function ArchimedesMixerPage() {
         </Button>
       )}
 
-      {/* Header Section */}
       <div className="no-print flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 rounded-3xl shadow-sm border">
         <div className="space-y-2">
           <Badge variant="outline" className="text-primary border-primary/20 bg-primary/5 px-3 py-1">
@@ -189,7 +189,6 @@ export default function ArchimedesMixerPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Left: Topic Management */}
         <div className="lg:col-span-5 space-y-4 no-print">
           <h3 className="text-lg font-bold flex items-center gap-2 px-2 text-primary/80">
             <Settings2 className="size-5" />
@@ -319,7 +318,6 @@ export default function ArchimedesMixerPage() {
           </Button>
         </div>
 
-        {/* Right: Preview & Print */}
         <div className="lg:col-span-7 space-y-4">
           <Card className="border-none shadow-2xl min-h-[700px] flex flex-col bg-white overflow-hidden">
             <CardHeader className="no-print border-b bg-muted/20 flex flex-row items-center justify-between">
@@ -341,9 +339,7 @@ export default function ArchimedesMixerPage() {
             <CardContent className="flex-1 p-0 relative overflow-hidden">
               {mixedProblems.length > 0 ? (
                 <div className="p-10 print:p-0">
-                  {/* Print Layout: MathLab Brand */}
                   <div className="print-only w-[210mm] h-[297mm] mx-auto p-[15mm] bg-white text-black font-sans relative">
-                    {/* MathLab Header */}
                     <div className="flex justify-between items-start mb-10 border-b-2 border-blue-600 pb-6">
                       <div className="flex items-center gap-3">
                         <div className="p-2 bg-blue-600 rounded-lg">
@@ -360,13 +356,11 @@ export default function ArchimedesMixerPage() {
                       </div>
                     </div>
 
-                    {/* Main Content */}
                     <div className="mb-12 text-center">
                       <h2 className="text-4xl font-black text-blue-600 mb-2">Tìm số còn thiếu</h2>
                       <p className="text-lg italic text-blue-400 font-medium">Thử thách điền số thích hợp vào chỗ trống nhé!</p>
                     </div>
 
-                    {/* Problems Grid (2 Columns) */}
                     <div className="grid grid-cols-2 gap-x-16 gap-y-10">
                       <div className="space-y-10">
                         {leftCol.map((prob, idx) => (
@@ -380,7 +374,6 @@ export default function ArchimedesMixerPage() {
                       </div>
                     </div>
 
-                    {/* MathLab Footer */}
                     <div className="absolute bottom-[15mm] left-[15mm] right-[15mm]">
                       <div className="flex justify-between items-end border-t border-gray-100 pt-8">
                          <div className="space-y-4">
@@ -402,7 +395,6 @@ export default function ArchimedesMixerPage() {
                     </div>
                   </div>
 
-                  {/* Browser Preview (Simplified for screen) */}
                   <div className="no-print space-y-4 max-w-4xl mx-auto p-8">
                      <h3 className="text-lg font-bold text-primary mb-6">Bản xem trước nội dung:</h3>
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

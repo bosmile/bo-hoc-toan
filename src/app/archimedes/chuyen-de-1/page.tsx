@@ -4,17 +4,15 @@ import * as React from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
-import { Printer, RefreshCw, Send, Settings2, Trash2, Calculator, Layers, QrCode } from "lucide-react"
+import { Printer, RefreshCw, Settings2, Trash2, Calculator, Layers, QrCode } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { 
@@ -30,7 +28,6 @@ import { useToast } from "@/hooks/use-toast"
 import { Badge } from "@/components/ui/badge"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
-import { cn } from "@/lib/utils"
 
 const formSchema = z.object({
   unknownVariable: z.enum(["A", "B", "C", "D"]),
@@ -115,12 +112,18 @@ export default function ChuyenDe1Page() {
   const leftCol = problems.slice(0, mid);
   const rightCol = problems.slice(mid);
 
+  const handlePrint = () => {
+    if (typeof window !== "undefined") {
+      window.print();
+    }
+  }
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      {/* Floating Print Button according to sample */}
+      {/* Floating Print Button - Fixed and Functional */}
       {problems.length > 0 && (
         <Button 
-          onClick={() => window.print()} 
+          onClick={handlePrint} 
           className="no-print fixed right-6 top-[55%] -translate-y-1/2 z-50 gap-3 rounded-full shadow-2xl px-6 py-7 bg-primary hover:bg-primary/90 text-white font-black text-sm transition-all hover:scale-105 active:scale-95"
         >
           <Printer className="size-5" />
@@ -139,7 +142,6 @@ export default function ChuyenDe1Page() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Configuration Section */}
         <div className="no-print space-y-6">
           <Card className="border-none shadow-xl bg-card overflow-hidden">
             <CardHeader className="border-b bg-muted/20 pb-4">
@@ -236,7 +238,6 @@ export default function ChuyenDe1Page() {
           </Card>
         </div>
 
-        {/* Display Section */}
         <div className="lg:col-span-2 space-y-6">
           <Card className="border-none shadow-xl min-h-[600px] flex flex-col bg-white overflow-hidden">
             <CardHeader className="no-print border-b bg-muted/20 flex flex-row items-center justify-between">
@@ -253,9 +254,7 @@ export default function ChuyenDe1Page() {
             <CardContent className="flex-1 p-0 relative">
               {problems.length > 0 ? (
                 <div className="p-8 print:p-0">
-                  {/* MathLab Print Layout */}
                   <div className="print-only w-[210mm] h-[297mm] mx-auto p-[15mm] bg-white text-black font-sans relative">
-                    {/* Header */}
                     <div className="flex justify-between items-start mb-10 border-b-2 border-blue-600 pb-6">
                       <div className="flex items-center gap-3">
                         <div className="p-2 bg-blue-600 rounded-lg">
@@ -272,13 +271,11 @@ export default function ChuyenDe1Page() {
                       </div>
                     </div>
 
-                    {/* Title */}
                     <div className="mb-12 text-center">
                       <h2 className="text-4xl font-black text-blue-600 mb-2">Tìm số còn thiếu</h2>
                       <p className="text-lg italic text-blue-400 font-medium">Thử thách điền số thích hợp vào chỗ trống nhé!</p>
                     </div>
 
-                    {/* Problems Grid */}
                     <div className="grid grid-cols-2 gap-x-16 gap-y-10">
                       <div className="space-y-10">
                         {leftCol.map((prob, idx) => (
@@ -292,7 +289,6 @@ export default function ChuyenDe1Page() {
                       </div>
                     </div>
 
-                    {/* Footer */}
                     <div className="absolute bottom-[15mm] left-[15mm] right-[15mm]">
                       <div className="flex justify-between items-end border-t border-gray-100 pt-8">
                          <div className="space-y-4">
@@ -314,7 +310,6 @@ export default function ChuyenDe1Page() {
                     </div>
                   </div>
 
-                  {/* Browser Preview */}
                   <div className="no-print grid grid-cols-1 md:grid-cols-2 gap-8 p-6">
                     {problems.map((problem, index) => (
                       <div key={index} className="flex items-center gap-4 text-xl font-bold border-b border-dashed pb-4">
