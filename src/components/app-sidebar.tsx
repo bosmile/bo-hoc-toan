@@ -11,7 +11,8 @@ import {
   LayoutDashboard, 
   Calculator, 
   BrainCircuit,
-  Settings
+  Settings,
+  List
 } from "lucide-react"
 
 import {
@@ -36,19 +37,22 @@ const navigation = {
   archimedes: {
     title: "Toán Archimedes",
     icon: Calculator,
+    url: "/archimedes",
     chapters: [
-      { title: "Chuyên đề 1: A ± B ± C = D", url: "/archimedes/chuyen-de-1" },
-      { title: "Chuyên đề 2", url: "/archimedes/chuyen-de-2" },
-      { title: "Chuyên đề 3", url: "/archimedes/chuyen-de-3" },
+      { title: "Mục lục chính", url: "/archimedes", icon: List },
+      { title: "Chuyên đề 1: A ± B ± C = D", url: "/archimedes/chuyen-de-1", icon: Calculator },
+      { title: "Chuyên đề 2: Tìm x", url: "/archimedes/chuyen-de-2", icon: Calculator },
+      { title: "Chuyên đề 3: Logic", url: "/archimedes/chuyen-de-3", icon: Calculator },
     ],
   },
   singapore: {
     title: "Toán Singapore",
     icon: BrainCircuit,
+    url: "/singapore",
     chapters: [
-      { title: "Chuyên đề 1", url: "/singapore/chuyen-de-1" },
-      { title: "Chuyên đề 2", url: "/singapore/chuyen-de-2" },
-      { title: "Chuyên đề 3", url: "/singapore/chuyen-de-3" },
+      { title: "Mục lục chính", url: "/singapore", icon: List },
+      { title: "Chuyên đề 1", url: "/singapore/chuyen-de-1", icon: BrainCircuit },
+      { title: "Chuyên đề 2", url: "/singapore/chuyen-de-2", icon: BrainCircuit },
     ],
   },
 }
@@ -88,16 +92,19 @@ export function AppSidebar() {
             {navigation.archimedes.title}
           </SidebarGroupLabel>
           <SidebarMenu>
-            {navigation.archimedes.chapters.map((chapter) => (
-              <SidebarMenuItem key={chapter.url}>
-                <SidebarMenuButton asChild isActive={pathname === chapter.url}>
-                  <Link href={chapter.url}>
-                    <Calculator className="size-4" />
-                    <span>{chapter.title}</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
+            {navigation.archimedes.chapters.map((chapter) => {
+              const Icon = chapter.icon
+              return (
+                <SidebarMenuItem key={chapter.url}>
+                  <SidebarMenuButton asChild isActive={pathname === chapter.url}>
+                    <Link href={chapter.url}>
+                      <Icon className="size-4" />
+                      <span>{chapter.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )
+            })}
           </SidebarMenu>
         </SidebarGroup>
 
@@ -106,16 +113,19 @@ export function AppSidebar() {
             {navigation.singapore.title}
           </SidebarGroupLabel>
           <SidebarMenu>
-            {navigation.singapore.chapters.map((chapter) => (
-              <SidebarMenuItem key={chapter.url}>
-                <SidebarMenuButton asChild isActive={pathname === chapter.url}>
-                  <Link href={chapter.url}>
-                    <BrainCircuit className="size-4" />
-                    <span>{chapter.title}</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
+            {navigation.singapore.chapters.map((chapter) => {
+              const Icon = chapter.icon
+              return (
+                <SidebarMenuItem key={chapter.url}>
+                  <SidebarMenuButton asChild isActive={pathname === chapter.url}>
+                    <Link href={chapter.url}>
+                      <Icon className="size-4" />
+                      <span>{chapter.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )
+            })}
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
