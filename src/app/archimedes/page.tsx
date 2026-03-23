@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -16,7 +17,8 @@ import {
   Columns2,
   ListOrdered,
   Infinity as InfinityIcon,
-  Heart
+  Heart,
+  ChevronDown
 } from "lucide-react"
 import { useReactToPrint } from "react-to-print"
 
@@ -29,6 +31,14 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Switch } from "@/components/ui/switch"
 import { Progress } from "@/components/ui/progress"
 import { Checkbox } from "@/components/ui/checkbox"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select"
 import { generateArchimedesMathProblems } from "@/ai/flows/generate-archimedes-math-problems"
 import { generateMultiplicationProblems } from "@/ai/flows/generate-multiplication-problems"
 import { generateComparisonProblems } from "@/ai/flows/generate-comparison-problems"
@@ -255,6 +265,7 @@ export default function ArchimedesMixerPage() {
   const [isLoading, setIsLoading] = React.useState(false)
   const [showAnswers, setShowAnswers] = React.useState(false)
   
+  // Settings for each topic
   const [cd1Settings, setCd1Settings] = React.useState({ count: 5, unknownVariable: "D" as any, operationMode: "mixed" as any, maxRange: 20 })
   const [cd2Settings, setCd2Settings] = React.useState({ count: 5, tables: [2, 5, 10], unknownVariable: "C" as any, shuffle: true })
   const [cd3Settings, setCd3Settings] = React.useState({ count: 5, level: "1" as any, maxRange: 20, operationMode: "mixed" as any })
@@ -264,9 +275,9 @@ export default function ArchimedesMixerPage() {
     digits: 2, 
     hasCarry: false, 
     hideTarget: "mixed" as any,
-    rangeN1: { min: 0, max: 99 },
-    rangeN2: { min: 0, max: 99 },
-    rangeResult: { min: 0, max: 99 }
+    rangeN1: { min: 10, max: 99 },
+    rangeN2: { min: 10, max: 99 },
+    rangeResult: { min: 0, max: 198 }
   })
   const [cd5Settings, setCd5Settings] = React.useState({ count: 2, cycleLength: 3, maxCycleSum: 30 })
 
@@ -392,29 +403,166 @@ export default function ArchimedesMixerPage() {
                 </div>
                 <div className="flex gap-2">
                   <Popover>
-                    <PopoverTrigger asChild><Button variant="outline" size="sm" className="flex-1 h-7 text-[10px] font-bold gap-1"><Settings2 className="size-3" /> Cài đặt</Button></PopoverTrigger>
-                    <PopoverContent className="w-64 p-4">
-                      <div className="space-y-4">
-                        <p className="text-xs font-bold text-muted-foreground uppercase">Tùy chỉnh AI</p>
+                    <PopoverTrigger asChild><Button variant="outline" size="sm" className="flex-1 h-7 text-[10px] font-bold gap-1"><Settings2 className="size-3" /> Cấu hình</Button></PopoverTrigger>
+                    <PopoverContent className="w-80 p-6">
+                      <div className="space-y-6">
+                        <div className="flex items-center justify-between border-b pb-2">
+                          <p className="text-xs font-black text-primary uppercase tracking-widest">{topic.title}</p>
+                          <Settings2 className="size-4 text-primary/40" />
+                        </div>
+                        
+                        {/* Topic 1 Specific Settings */}
                         {topic.id === 1 && (
-                          <div className="space-y-2">
-                            <Label className="text-xs">Phạm vi tối đa</Label>
-                            <Input type="number" value={topic.settings.maxRange} onChange={(e) => topic.setter((s: any) => ({ ...s, maxRange: parseInt(e.target.value) }))} className="h-8" />
+                          <div className="space-y-4">
+                            <div className="space-y-2">
+                              <Label className="text-xs font-bold">Phạm vi tối đa (Range)</Label>
+                              <Input type="number" value={topic.settings.maxRange} onChange={(e) => topic.setter((s: any) => ({ ...s, maxRange: parseInt(e.target.value) }))} className="h-8" />
+                            </div>
+                            <div className="space-y-2">
+                              <Label className="text-xs font-bold">Vị trí ẩn số</Label>
+                              <Select value={topic.settings.unknownVariable} onValueChange={(v) => topic.setter((s: any) => ({ ...s, unknownVariable: v }))}>
+                                <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="A">Vị trí A</SelectItem>
+                                  <SelectItem value="B">Vị trí B</SelectItem>
+                                  <SelectItem value="C">Vị trí C</SelectItem>
+                                  <SelectItem value="D">Vị trí D</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className="space-y-2">
+                              <Label className="text-xs font-bold">Loại phép tính</Label>
+                              <RadioGroup value={topic.settings.operationMode} onValueChange={(v) => topic.setter((s: any) => ({ ...s, operationMode: v }))} className="grid grid-cols-3 gap-2">
+                                <div className="flex items-center space-x-1"><RadioGroupItem value="plus" id="tp1"/><Label htmlFor="tp1" className="text-[10px]">Cộng</Label></div>
+                                <div className="flex items-center space-x-1"><RadioGroupItem value="minus" id="tm1"/><Label htmlFor="tm1" className="text-[10px]">Trừ</Label></div>
+                                <div className="flex items-center space-x-1"><RadioGroupItem value="mixed" id="tx1"/><Label htmlFor="tx1" className="text-[10px]">Trộn</Label></div>
+                              </RadioGroup>
+                            </div>
                           </div>
                         )}
+
+                        {/* Topic 2 Specific Settings */}
                         {topic.id === 2 && (
-                           <div className="grid grid-cols-4 gap-2">
-                              {[2,3,4,5,6,7,8,9].map(n => (
-                                 <div key={n} className="flex items-center gap-1">
-                                    <Checkbox checked={topic.settings.tables?.includes(n)} onCheckedChange={(c) => {
-                                       const next = c ? [...topic.settings.tables, n] : topic.settings.tables.filter((x: any) => x !== n);
-                                       topic.setter((s: any) => ({ ...s, tables: next }));
-                                    }} />
-                                    <span className="text-xs">{n}</span>
-                                 </div>
-                              ))}
+                           <div className="space-y-4">
+                              <Label className="text-xs font-bold">Bảng cửu chương</Label>
+                              <div className="grid grid-cols-4 gap-2">
+                                {[2,3,4,5,6,7,8,9].map(n => (
+                                   <div key={n} className="flex items-center gap-1">
+                                      <Checkbox id={`check-${n}`} checked={topic.settings.tables?.includes(n)} onCheckedChange={(c) => {
+                                         const next = c ? [...topic.settings.tables, n] : topic.settings.tables.filter((x: any) => x !== n);
+                                         topic.setter((s: any) => ({ ...s, tables: next }));
+                                      }} />
+                                      <Label htmlFor={`check-${n}`} className="text-[10px]">{n}</Label>
+                                   </div>
+                                ))}
+                              </div>
+                              <div className="space-y-2">
+                                <Label className="text-xs font-bold">Vị trí ẩn số</Label>
+                                <Select value={topic.settings.unknownVariable} onValueChange={(v) => topic.setter((s: any) => ({ ...s, unknownVariable: v }))}>
+                                  <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="A">Thừa số 1 (A)</SelectItem>
+                                    <SelectItem value="B">Thừa số 2 (B)</SelectItem>
+                                    <SelectItem value="C">Tích số (C)</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <Checkbox id="t2-shuffle" checked={topic.settings.shuffle} onCheckedChange={(c) => topic.setter((s: any) => ({ ...s, shuffle: !!c }))} />
+                                <Label htmlFor="t2-shuffle" className="text-xs font-bold">Xáo trộn</Label>
+                              </div>
                            </div>
                         )}
+
+                        {/* Topic 3 Specific Settings */}
+                        {topic.id === 3 && (
+                          <div className="space-y-4">
+                            <div className="space-y-2">
+                              <Label className="text-xs font-bold">Cấp độ</Label>
+                              <Select value={topic.settings.level} onValueChange={(v) => topic.setter((s: any) => ({ ...s, level: v }))}>
+                                <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="1">CĐ 1: Biểu thức vs Số</SelectItem>
+                                  <SelectItem value="2">CĐ 2: Cùng vế</SelectItem>
+                                  <SelectItem value="3">CĐ 3: Hai vế khác nhau</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className="space-y-2">
+                              <Label className="text-xs font-bold">Phạm vi (Max)</Label>
+                              <Input type="number" value={topic.settings.maxRange} onChange={(e) => topic.setter((s: any) => ({ ...s, maxRange: parseInt(e.target.value) }))} className="h-8" />
+                            </div>
+                            <div className="space-y-2">
+                              <Label className="text-xs font-bold">Loại phép tính</Label>
+                              <RadioGroup value={topic.settings.operationMode} onValueChange={(v) => topic.setter((s: any) => ({ ...s, operationMode: v }))} className="grid grid-cols-3 gap-2">
+                                <div className="flex items-center space-x-1"><RadioGroupItem value="plus" id="tp3"/><Label htmlFor="tp3" className="text-[10px]">Cộng</Label></div>
+                                <div className="flex items-center space-x-1"><RadioGroupItem value="minus" id="tm3"/><Label htmlFor="tm3" className="text-[10px]">Trừ</Label></div>
+                                <div className="flex items-center space-x-1"><RadioGroupItem value="mixed" id="tx3"/><Label htmlFor="tx3" className="text-[10px]">Trộn</Label></div>
+                              </RadioGroup>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Topic 4 Specific Settings */}
+                        {topic.id === 4 && (
+                          <div className="space-y-4">
+                            <div className="space-y-2">
+                              <Label className="text-xs font-bold">Loại phép tính</Label>
+                              <RadioGroup value={topic.settings.operation} onValueChange={(v) => topic.setter((s: any) => ({ ...s, operation: v }))} className="grid grid-cols-3 gap-2">
+                                <div className="flex items-center space-x-1"><RadioGroupItem value="plus" id="tp4"/><Label htmlFor="tp4" className="text-[10px]">Cộng</Label></div>
+                                <div className="flex items-center space-x-1"><RadioGroupItem value="minus" id="tm4"/><Label htmlFor="tm4" className="text-[10px]">Trừ</Label></div>
+                                <div className="flex items-center space-x-1"><RadioGroupItem value="mixed" id="tx4"/><Label htmlFor="tx4" className="text-[10px]">Trộn</Label></div>
+                              </RadioGroup>
+                            </div>
+                            <div className="space-y-2">
+                              <Label className="text-xs font-bold">Số chữ số</Label>
+                              <Select value={topic.settings.digits.toString()} onValueChange={(v) => topic.setter((s: any) => ({ ...s, digits: parseInt(v) }))}>
+                                <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="1">1 chữ số</SelectItem>
+                                  <SelectItem value="2">2 chữ số</SelectItem>
+                                  <SelectItem value="3">3 chữ số</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <Label className="text-xs font-bold">Có nhớ / Mượn</Label>
+                              <Switch checked={topic.settings.hasCarry} onCheckedChange={(c) => topic.setter((s: any) => ({ ...s, hasCarry: c }))} />
+                            </div>
+                            <div className="space-y-2">
+                              <Label className="text-xs font-bold">Vị trí ẩn</Label>
+                              <Select value={topic.settings.hideTarget} onValueChange={(v) => topic.setter((s: any) => ({ ...s, hideTarget: v }))}>
+                                <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="result">Chỉ kết quả</SelectItem>
+                                  <SelectItem value="operands">Chỉ số hạng</SelectItem>
+                                  <SelectItem value="mixed">Hỗn hợp</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Topic 5 Specific Settings */}
+                        {topic.id === 5 && (
+                          <div className="space-y-4">
+                            <div className="space-y-2">
+                              <Label className="text-xs font-bold">Độ dài chu kỳ</Label>
+                              <Select value={topic.settings.cycleLength.toString()} onValueChange={(v) => topic.setter((s: any) => ({ ...s, cycleLength: parseInt(v) }))}>
+                                <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="3">Chu kỳ 3</SelectItem>
+                                  <SelectItem value="4">Chu kỳ 4</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className="space-y-2">
+                              <Label className="text-xs font-bold">Tổng chu kỳ (Max)</Label>
+                              <Input type="number" value={topic.settings.maxCycleSum} onChange={(e) => topic.setter((s: any) => ({ ...s, maxCycleSum: parseInt(e.target.value) }))} className="h-8" />
+                            </div>
+                          </div>
+                        )}
+                        
                       </div>
                     </PopoverContent>
                   </Popover>
@@ -429,7 +577,10 @@ export default function ArchimedesMixerPage() {
           {/* Cart View */}
           {cart.length > 0 && (
             <div className="bg-white rounded-xl border shadow-sm divide-y overflow-hidden">
-               <div className="p-2 bg-muted/30 font-bold text-[10px] uppercase text-muted-foreground">Giỏ hàng bài tập</div>
+               <div className="p-2 bg-muted/30 font-bold text-[10px] uppercase text-muted-foreground flex justify-between items-center">
+                 <span>Giỏ hàng bài tập</span>
+                 <Badge variant="outline" className="text-[9px] bg-white">{cart.length} nhóm</Badge>
+               </div>
               {cart.map((batch) => (
                 <div key={batch.id} className="p-2 flex items-center justify-between hover:bg-muted/10 transition-colors">
                   <div className="flex items-center gap-2">
