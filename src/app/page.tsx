@@ -8,7 +8,8 @@ import {
   Settings2,
   BookOpen,
   Library,
-  ChevronRight
+  ChevronRight,
+  Clock
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -23,7 +24,9 @@ const archimedesModules = [
   { id: 3, title: "CĐ3: So sánh biểu thức", query: "A ± B [?,<,>] C ± D", link: "/archimedes/chuyen-de-3", desc: "So sánh 2 vế logic, định cấu hình độ phức tạp biểu thức." },
   { id: 4, title: "CĐ4: Đặt tính hàng dọc", query: "+ / - có nhớ", link: "/archimedes/chuyen-de-4", desc: "Giới hạn số chữ số, ẩn một chữ số bất kì, bắt buộc có/không nhớ." },
   { id: 5, title: "CĐ5: Dãy số chu kỳ", query: "[A, B, C, _]", link: "/archimedes/chuyen-de-5", desc: "Tạo dãy số chu kỳ lặp lại, học sinh tìm số thiếu dựa vào tổng chu kỳ." },
-  { id: 6, title: "CĐ6: Tháp tính (Pyramids)", query: "A + B = C", link: "/archimedes/chuyen-de-6", desc: "Dạng toán tháp khối hộp. Quy luật phân nhánh cộng dồn. In cực đẹp." },
+  { id: 6, title: "CĐ6: Thử thách Sudoku", query: "Bảng 4x4, 6x6, 9x9", link: "/archimedes/chuyen-de-6", desc: "Rèn luyện logic loại trừ với các bảng Sudoku từ dễ đến khó." },
+  { id: 7, title: "CĐ7: Xem đồng hồ", query: "Analog & Digital", link: "/archimedes/chuyen-de-7", desc: "Học cách đọc giờ đúng, giờ rưỡi và vẽ kim đồng hồ tương ứng." },
+  { id: 8, title: "CĐ8: Toán Tư Duy", query: "Logic & IQ Math", link: "/archimedes/chuyen-de-8", desc: "Bộ 7 template toán tư duy siêu trí tuệ, tự động sinh đáp án dựa trên logic." },
 ]
 
 export default function HomePage() {
@@ -117,7 +120,7 @@ export default function HomePage() {
               <CardHeader className="p-5 pb-3">
                 <div className="flex justify-between items-start">
                   <div className="size-12 rounded-xl bg-primary/5 flex items-center justify-center text-primary font-black mb-4 group-hover:bg-primary group-hover:text-white group-hover:-translate-y-1 transition-all">
-                    <Calculator className="size-6" />
+                    {mod.id === 7 ? <Clock className="size-6" /> : mod.id === 8 ? <BookOpen className="size-6" /> : <Calculator className="size-6" />}
                   </div>
                   <Badge variant="outline" className="font-mono text-[10px] bg-muted/30 border-dashed">{mod.query}</Badge>
                 </div>

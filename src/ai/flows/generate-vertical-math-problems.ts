@@ -1,173 +1,116 @@
-'use server';
 /**
- * @fileOverview A Genkit flow for generating vertical math problems with detailed digit control.
- *
- * - generateVerticalMathProblems - Generates vertical addition/subtraction problems.
+ * @fileOverview Local problem generation for vertical math problems with detailed digit control.
  */
 
-import { ai } from '@/ai/genkit';
-import { z } from 'genkit';
+export interface VariableRange {
+  min: number;
+  max: number;
+}
 
-const VariableRangeSchema = z.object({
-  min: z.number().int().min(0).describe('The minimum value (inclusive).'),
-  max: z.number().int().min(0).describe('The maximum value (inclusive).'),
-}).describe('Min/Max range configuration.');
+export interface VerticalProblem {
+  top: string;
+  bottom: string;
+  result: string;
+  operator: '+' | '-';
+  fullEquation: string;
+}
 
-const VerticalProblemSchema = z.object({
-  top: z.string().describe('First operand with underscores, e.g., "4_"'),
-  bottom: z.string().describe('Second operand with underscores, e.g., "2_"'),
-  result: z.string().describe('The result with underscores, e.g., "63"'),
-  operator: z.enum(['+', '-']),
-  fullEquation: z.string().describe('The complete equation for reference, e.g., "45 + 18 = 63"'),
-});
+export interface GenerateVerticalInput {
+  operation: 'plus' | 'minus' | 'mixed';
+  digits: number;
+  hasCarry?: boolean;
+  hideTarget: 'result' | 'operands' | 'mixed';
+  numProblems: number;
+  rangeN1?: VariableRange;
+  rangeN2?: VariableRange;
+  rangeResult?: VariableRange;
+}
 
-const GenerateVerticalInputSchema = z.object({
-  operation: z.enum(['plus', 'minus', 'mixed']),
-  digits: z.number().int().min(1).max(3).default(2).describe('Number of digits for operands.'),
-  hasCarry: z.boolean().optional().describe('True for problems with carry/borrow, false for no carry/borrow.'),
-  hideTarget: z.enum(['result', 'operands', 'mixed']).default('mixed').describe('Where to place the underscores.'),
-  numProblems: z.number().int().min(1).max(50).default(20),
-  rangeN1: VariableRangeSchema.optional().describe('Range for the first operand.'),
-  rangeN2: VariableRangeSchema.optional().describe('Range for the second operand.'),
-  rangeResult: VariableRangeSchema.optional().describe('Range for the final result (Sum or Difference).'),
-});
-
-export type GenerateVerticalInput = z.infer<typeof GenerateVerticalInputSchema>;
-
-const GenerateVerticalOutputSchema = z.object({
-  problems: z.array(VerticalProblemSchema),
-});
-
-export type GenerateVerticalOutput = z.infer<typeof GenerateVerticalOutputSchema>;
+export interface GenerateVerticalOutput {
+  problems: VerticalProblem[];
+}
 
 export async function generateVerticalMathProblems(
   input: GenerateVerticalInput
 ): Promise<GenerateVerticalOutput> {
-  return generateVerticalMathProblemsFlow(input);
-}
+  const { operation, digits = 2, hasCarry, hideTarget = 'mixed', numProblems = 20, rangeN1, rangeN2, rangeResult } = input;
+  const problems: VerticalProblem[] = [];
+  const seen = new Set<string>();
+  const maxTries = 30000;
+  let tries = 0;
 
-const verticalPrompt = ai.definePrompt({
-  name: 'generateVerticalMathProblemsPrompt',
-  input: { schema: GenerateVerticalInputSchema },
-  output: { schema: GenerateVerticalOutputSchema },
-  prompt: `You are a math teacher creating "Missing Digit" vertical problems for primary students.
-Generate exactly {{numProblems}} unique problems.
+  const randomInt = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
+  const getOp = (): '+' | '-' => operation === 'plus' ? '+' : (operation === 'minus' ? '-' : (Math.random() > 0.5 ? '+' : '-'));
+  
+  const minD = Math.pow(10, digits - 1);
+  const maxD = Math.pow(10, digits) - 1;
+  const getRange = (r: any) => r || { min: minD, max: maxD };
 
-STRICT OPERATOR RULE:
-- If operation is 'plus', you MUST ONLY use the '+' operator.
-- If operation is 'minus', you MUST ONLY use the '-' operator.
-- If operation is 'mixed', you can use both '+' and '-'.
+  const r1 = getRange(rangeN1);
+  const r2 = getRange(rangeN2);
+  const rRes = getRange(rangeResult);
 
-Arithmetic Constraints (STRICT):
-{{#if rangeN1}}- Operand 1 (N1): [{{rangeN1.min}}, {{rangeN1.max}}]{{/if}}
-{{#if rangeN2}}- Operand 2 (N2): [{{rangeN2.min}}, {{rangeN2.max}}]{{/if}}
-{{#if rangeResult}}- Result: [{{rangeResult.min}}, {{rangeResult.max}}]{{/if}}
-
-Rules:
-1. Digits: Operands N1 and N2 should have exactly {{digits}} digits.
-2. Operator: Use only {{operation}} (+ for plus, - for minus, or mixed).
-3. Carry/Borrow Logic:
-   - If hasCarry is true:
-     - For Addition (+): Must involve at least one "carry" (column sum >= 10).
-     - For Subtraction (-): Must involve at least one "borrow" (top digit < bottom digit).
-   - If hasCarry is false:
-     - For Addition (+): NO carries allowed.
-     - For Subtraction (-): NO borrows allowed.
-4. Hide Target Strategy (STRICT COMPLIANCE):
-   - If hideTarget is 'result': ONLY hide digits in the 'result' field. 'top' and 'bottom' MUST BE COMPLETE NUMBERS.
-   - If hideTarget is 'operands': ONLY hide digits in 'top' and 'bottom'. 'result' MUST BE A COMPLETE NUMBER.
-   - If hideTarget is 'mixed': Randomly hide digits across all fields.
-5. Mathematical Validity:
-   - For '-' operations, ensure top >= bottom (N1 >= N2).
-   - Use '_' for hidden digits. Hide exactly 1-2 digits per problem.
-6. Output: Return an array of objects with top, bottom, result, operator, and fullEquation.`,
-});
-
-const generateVerticalMathProblemsFlow = ai.defineFlow(
-  {
-    name: 'generateVerticalMathProblemsFlow',
-    inputSchema: GenerateVerticalInputSchema,
-    outputSchema: GenerateVerticalOutputSchema,
-  },
-  async (input) => {
-    const { operation, digits = 2, hasCarry, hideTarget = 'mixed', numProblems = 20, rangeN1, rangeN2, rangeResult } = input;
-    const problems = [];
-    const seen = new Set<string>();
-    const maxTries = 30000;
-    let tries = 0;
-
-    const randomInt = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
-    const getOp = (): '+' | '-' => operation === 'plus' ? '+' : (operation === 'minus' ? '-' : (Math.random() > 0.5 ? '+' : '-'));
+  while (problems.length < numProblems && tries < maxTries) {
+    tries++;
+    const op = getOp();
+    const n1 = randomInt(r1.min, r1.max);
+    const n2 = randomInt(r2.min, r2.max);
     
-    const minD = Math.pow(10, digits - 1);
-    const maxD = Math.pow(10, digits) - 1;
-    const getRange = (r: any) => r || { min: minD, max: maxD };
+    if (op === '-' && n1 < n2) continue;
+    
+    const res = op === '+' ? n1 + n2 : n1 - n2;
+    if (res < rRes.min || res > rRes.max) continue;
 
-    const r1 = getRange(rangeN1);
-    const r2 = getRange(rangeN2);
-    const rRes = getRange(rangeResult);
-
-    while (problems.length < numProblems && tries < maxTries) {
-      tries++;
-      const op = getOp();
-      const n1 = randomInt(r1.min, r1.max);
-      const n2 = randomInt(r2.min, r2.max);
-      
-      if (op === '-' && n1 < n2) continue;
-      
-      const res = op === '+' ? n1 + n2 : n1 - n2;
-      if (res < rRes.min || res > rRes.max) continue;
-
-      let hasC = false;
-      const strN1 = n1.toString().padStart(digits, '0');
-      const strN2 = n2.toString().padStart(digits, '0');
-      
-      for (let i = 0; i < digits; i++) {
-        const d1 = parseInt(strN1[strN1.length - 1 - i] || '0');
-        const d2 = parseInt(strN2[strN2.length - 1 - i] || '0');
-        if (op === '+' && d1 + d2 >= 10) hasC = true;
-        if (op === '-' && d1 < d2) hasC = true;
-      }
-
-      if (hasCarry === true && !hasC) continue;
-      if (hasCarry === false && hasC) continue;
-
-      const q = `${n1}${op}${n2}`;
-      if (seen.has(q)) continue;
-      seen.add(q);
-
-      let top = n1.toString();
-      let bottom = n2.toString();
-      let resultStr = res.toString();
-
-      let targetObj = hideTarget;
-      if (targetObj === 'mixed') {
-         const targets = ['result', 'operands'];
-         targetObj = targets[Math.floor(Math.random() * targets.length)] as any;
-      }
-      
-      if (targetObj === 'result') {
-        const hideIdx = Math.floor(Math.random() * resultStr.length);
-        resultStr = resultStr.substring(0, hideIdx) + '_' + resultStr.substring(hideIdx + 1);
-      } else {
-        if (Math.random() > 0.5) {
-           const hideIdx = Math.floor(Math.random() * top.length);
-           top = top.substring(0, hideIdx) + '_' + top.substring(hideIdx + 1);
-        } else {
-           const hideIdx = Math.floor(Math.random() * bottom.length);
-           bottom = bottom.substring(0, hideIdx) + '_' + bottom.substring(hideIdx + 1);
-        }
-      }
-
-      problems.push({
-        top,
-        bottom,
-        result: resultStr,
-        operator: op,
-        fullEquation: `${n1} ${op} ${n2} = ${res}`
-      });
+    let hasC = false;
+    const strN1 = n1.toString().padStart(digits, '0');
+    const strN2 = n2.toString().padStart(digits, '0');
+    
+    for (let i = 0; i < digits; i++) {
+       const d1 = parseInt(strN1[strN1.length - 1 - i] || '0');
+       const d2 = parseInt(strN2[strN2.length - 1 - i] || '0');
+       if (op === '+' && d1 + d2 >= 10) hasC = true;
+       if (op === '-' && d1 < d2) hasC = true;
     }
 
-    return { problems };
+    if (hasCarry === true && !hasC) continue;
+    if (hasCarry === false && hasC) continue;
+
+    let top = n1.toString();
+    let bottom = n2.toString();
+    let resultStr = res.toString();
+
+    let targetObj = hideTarget;
+    if (targetObj === 'mixed') {
+       const targets = ['result', 'operands'];
+       targetObj = targets[Math.floor(Math.random() * targets.length)] as any;
+    }
+    
+    if (targetObj === 'result') {
+      const hideIdx = Math.floor(Math.random() * resultStr.length);
+      resultStr = resultStr.substring(0, hideIdx) + '_' + resultStr.substring(hideIdx + 1);
+    } else {
+      if (Math.random() > 0.5) {
+         const hideIdx = Math.floor(Math.random() * top.length);
+         top = top.substring(0, hideIdx) + '_' + top.substring(hideIdx + 1);
+      } else {
+         const hideIdx = Math.floor(Math.random() * bottom.length);
+         bottom = bottom.substring(0, hideIdx) + '_' + bottom.substring(hideIdx + 1);
+      }
+    }
+
+    const q = `${top}${op}${bottom}=${resultStr}`;
+    if (seen.has(q)) continue;
+    seen.add(q);
+
+    problems.push({
+      top,
+      bottom,
+      result: resultStr,
+      operator: op,
+      fullEquation: `${n1} ${op} ${n2} = ${res}`
+    });
   }
-);
+
+  return { problems };
+}
+

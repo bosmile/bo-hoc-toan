@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 
-export default function AnswersPage() {
+function AnswersContent() {
   const searchParams = useSearchParams()
   const q = searchParams.get('q')
   const [answers, setAnswers] = React.useState<string[]>([])
@@ -69,3 +69,16 @@ export default function AnswersPage() {
     </div>
   )
 }
+
+export default function AnswersPage() {
+  return (
+    <React.Suspense fallback={
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    }>
+      <AnswersContent />
+    </React.Suspense>
+  )
+}
+

@@ -16,7 +16,10 @@ import {
   LayoutDashboard,
   BrainCircuit,
   Shapes,
-  BoxSelect
+  BoxSelect,
+  Grid3X3,
+  Clock,
+  BookOpen
 } from "lucide-react"
 
 import {
@@ -42,14 +45,9 @@ const navigation = {
       { title: "CĐ3: So sánh biểu thức", url: "/archimedes/chuyen-de-3", icon: Scale },
       { title: "CĐ4: Tính hàng dọc", url: "/archimedes/chuyen-de-4", icon: Columns2 },
       { title: "CĐ5: Quy luật dãy số", url: "/archimedes/chuyen-de-5", icon: ListOrdered },
-      { title: "CĐ6: Kim tự tháp số", url: "/archimedes/chuyen-de-6", icon: Shapes },
-    ],
-  },
-  singapore: {
-    title: "Toán Tư Duy Singapore",
-    chapters: [
-      { title: "CĐ1: Mô hình Bar Model", url: "/singapore/chuyen-de-1", icon: Shapes },
-      { title: "CĐ2: Logic hình ảnh", url: "/singapore/chuyen-de-2", icon: BoxSelect },
+      { title: "CĐ6: Thử thách Sudoku", url: "/archimedes/chuyen-de-6", icon: Grid3X3 },
+      { title: "CĐ7: Xem đồng hồ", url: "/archimedes/chuyen-de-7", icon: Clock },
+      { title: "CĐ8: Toán tư duy", url: "/archimedes/chuyen-de-8", icon: BookOpen },
     ],
   },
 }
@@ -113,27 +111,6 @@ export function AppSidebar() {
           </SidebarMenu>
         </SidebarGroup>
 
-        {/* Toán Singapore Section */}
-        <SidebarGroup>
-          <SidebarGroupLabel className="px-4 text-[10px] font-black text-accent/60 uppercase tracking-[0.2em] mb-2">
-            Toán Tư Duy Singapore
-          </SidebarGroupLabel>
-          <SidebarMenu>
-            {navigation.singapore.chapters.map((chapter) => {
-              const Icon = chapter.icon
-              return (
-                <SidebarMenuItem key={chapter.url}>
-                  <SidebarMenuButton asChild isActive={pathname === chapter.url} className="data-[active=true]:bg-accent data-[active=true]:text-white transition-all">
-                    <Link href={chapter.url}>
-                      <Icon className="size-4" />
-                      <span className="font-semibold">{chapter.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              )
-            })}
-          </SidebarMenu>
-        </SidebarGroup>
       </SidebarContent>
 
       <SidebarFooter className="border-t p-6 bg-primary/5">

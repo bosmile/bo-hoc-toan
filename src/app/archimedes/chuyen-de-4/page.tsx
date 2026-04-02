@@ -35,6 +35,8 @@ import { Switch } from "@/components/ui/switch"
 import Image from "next/image"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
+import { PrintHeader } from "@/components/print-header"
+import { PrintFooter } from "@/components/print-footer"
 
 const rangeSchema = z.object({
   min: z.coerce.number().min(0),
@@ -370,38 +372,18 @@ export default function ChuyenDe4Page() {
                 <div className="p-8 print:p-0">
                   <div ref={contentRef}>
                     <div className="w-[210mm] min-h-[297mm] mx-auto p-[15mm] bg-white text-black font-sans relative shadow-xl origin-top" style={{ transform: 'scale(0.85)', marginBottom: '-10%' }}>
-                      <div className="flex justify-between items-start mb-10 border-b-2 border-primary pb-6">
-                        <div className="flex items-center gap-3">
-                          <div className="p-2 bg-primary rounded-lg flex items-center justify-center overflow-hidden">
-                            <Image 
-                              src="/logo.png" 
-                              alt="Logo" 
-                              width={80} 
-                              height={80}
-                              className="object-contain"
-                            />
-                          </div>
-                          <div>
-                            <h1 className="text-3xl font-black text-primary leading-none uppercase">BƠ HỌC TOÁN</h1>
-                            <p className="text-[10px] text-accent font-bold uppercase tracking-wider mt-1">Number Garden Edition</p>
-                          </div>
-                        </div>
-                        <div className="text-right space-y-3 pt-2">
-                          <p className="text-sm font-medium">Họ và tên: .....................................................</p>
-                          <p className="text-sm font-medium">Ngày: ...........................................................</p>
-                        </div>
-                      </div>
-
-                      <div className="mb-12 text-center">
-                        <h2 className="text-4xl font-black text-primary mb-2 uppercase tracking-tight">Thử thách hàng dọc</h2>
-                        <p className="text-lg italic text-accent font-medium">Tìm các chữ số còn thiếu để hoàn thành phép tính nhé!</p>
-                      </div>
+                      <PrintHeader 
+                        title="Thử thách hàng dọc" 
+                        subtitle="Tìm các chữ số còn thiếu để hoàn thành phép tính nhé!" 
+                      />
 
                       <div className="grid grid-cols-5 gap-y-12 gap-x-4">
                         {results.map((prob, idx) => (
                            <VerticalProblem key={idx} index={idx + 1} problem={prob} />
                         ))}
                       </div>
+
+                      <PrintFooter />
                     </div>
                   </div>
 

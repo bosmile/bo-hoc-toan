@@ -15,6 +15,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { generateArchimedesMathProblems } from "@/ai/flows/generate-archimedes-math-problems"
 import { useToast } from "@/hooks/use-toast"
 import { Badge } from "@/components/ui/badge"
+import { PrintHeader } from "@/components/print-header"
+import { PrintFooter } from "@/components/print-footer"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import Image from "next/image"
@@ -239,43 +241,19 @@ export default function ChuyenDe1Page() {
               {problems.length > 0 ? (
                 <div className="p-8 print:p-0">
                   <div ref={contentRef}>
-                    <div className="w-[210mm] min-h-[297mm] mx-auto p-[15mm] bg-white text-black font-sans relative flex flex-col shadow-xl">
-                      
+                    <div className="w-[210mm] min-h-[297mm] mx-auto pt-[15mm] px-[15mm] pb-[10mm] bg-white text-black font-sans relative flex flex-col shadow-xl origin-top" style={{ transform: 'scale(0.85)', marginBottom: '-10%' }}>                 
                       {/* WATERMARK */}
                       <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none z-0">
                          <h1 className="text-[150px] font-black -rotate-45 text-primary whitespace-nowrap">BƠ HỌC TOÁN</h1>
                       </div>
 
                       {/* Header */}
-                      <div className="flex justify-between items-start mb-10 border-b-2 border-primary pb-6 relative z-10">
-                        <div className="flex items-center gap-4">
-                          <div className="p-2 bg-primary rounded-lg overflow-hidden flex items-center justify-center">
-                            <Image src="/logo.png" alt="Logo" width={90} height={90} className="object-contain" />
-                          </div>
-                          <div>
-                            <h1 className="text-4xl font-black text-primary leading-none uppercase tracking-tighter">BƠ HỌC TOÁN</h1>
-                            <p className="text-[12px] text-accent font-bold uppercase tracking-[0.2em] mt-2">Number Garden Edition</p>
-                          </div>
-                        </div>
-                        <div className="text-right space-y-4 pt-2">
-                          <p className="text-lg font-bold">Họ tên: <span className="inline-block w-64 border-b-2 border-dotted border-gray-400"></span></p>
-                          <p className="text-lg font-bold">Lớp: <span className="inline-block w-64 border-b-2 border-dotted border-gray-400"></span></p>
-                        </div>
-                        
-                        {/* Auto-grading QR Code corner */}
-                        {qrUrl && (
-                          <div className="absolute right-0 top-[110px] text-center border-2 border-primary/20 p-2 rounded-xl bg-white shadow-sm flex flex-col items-center">
-                             <img src={`https://api.qrserver.com/v1/create-qr-code/?size=90x90&data=${encodeURIComponent(qrUrl)}`} alt="QR" className="size-[90px]" />
-                             <p className="text-[9px] font-black mt-2 text-primary tracking-wider">QUÉT XEM ĐÁP ÁN</p>
-                          </div>
-                        )}
-                      </div>
+                      <PrintHeader 
+                        title="Tìm số còn thiếu" 
+                        subtitle="Thử thách điền số thích hợp vào chỗ trống nhé!" 
+                      />
 
-                      {/* Title */}
-                      <div className="mb-14 text-center relative z-10 mt-6">
-                        <h2 className="text-5xl font-black text-primary mb-4 uppercase drop-shadow-sm">Tìm số còn thiếu</h2>
-                        <p className="text-xl italic text-accent font-bold">Thử thách điền số thích hợp vào chỗ trống nhé!</p>
-                      </div>
+                      {/* Problems Grid */}
 
                       {/* Problems Grid */}
                       <div className="grid grid-cols-2 gap-x-20 gap-y-12 relative z-10 flex-1 px-8">
@@ -291,22 +269,7 @@ export default function ChuyenDe1Page() {
                         </div>
                       </div>
 
-                      {/* GRADING FOOTER */}
-                      <div className="mt-auto border-t-2 border-primary/20 pt-8 flex justify-between items-end relative z-10 px-8 pb-4">
-                         <div className="border-2 border-primary border-dashed rounded-2xl p-6 w-[350px] text-center bg-primary/5">
-                            <p className="font-black text-lg text-primary uppercase mb-6 tracking-widest">KẾT QUẢ ĐÁNH GIÁ</p>
-                            <div className="flex justify-center gap-6 text-primary/20">
-                               <CheckCircle2 className="size-16 stroke-[1.5]" />
-                               <CheckCircle2 className="size-16 stroke-[1.5]" />
-                               <CheckCircle2 className="size-16 stroke-[1.5]" />
-                            </div>
-                         </div>
-                         <div className="text-center pb-8 pr-8">
-                            <p className="text-base font-black text-muted-foreground uppercase mb-16 tracking-widest">CHỮ KÝ PHỤ HUYNH</p>
-                            <span className="inline-block border-b-2 border-dotted border-gray-400 w-64"></span>
-                         </div>
-                      </div>
-
+                      <PrintFooter />
                     </div>
                   </div>
 

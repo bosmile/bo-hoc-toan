@@ -30,6 +30,8 @@ import { useToast } from "@/hooks/use-toast"
 import { Badge } from "@/components/ui/badge"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
+import { PrintHeader } from "@/components/print-header"
+import { PrintFooter } from "@/components/print-footer"
 import Link from "next/link"
 
 const formSchema = z.object({
@@ -224,12 +226,32 @@ export default function ChuyenDe3Page() {
                 </Button>
               )}
             </CardHeader>
-            <CardContent className="flex-1 p-8">
+            <CardContent className="flex-1 p-0 relative bg-white">
               {results.length > 0 ? (
-                <div ref={contentRef} className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
-                  {results.map((item, idx) => (
-                    <ProblemRow key={idx} index={idx + 1} problem={item.question} />
-                  ))}
+                <div className="p-8 print:p-0">
+                  <div ref={contentRef}>
+                    <div className="w-[210mm] min-h-[297mm] mx-auto p-[15mm] bg-white text-black font-sans relative flex flex-col shadow-xl origin-top" style={{ transform: 'scale(0.85)', marginBottom: '-10%' }}>
+                      
+                      <PrintHeader 
+                        title="So sánh biểu thức" 
+                        subtitle="Điền dấu thích hợp (<, >, =) vào ô trống giữa hai vế nhé!" 
+                      />
+
+                      <div className="grid grid-cols-2 gap-x-12 gap-y-12 relative z-10 flex-1 px-8 pt-6">
+                        {results.map((item, idx) => (
+                          <ProblemRow key={idx} index={idx + 1} problem={item.question} />
+                        ))}
+                      </div>
+
+                      <PrintFooter />
+                    </div>
+                  </div>
+
+                  <div className="no-print grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 p-12">
+                    {results.map((item, idx) => (
+                      <ProblemRow key={idx} index={idx + 1} problem={item.question} />
+                    ))}
+                  </div>
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-6">

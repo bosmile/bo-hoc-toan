@@ -1,11 +1,22 @@
 
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
+import { Inter, Playfair_Display } from "next/font/google"
 import "./globals.css"
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar"
 import { Toaster } from "@/components/ui/toaster"
 import Image from "next/image"
+import { cn } from "@/lib/utils"
+
+const inter = Inter({ 
+  subsets: ["latin", "vietnamese"],
+  variable: '--font-inter',
+})
+
+const playfair = Playfair_Display({
+  subsets: ["latin", "vietnamese"],
+  variable: '--font-playfair',
+})
 
 export const metadata: Metadata = {
   title: "BƠ HỌC TOÁN - Bé Giỏi Toán Mỗi Ngày",
@@ -18,11 +29,10 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="vi">
+    <html lang="vi" className={cn(inter.variable, playfair.variable)}>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased selection:bg-primary/20">
         <SidebarProvider>

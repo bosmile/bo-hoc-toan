@@ -1,87 +1,56 @@
-'use server';
 /**
- * @fileOverview A Genkit flow for generating periodic sequence problems.
- * 
- * - generateSequenceProblems - Generates problems where a sequence of numbers repeats.
- * - Strict Pattern Logic: Each distinct number in the cycle appears exactly once in the grid.
+ * @fileOverview Local problem generation for sequence problems (periodic, arithmetic, etc.).
  */
 
-import { ai } from '@/ai/genkit';
-import { z } from 'genkit';
+export interface SequenceProblem {
+  type: 'periodic' | 'arithmetic_increase' | 'arithmetic_decrease' | 'step_increasing' | 'step_alternating';
+  cycleNumbers?: number[];
+  cycleSum?: number[];
+  step?: number;
+  step1?: number;
+  step2?: number;
+  sequence?: number[];
+  grid: string[];
+  instruction: string;
+}
 
-const SequenceProblemSchema = z.object({
-  cycleNumbers: z.array(z.number().int()).describe('The numbers forming one repeating cycle.'),
-  cycleSum: z.number().int().describe('The sum of one cycle.'),
-  grid: z.array(z.string()).describe('The sequence grid with underscores for blanks.'),
-  instruction: z.string().describe('The instruction text.'),
-});
+export interface GenerateSequenceInput {
+  sequenceType: 'periodic' | 'arithmetic_increase' | 'arithmetic_decrease' | 'step_increasing' | 'step_alternating';
+  cycleLength?: number;
+  maxCycleSum?: number;
+  rangeMin?: number;
+  rangeMax?: number;
+  stepMin?: number;
+  stepMax?: number;
+  gridLength?: number;
+  numBlanks?: number;
+  numProblems: number;
+}
 
-const GenerateSequenceInputSchema = z.object({
-  cycleLength: z.number().int().min(3).max(4).default(3).describe('Number of elements in one cycle.'),
-  maxCycleSum: z.number().int().min(10).max(100).default(30).describe('Maximum allowed sum for one cycle.'),
-  numProblems: z.number().int().min(1).max(10).default(2),
-});
-
-export type GenerateSequenceInput = z.infer<typeof GenerateSequenceInputSchema>;
-
-const GenerateSequenceOutputSchema = z.object({
-  problems: z.array(SequenceProblemSchema),
-});
-
-export type GenerateSequenceOutput = z.infer<typeof GenerateSequenceOutputSchema>;
+export interface GenerateSequenceOutput {
+  problems: SequenceProblem[];
+}
 
 export async function generateSequenceProblems(
   input: GenerateSequenceInput
 ): Promise<GenerateSequenceOutput> {
-  return generateSequenceProblemsFlow(input);
-}
+  const { sequenceType = 'periodic', numProblems = 2 } = input;
+  const problems: any[] = [];
+  
+  const randomInt = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
 
-const sequencePrompt = ai.definePrompt({
-  name: 'generateSequenceProblemsPrompt',
-  input: { schema: GenerateSequenceInputSchema },
-  output: { schema: GenerateSequenceOutputSchema },
-  prompt: `You are a math teacher creating "Strict Periodic Sequence" problems for advanced primary students.
-Generate {{numProblems}} unique problems.
-
-Rules:
-1. Cycle Length (N): {{cycleLength}} (either 3 or 4).
-2. Cycle Sum (S): Must be exactly the sum of the N cycle numbers, and ≤ {{maxCycleSum}}.
-3. Randomness: Do NOT use hardcoded sets like (4, 7, 9). Every problem MUST use a different, randomly generated set of integers for the cycle.
-4. Grid Construction (STRICT PATTERN):
-   - For a cycle of length N (e.g., [a, b, c, d] for N=4), you must place EXACTLY ONE instance of each of the first N-1 numbers (a, b, c) in the grid at their correct periodic positions (index mod N).
-   - The N-th number (d) MUST NOT appear in the grid at all (it will be the underscore '_').
-   - This forces the student to use the provided sum S and the known numbers (a, b, c) to find the missing number d.
-   - Example for N=3, Cycle=[2, 5, 3], S=10:
-     Grid: ["2", "_", "_", "_", "5", "_", "_", "_", "3", "_", "_", "_"]
-     (Notice 2 is at index 0 (0%3=0), 5 is at index 4 (4%3=1), 3 is at index 8 (8%3=2). Only ONE of each.)
-5. Instruction: "Biết tổng của {{cycleLength}} số liên tiếp bằng {{cycleSum}}. Em hãy tìm số còn thiếu và hoàn thiện bảng sau:"
-6. Output: Return an array of objects with cycleNumbers, cycleSum, grid, and instruction.`,
-});
-
-const generateSequenceProblemsFlow = ai.defineFlow(
-  {
-    name: 'generateSequenceProblemsFlow',
-    inputSchema: GenerateSequenceInputSchema,
-    outputSchema: GenerateSequenceOutputSchema,
-  },
-  async (input) => {
-    const { cycleLength = 3, maxCycleSum = 30, numProblems = 2 } = input;
-    const problems = [];
-    const seen = new Set<string>();
-    const maxTries = 5000;
-    let tries = 0;
-
-    const randomInt = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
-
-    while (problems.length < numProblems && tries < maxTries) {
-      tries++;
+  for (let p = 0; p < numProblems; p++) {
+    if (sequenceType === 'periodic') {
+      const cycleLength = input.cycleLength ?? 3;
+      const maxSum = input.maxCycleSum ?? 30;
+      
       const cycle = [];
       const used = new Set<number>();
       for (let i = 0; i < cycleLength; i++) {
         let n = 0;
         let innerTries = 0;
         do {
-          n = randomInt(1, Math.max(1, maxCycleSum - cycleLength + 1));
+          n = randomInt(1, Math.max(1, maxSum - cycleLength + 1));
           innerTries++;
         } while (used.has(n) && innerTries < 50);
         used.add(n);
@@ -89,15 +58,7 @@ const generateSequenceProblemsFlow = ai.defineFlow(
       }
       
       const sum = cycle.reduce((a, b) => a + b, 0);
-      if (sum > maxCycleSum) continue;
-
-      const cycleKey = cycle.join(',');
-      if (seen.has(cycleKey)) continue;
-      seen.add(cycleKey);
-
-      // Create grid (length = 12 cells for visual periodic repetition)
       const grid = Array(12).fill('_');
-      // For first N-1 elements, put them at exactly one periodic position
       for (let i = 0; i < cycleLength - 1; i++) {
         const value = cycle[i];
         const randomPeriod = Math.floor(Math.random() * Math.floor(12 / cycleLength));
@@ -106,13 +67,77 @@ const generateSequenceProblemsFlow = ai.defineFlow(
       }
 
       problems.push({
+        type: 'periodic' as const,
         cycleNumbers: cycle,
         cycleSum: sum,
         grid,
         instruction: `Biết tổng của ${cycleLength} số liên tiếp bằng ${sum}. Em hãy tìm số còn thiếu và hoàn thiện bảng sau:`
       });
-    }
+    } else {
+      const gridLen = input.gridLength ?? 6;
+      const blanks = input.numBlanks ?? 2;
+      const rMin = input.rangeMin ?? 0;
+      const rMax = input.rangeMax ?? 100;
+      const sMin = input.stepMin ?? 1;
+      const sMax = input.stepMax ?? 10;
+      
+      let valid = false;
+      let seq: number[] = [];
+      let step = 0, step1 = 0, step2 = 0;
+      let innerTries = 0;
+      
+      while (!valid && innerTries < 1000) {
+        innerTries++;
+        seq = [];
+        const startNum = randomInt(rMin, rMax);
+        seq.push(startNum);
+        
+        step = randomInt(sMin, sMax);
+        step1 = randomInt(sMin, sMax) * (Math.random() > 0.5 ? 1 : -1);
+        step2 = randomInt(sMin, sMax) * (Math.random() > 0.5 ? 1 : -1);
+        if (step1 === step2) step2 = -step1;
+        
+        let isOk = true;
+        let curr = startNum;
+        
+        for (let i = 1; i < gridLen; i++) {
+          let diff = 0;
+          if (sequenceType === 'arithmetic_increase') diff = step;
+          else if (sequenceType === 'arithmetic_decrease') diff = -step;
+          else if (sequenceType === 'step_increasing') diff = step + (i - 1);
+          else if (sequenceType === 'step_alternating') diff = (i % 2 === 1) ? step1 : step2;
+          
+          curr += diff;
+          if (curr < rMin || curr > rMax) {
+             isOk = false;
+             break;
+          }
+          seq.push(curr);
+        }
+        if (isOk) valid = true;
+      }
 
-    return { problems };
+      const grid = [];
+      for (let i = 0; i < gridLen; i++) {
+        if (i >= gridLen - blanks) grid.push('_');
+        else grid.push(seq[i].toString());
+      }
+
+      let instruction = `Tìm quy luật và điền số thích hợp vào chỗ trống:`;
+
+      problems.push({
+        type: sequenceType as any,
+        step,
+        step1,
+        step2,
+        sequence: seq,
+        grid,
+        instruction
+      });
+    }
   }
-);
+
+  return { problems };
+}
+
+

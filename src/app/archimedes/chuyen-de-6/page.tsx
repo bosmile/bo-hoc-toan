@@ -1,186 +1,314 @@
 "use client"
 
 import * as React from "react"
-import { Printer, RefreshCw, Trash2, MountainSnow, CheckCircle2 } from "lucide-react"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import * as z from "zod"
+import { Printer, RefreshCw, Settings2, Grid3X3, PlusCircle, LayoutDashboard, Brain } from "lucide-react"
 import { useReactToPrint } from "react-to-print"
-import Image from "next/image"
 
 import { Button } from "@/components/ui/button"
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { generateSudokuProblems } from "@/ai/flows/generate-sudoku-problems"
 import { useToast } from "@/hooks/use-toast"
+import { Badge } from "@/components/ui/badge"
+import Image from "next/image"
+import Link from "next/link"
+import { cn } from "@/lib/utils"
+import { PrintHeader } from "@/components/print-header"
+import { PrintFooter } from "@/components/print-footer"
 
-type Pyramid = {
-  id: number;
-  F: number; D: number; E: number; A: number; B: number; C: number;
-  hide: string[];
-}
+const formSchema = z.object({
+  size: z.enum(['4', '6', '9']),
+  difficulty: z.enum(['easy', 'medium', 'hard']),
+  numProblems: z.coerce.number().min(1).max(5),
+})
 
-export default function ChuyenDe6Page() {
-  const [problems, setProblems] = React.useState<Pyramid[]>([])
-  const [qrUrl, setQrUrl] = React.useState("")
+const SudokuCell = ({ value, size }: { value: string, size: number }) => {
+  const isBlank = value === '_';
+  const isLarge = size === 9;
+  return (
+    <div className={cn(
+      "aspect-square flex items-center justify-center border border-slate-300 font-bold transition-all p-0",
+      isBlank ? "bg-white" : "bg-slate-50 text-primary",
+      isLarge ? "text-base sm:text-xl" : "text-2xl sm:text-3xl"
+    )}>
+      {isBlank ? "" : value}
+    </div>
+  );
+};
+
+const SudokuGrid = ({ grid, size }: { grid: string[][], size: number }) => {
+  const cols = size;
+  const boxW = size === 6 ? 3 : Math.sqrt(size);
+  const boxH = size === 6 ? 2 : Math.sqrt(size);
+
+  return (
+    <div 
+      className="grid border-2 border-slate-900 shadow-xl mx-auto overflow-hidden" 
+      style={{ 
+        gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
+        width: 'fit-content',
+        minWidth: size === 9 ? '280px' : '200px',
+        maxWidth: '100%'
+      }}
+    >
+      {grid.map((row, rIdx) => (
+        row.map((val, cIdx) => (
+          <div 
+            key={`${rIdx}-${cIdx}`}
+            className={cn(
+               "border-slate-300",
+               (cIdx + 1) % boxW === 0 && cIdx !== size - 1 ? "border-r-2 border-r-slate-900" : "border-r",
+               (rIdx + 1) % boxH === 0 && rIdx !== size - 1 ? "border-b-2 border-b-slate-900" : "border-b"
+            )}
+          >
+            <SudokuCell value={val} size={size} />
+          </div>
+        ))
+      ))}
+    </div>
+  );
+};
+
+const SudokuProblem = ({ index, problem }: { index: number, problem: any }) => {
+  return (
+    <div className="space-y-4 break-inside-avoid py-4">
+      <div className="space-y-1">
+        <h3 className="text-lg font-black text-primary tracking-tight flex items-center gap-3">
+          <span className="size-7 rounded-full bg-primary text-white flex items-center justify-center text-[9px]">Bài {index}</span>
+          Điền số Sudoku {problem.size}x{problem.size}
+        </h3>
+        <p className="text-[15px] font-medium text-slate-600 leading-relaxed font-body">
+          Hãy điền các số từ 1 đến {problem.size} vào các ô trống sao cho mỗi hàng, mỗi cột và mỗi khối nhỏ không lặp lại số nào.
+        </p>
+      </div>
+
+      <div className="flex justify-center">
+        <SudokuGrid grid={problem.grid} size={problem.size} />
+      </div>
+
+      <div className="mt-8 no-print p-4 bg-slate-50 rounded-xl border border-slate-200">
+        <details className="cursor-pointer group">
+          <summary className="text-sm font-black text-slate-500 uppercase tracking-widest flex items-center gap-2 group-open:mb-4">
+            <span className="group-open:hidden">Xem đáp án</span>
+            <span className="hidden group-open:inline">Đóng đáp án</span>
+          </summary>
+          <div className="flex justify-center transition-all animate-in fade-in slide-in-from-top-2">
+             <div className="scale-75 origin-top">
+                <SudokuGrid grid={problem.solution} size={problem.size} />
+             </div>
+          </div>
+        </details>
+      </div>
+    </div>
+  );
+};
+
+export default function SudokuPage() {
+  const [results, setResults] = React.useState<any[]>([])
   const [isLoading, setIsLoading] = React.useState(false)
   const { toast } = useToast()
   
   const contentRef = React.useRef<HTMLDivElement>(null)
   const handlePrint = useReactToPrint({ contentRef })
 
-  React.useEffect(() => {
-    if (problems.length > 0) {
-      const answersList = problems.map(p => `A=${p.A}, B=${p.B}, C=${p.C}, D=${p.D}, E=${p.E}, F=${p.F}`)
-      const text = JSON.stringify(answersList)
-      const bytes = new TextEncoder().encode(text)
-      const binString = Array.from(bytes, (byte) => String.fromCodePoint(byte)).join("")
-      const targetUrl = `${window.location.origin}/answers?q=${btoa(binString)}`
-      setQrUrl(targetUrl)
-    }
-  }, [problems])
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      size: '4',
+      difficulty: 'easy',
+      numProblems: 2,
+    },
+  })
 
-  const generatePyramids = () => {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true)
-    setTimeout(() => {
-      const newProbs: Pyramid[] = []
-      for(let i=0; i<8; i++) { // Generate 8 pyramids per page
-        const A = Math.floor(Math.random() * 20) + 1
-        const B = Math.floor(Math.random() * 20) + 1
-        const C = Math.floor(Math.random() * 20) + 1
-        const D = A + B
-        const E = B + C
-        const F = D + E
-        
-        // Pick hiding pattern to ensure solvable
-        // P1: hide C, D, F -> known A, B, E
-        // P2: hide A, C, F -> known D, E, B
-        // P3: hide B, C, E -> known F, A, D
-        const patterns = [
-          ['C', 'D', 'F'],
-          ['A', 'C', 'F'],
-          ['B', 'C', 'E'],
-          ['A', 'E', 'D']
-        ]
-        const hide = patterns[Math.floor(Math.random() * patterns.length)]
-        newProbs.push({ id: i+1, A, B, C, D, E, F, hide })
-      }
-      setProblems(newProbs)
+    try {
+      const result = await generateSudokuProblems(values)
+      setResults(result.problems)
+      toast({ title: "Thành công!", description: `Đã tạo ${result.problems.length} bảng Sudoku.` })
+    } catch (error) {
+      toast({ variant: "destructive", title: "Lỗi", description: "Không thể tạo bảng Sudoku." })
+    } finally {
       setIsLoading(false)
-      toast({ title: "Đã tạo 8 Kim tự tháp toán học!" })
-    }, 500)
-  }
-
-  const renderBlock = (p: Pyramid, key: keyof Pyramid) => {
-    const isHidden = p.hide.includes(key as string)
-    return (
-      <div className={`w-28 h-16 flex items-center justify-center border-4 border-primary rounded-xl font-black text-3xl shadow-sm ${isHidden ? 'bg-white text-transparent' : 'bg-primary/5 text-primary'}`}>
-        {isHidden ? "" : p[key]}
-      </div>
-    )
+    }
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-700">
-      <div className="flex justify-between items-start gap-4">
-        <div>
-          <Badge className="mb-2">Toán Hình Học Áp Dụng</Badge>
-          <h1 className="text-3xl font-bold text-primary">Kim Tự Tháp Toán Học</h1>
-          <p className="text-muted-foreground">Phát triển tư duy logic ngược qua thử thách Kim Tự Tháp.</p>
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="no-print flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div className="space-y-1">
+          <Badge variant="outline" className="text-primary border-primary/20 bg-primary/5">Toán Archimedes</Badge>
+          <h1 className="text-4xl font-black tracking-tight text-primary uppercase">CĐ6: Thử thách Sudoku Tư Duy</h1>
+          <p className="text-muted-foreground max-w-2xl font-medium">
+            Rèn luyện khả năng quan sát và logic loại trừ qua các bảng số Sudoku đa dạng kích thước.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+           <Button variant="outline" asChild className="gap-2 font-bold">
+            <Link href="/archimedes">
+              <LayoutDashboard className="size-4" />
+              Bảng điều khiển
+            </Link>
+          </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-8">
-        <Card className="border-none shadow-xl bg-white overflow-hidden">
-          <CardHeader className="border-b bg-muted/20 flex flex-row items-center justify-between">
-            <CardTitle>Bản in A4 thực tế</CardTitle>
-            <div className="flex gap-2">
-              <Button onClick={generatePyramids} disabled={isLoading} variant="outline" className="gap-2">
-                <RefreshCw className={`size-4 ${isLoading ? 'animate-spin' : ''}`} /> Tạo đề mới
-              </Button>
-              {problems.length > 0 && (
-                <Button onClick={() => handlePrint()} className="gap-2 font-bold">
-                  <Printer className="size-4" /> In PDF
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="no-print space-y-6">
+          <Card className="border-none shadow-2xl bg-white overflow-hidden">
+            <CardHeader className="border-b bg-primary/5">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Settings2 className="size-5 text-primary" />
+                Cấu hình Sudoku
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                  <FormField
+                    control={form.control}
+                    name="size"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-bold text-slate-700">Kích thước lưới</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger className="h-12 border-primary/20 bg-primary/5 font-semibold text-primary">
+                              <SelectValue placeholder="Chọn kích thước" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="4" className="font-semibold text-green-600">Mini Sudoku 4x4 (Dễ)</SelectItem>
+                            <SelectItem value="6" className="font-semibold text-blue-600">Medium Sudoku 6x6</SelectItem>
+                            <SelectItem value="9" className="font-semibold text-red-600">Classic Sudoku 9x9</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="difficulty"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-bold text-slate-700">Mức độ thử thách</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger className="h-12 border-primary/20 bg-primary/5 font-semibold text-primary">
+                              <SelectValue placeholder="Chọn mức độ" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="easy" className="font-semibold">Bắt đầu (Nhiều gợi ý)</SelectItem>
+                            <SelectItem value="medium" className="font-semibold text-orange-600">Thử thách (Vừa phải)</SelectItem>
+                            <SelectItem value="hard" className="font-semibold text-red-700">Thiên tài (Ít gợi ý)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="numProblems"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-bold text-slate-700">Số lượng bảng</FormLabel>
+                        <FormControl>
+                          <Input type="number" {...field} className="h-12 font-bold text-lg" />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+
+                  <Button type="submit" className="w-full gap-2 py-8 text-xl font-black bg-primary hover:bg-primary shadow-lg shadow-primary/30 transition-all hover:scale-[1.02]" disabled={isLoading}>
+                    {isLoading ? <RefreshCw className="size-6 animate-spin" /> : <Grid3X3 className="size-6" />}
+                    TẠO Sudoku
+                  </Button>
+                </form>
+              </Form>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="lg:col-span-2 space-y-6">
+          <Card className="border-none shadow-2xl min-h-[600px] flex flex-col bg-white overflow-hidden">
+             <CardHeader className="no-print border-b bg-slate-50/50 flex flex-row items-center justify-between p-6">
+              <div className="flex items-center gap-3">
+                <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                  <Brain className="size-6" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl font-black text-slate-800">Preview Phiếu Bài Tập</CardTitle>
+                  <CardDescription className="font-medium">Sudoku chuẩn giáo dục BƠ HỌC TOÁN.</CardDescription>
+                </div>
+              </div>
+              {results.length > 0 && (
+                <Button onClick={() => handlePrint()} className="gap-2 bg-primary text-white font-bold h-11 px-6 shadow-md shadow-primary/20">
+                  <Printer className="size-4" />
+                  In phiếu ngay
                 </Button>
               )}
-            </div>
-          </CardHeader>
+            </CardHeader>
 
-          <CardContent className="p-0 bg-gray-50 flex justify-center py-10 overflow-auto">
-             {problems.length > 0 ? (
-               <div ref={contentRef} className="w-[210mm] min-h-[297mm] bg-white text-black font-sans relative flex flex-col p-[15mm] shadow-2xl mx-auto origin-top" style={{ transform: 'scale(0.8)' }}>
-                 
-                 {/* WATERMARK */}
-                 <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none z-0">
-                    <h1 className="text-[140px] font-black -rotate-45 text-primary whitespace-nowrap">KIM TỰ THÁP</h1>
-                 </div>
+            <CardContent className="flex-1 p-0 relative">
+              {results.length > 0 ? (
+                <div className="p-8 print:p-0">
+                  <div ref={contentRef}>
+                    <div className="print-only w-[210mm] min-h-[297mm] mx-auto p-[15mm] bg-white text-black font-sans relative">
+                      <PrintHeader 
+                        title="Thử Thách Sudoku" 
+                        subtitle="Rèn luyện logic - Bứt phá tư duy cùng Bơ Học Toán!" 
+                      />
 
-                 {/* HEADER */}
-                 <div className="flex justify-between items-start mb-10 border-b-2 border-primary pb-6 relative z-10">
-                    <div className="flex items-center gap-4">
-                      <div className="p-2 bg-primary rounded-lg">
-                        <MountainSnow className="size-16 text-white" />
+                      <div className="grid grid-cols-2 gap-x-8 gap-y-12">
+                        {results.map((prob, idx) => (
+                           <SudokuProblem key={idx} index={idx + 1} problem={prob} />
+                        ))}
                       </div>
-                      <div>
-                        <h1 className="text-4xl font-black text-primary uppercase">BƠ HỌC TOÁN</h1>
-                        <p className="text-[12px] font-bold mt-2">THỬ THÁCH KIM TỰ THÁP (CẤP 2)</p>
-                      </div>
+
+                      <PrintFooter />
                     </div>
-                    <div className="text-right space-y-4 pt-2">
-                      <p className="text-lg font-bold">Họ tên: <span className="inline-block w-64 border-b-2 border-dotted border-gray-400"></span></p>
-                      <p className="text-lg font-bold">Lớp: <span className="inline-block w-64 border-b-2 border-dotted border-gray-400"></span></p>
-                    </div>
-                    {qrUrl && (
-                      <div className="absolute right-0 top-[110px] text-center border-2 border-primary/20 p-2 rounded-xl bg-white">
-                         <img src={`https://api.qrserver.com/v1/create-qr-code/?size=90x90&data=${encodeURIComponent(qrUrl)}`} alt="QR" className="size-[90px]" />
-                         <p className="text-[9px] font-black mt-2 text-primary">ĐÁP ÁN NHANH</p>
-                      </div>
-                    )}
-                 </div>
+                  </div>
 
-                 <div className="mb-14 text-center relative z-10 mt-6">
-                    <h2 className="text-5xl font-black text-primary mb-4 uppercase">Giữ Vững Đỉnh Tháp</h2>
-                    <p className="text-xl italic text-accent font-bold">Quy luật: Hai viên đá kề nhau cộng lại sẽ ra viên đá nằm ngay phía trên chúng.</p>
-                 </div>
-
-                 {/* PYRAMIDS */}
-                 <div className="grid grid-cols-2 gap-x-20 gap-y-16 relative z-10 px-10 flex-1">
-                    {problems.map((p) => (
-                      <div key={p.id} className="flex flex-col items-center">
-                         <span className="text-primary font-black text-2xl mb-4 mr-auto border-b-4 border-primary pb-1">#{p.id}</span>
-                         <div className="flex justify-center mb-[-4px]">
-                            {renderBlock(p, 'F')}
-                         </div>
-                         <div className="flex justify-center gap-3 mb-[-4px]">
-                            {renderBlock(p, 'D')}
-                            {renderBlock(p, 'E')}
-                         </div>
-                         <div className="flex justify-center gap-3">
-                            {renderBlock(p, 'A')}
-                            {renderBlock(p, 'B')}
-                            {renderBlock(p, 'C')}
-                         </div>
-                      </div>
+                  <div className="no-print grid grid-cols-1 gap-8">
+                    {results.map((prob, idx) => (
+                       <SudokuProblem key={idx} index={idx + 1} problem={prob} />
                     ))}
-                 </div>
-
-                 {/* GRADING FOOTER */}
-                 <div className="mt-auto border-t-2 border-primary/20 pt-8 flex justify-between items-end relative z-10 px-8 pb-4">
-                    <div className="border-2 border-primary border-dashed rounded-2xl p-6 w-[350px] text-center bg-primary/5">
-                       <p className="font-black text-lg text-primary uppercase mb-6 tracking-widest">KẾT QUẢ ĐÁNH GIÁ</p>
-                       <div className="flex justify-center gap-6 text-primary/20">
-                          <CheckCircle2 className="size-16 stroke-[1.5]" />
-                          <CheckCircle2 className="size-16 stroke-[1.5]" />
-                          <CheckCircle2 className="size-16 stroke-[1.5]" />
-                       </div>
-                    </div>
-                 </div>
-
-               </div>
-             ) : (
-               <div className="flex flex-col items-center justify-center p-20 text-muted-foreground">
-                  <MountainSnow className="size-20 opacity-20 mb-6" />
-                  <p className="font-bold text-xl">Bấm "Tạo đề mới" để sinh bài tập.</p>
-               </div>
-             )}
-          </CardContent>
-        </Card>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-8 p-12">
+                   <div className="size-32 rounded-full bg-primary/5 flex items-center justify-center animate-bounce">
+                      <Grid3X3 className="size-16 text-primary/20" />
+                   </div>
+                   <div className="text-center space-y-2">
+                     <p className="font-black text-2xl text-slate-800 uppercase">Sudoku chưa sẵn sàng!</p>
+                     <p className="font-medium text-slate-500">Hãy cấu hình mức độ và nhấn nút TẠO Sudoku.</p>
+                   </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   )

@@ -43,3 +43,12 @@ next-env.d.ts
 # firebase
 firebase-debug.log
 firestore-debug.log
+.vercel
+
+dist_electron/
+out/
+.next/
+*.exe
+*.zip
+*.dmg
+*.pkg

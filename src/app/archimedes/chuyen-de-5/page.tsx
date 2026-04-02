@@ -28,13 +28,23 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { generateSequenceProblems } from "@/ai/flows/generate-sequence-problems"
 import { useToast } from "@/hooks/use-toast"
 import { Badge } from "@/components/ui/badge"
+import { PrintHeader } from "@/components/print-header"
+import { PrintFooter } from "@/components/print-footer"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import Image from "next/image"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 
 const formSchema = z.object({
-  cycleLength: z.coerce.number().min(3).max(4),
-  maxCycleSum: z.coerce.number().min(10).max(100),
+  sequenceType: z.enum(['periodic', 'arithmetic_increase', 'arithmetic_decrease', 'step_increasing', 'step_alternating']),
+  cycleLength: z.coerce.number().min(3).max(4).optional(),
+  maxCycleSum: z.coerce.number().min(10).max(100).optional(),
+  rangeMin: z.coerce.number().min(0).max(1000).optional(),
+  rangeMax: z.coerce.number().min(10).max(10000).optional(),
+  stepMin: z.coerce.number().min(1).max(20).optional(),
+  stepMax: z.coerce.number().min(1).max(50).optional(),
+  gridLength: z.coerce.number().min(4).max(12).optional(),
+  numBlanks: z.coerce.number().min(1).max(5).optional(),
   numProblems: z.coerce.number().min(1).max(5),
 })
 
@@ -53,6 +63,7 @@ const SequenceBox = ({ value }: { value: string }) => {
 };
 
 const SequenceProblem = ({ index, problem }: { index: number, problem: any }) => {
+  const isPeriodic = problem.type === 'periodic' || !problem.type;
   const gridNumbers = problem.grid.filter((v: string) => v !== '_').map(Number);
   const knownNumbers = Array.from(new Set(gridNumbers));
   
@@ -61,40 +72,19 @@ const SequenceProblem = ({ index, problem }: { index: number, problem: any }) =>
       <div className="space-y-1">
         <h3 className="text-lg font-black text-blue-700 tracking-tight flex items-center gap-3">
           <span className="size-7 rounded-full bg-blue-700 text-white flex items-center justify-center text-[9px]">Bài {index}</span>
-          Điền số theo quy luật chu kỳ
+          Điền số theo quy luật
         </h3>
         <p className="text-xs font-medium text-slate-600 leading-relaxed italic">
           {problem.instruction}
         </p>
       </div>
 
-      <div className="flex flex-nowrap items-center justify-center gap-1 p-1 bg-slate-50/50 rounded-xl border border-slate-100 w-full">
+      <div className="flex flex-nowrap items-center justify-center gap-1 p-1 bg-slate-50/50 rounded-xl border border-slate-100 w-full overflow-hidden">
         {problem.grid.map((val: string, i: number) => (
           <SequenceBox key={i} value={val} />
         ))}
       </div>
 
-      <div className="mt-2 pt-2 bg-blue-50/5">
-        <p className="text-[10px] font-black text-blue-500 uppercase tracking-wider mb-2 flex items-center gap-2">
-          Phần trình bày của em:
-        </p>
-        
-        <div className="space-y-1">
-          <div className="flex items-center gap-1.5 text-[20px] font-medium text-slate-500 italic font-serif flex-wrap">
-            <span>Ta có:</span>
-            {knownNumbers.map((num: any, idx: number) => (
-              <React.Fragment key={idx}>
-                <span className="text-slate-700 font-bold not-italic text-[20px]">{num}</span>
-                <span className="mx-0.5">+</span>
-              </React.Fragment>
-            ))}
-            <span className="font-bold text-primary not-italic">?</span>
-            <span className="mx-0.5">=</span>
-            <span className="text-slate-700 font-bold not-italic text-[20px]">{problem.cycleSum}</span>
-            <span className="ml-1">nên số còn thiếu là:</span>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };
@@ -110,11 +100,20 @@ export default function ChuyenDe5Page() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      sequenceType: 'periodic',
       cycleLength: 3,
       maxCycleSum: 30,
+      rangeMin: 0,
+      rangeMax: 100,
+      stepMin: 1,
+      stepMax: 5,
+      gridLength: 6,
+      numBlanks: 2,
       numProblems: 2,
     },
   })
+
+  const seqType = form.watch("sequenceType");
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true)
@@ -134,9 +133,9 @@ export default function ChuyenDe5Page() {
       <div className="no-print flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div className="space-y-1">
           <Badge variant="outline" className="text-primary border-primary/20 bg-primary/5">Toán Archimedes</Badge>
-          <h1 className="text-3xl font-bold tracking-tight text-primary uppercase">Chuyên đề 5: Quy luật dãy số chu kỳ</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-primary uppercase">Chuyên đề 5: Quy luật dãy số</h1>
           <p className="text-muted-foreground max-w-2xl">
-            Sử dụng tính chất tổng không đổi của chu kỳ để tìm các số còn thiếu lẩn trốn trong dãy.
+            Sử dụng tính chất tổng không đổi của chu kỳ, hoặc dãy cấp số để tìm các số còn thiếu lẩn trốn trong dãy.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -163,31 +162,126 @@ export default function ChuyenDe5Page() {
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                   <FormField
                     control={form.control}
-                    name="cycleLength"
+                    name="sequenceType"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Độ dài chu kỳ (N)</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value.toString()}>
+                        <FormLabel>Loại quy luật dãy số</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
                           <SelectContent>
-                            <SelectItem value="3">Chu kỳ 3 số</SelectItem>
-                            <SelectItem value="4">Chu kỳ 4 số</SelectItem>
+                            <SelectItem value="periodic">Chu kỳ (Lặp lại)</SelectItem>
+                            <SelectItem value="arithmetic_increase">Tăng dần đều (Cộng)</SelectItem>
+                            <SelectItem value="arithmetic_decrease">Giảm dần đều (Trừ)</SelectItem>
+                            <SelectItem value="step_increasing">Bước nhảy tăng dần (+A, +A+1..)</SelectItem>
+                            <SelectItem value="step_alternating">Bước nhảy luân phiên (+A, -B..)</SelectItem>
                           </SelectContent>
                         </Select>
                       </FormItem>
                     )}
                   />
 
-                  <FormField
-                    control={form.control}
-                    name="maxCycleSum"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Tổng một chu kỳ (S)</FormLabel>
-                        <FormControl><Input type="number" {...field} /></FormControl>
-                      </FormItem>
-                    )}
-                  />
+                  {seqType === 'periodic' && (
+                    <>
+                      <FormField
+                        control={form.control}
+                        name="cycleLength"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Độ dài chu kỳ (N)</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value?.toString()}>
+                              <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                              <SelectContent>
+                                <SelectItem value="3">Chu kỳ 3 số</SelectItem>
+                                <SelectItem value="4">Chu kỳ 4 số</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="maxCycleSum"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Tổng một chu kỳ (S)</FormLabel>
+                            <FormControl><Input type="number" {...field} /></FormControl>
+                          </FormItem>
+                        )}
+                      />
+                    </>
+                  )}
+
+                  {seqType !== 'periodic' && (
+                    <>
+                      <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="rangeMin"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Phạm vi số (Min)</FormLabel>
+                              <FormControl><Input type="number" {...field} /></FormControl>
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="rangeMax"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Phạm vi số (Max)</FormLabel>
+                              <FormControl><Input type="number" {...field} /></FormControl>
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="stepMin"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Bước nhảy (Min)</FormLabel>
+                              <FormControl><Input type="number" {...field} /></FormControl>
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="stepMax"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Bước nhảy (Max)</FormLabel>
+                              <FormControl><Input type="number" {...field} /></FormControl>
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="gridLength"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Độ dài dãy ô</FormLabel>
+                              <FormControl><Input type="number" {...field} /></FormControl>
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="numBlanks"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Số ô trống ở cuối</FormLabel>
+                              <FormControl><Input type="number" {...field} /></FormControl>
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </>
+                  )}
 
                   <FormField
                     control={form.control}
@@ -229,38 +323,18 @@ export default function ChuyenDe5Page() {
                 <div className="p-8 print:p-0">
                   <div ref={contentRef}>
                     <div className="print-only w-[210mm] min-h-[297mm] mx-auto p-[15mm] bg-white text-black font-sans relative">
-                      <div className="flex justify-between items-start mb-10 border-b-2 border-primary pb-6">
-                        <div className="flex items-center gap-3">
-                          <div className="p-2 bg-primary rounded-lg flex items-center justify-center overflow-hidden">
-                             <Image 
-                              src="/logo.png" 
-                              alt="Logo" 
-                              width={80} 
-                              height={80}
-                              className="object-contain"
-                            />
-                          </div>
-                          <div>
-                            <h1 className="text-3xl font-black text-primary leading-none uppercase">BƠ HỌC TOÁN</h1>
-                            <p className="text-[10px] text-accent font-bold uppercase tracking-wider mt-1">Number Garden Edition</p>
-                          </div>
-                        </div>
-                        <div className="text-right space-y-3 pt-2">
-                          <p className="text-sm font-medium">Họ và tên: .....................................................</p>
-                          <p className="text-sm font-medium">Ngày: ...........................................................</p>
-                        </div>
-                      </div>
-
-                      <div className="mb-12 text-center">
-                        <h2 className="text-4xl font-black text-primary mb-2 uppercase tracking-tight italic">Quy luật chu kỳ</h2>
-                        <p className="text-lg italic text-accent font-medium font-serif">Tìm các con số đang lẩn trốn trong dãy số nhé!</p>
-                      </div>
+                      <PrintHeader 
+                        title="Quy luật dãy số" 
+                        subtitle="Đỉnh cao tư duy cùng Bơ Học Toán!" 
+                      />
 
                       <div className="space-y-8">
                         {results.map((prob, idx) => (
                            <SequenceProblem key={idx} index={idx + 1} problem={prob} />
                         ))}
                       </div>
+
+                      <PrintFooter />
                     </div>
                   </div>
 
