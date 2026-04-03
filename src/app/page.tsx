@@ -27,6 +27,8 @@ const archimedesModules = [
   { id: 6, title: "CĐ6: Thử thách Sudoku", query: "Bảng 4x4, 6x6, 9x9", link: "/archimedes/chuyen-de-6", desc: "Rèn luyện logic loại trừ với các bảng Sudoku từ dễ đến khó." },
   { id: 7, title: "CĐ7: Xem đồng hồ", query: "Analog & Digital", link: "/archimedes/chuyen-de-7", desc: "Học cách đọc giờ đúng, giờ rưỡi và vẽ kim đồng hồ tương ứng." },
   { id: 8, title: "CĐ8: Toán Tư Duy", query: "Logic & IQ Math", link: "/archimedes/chuyen-de-8", desc: "Bộ 7 template toán tư duy siêu trí tuệ, tự động sinh đáp án dựa trên logic." },
+  { id: 9, title: "CĐ9: Cân bằng phép cộng", query: "[ ] + [ ] = [ ] + [ ] = [ ]", link: "/archimedes/chuyen-de-9", desc: "Thử thách điền các số cho trước vào dãy các phép cộng có tính chất bắc cầu." },
+  { id: 10, title: "CĐ10: Toán có lời văn", query: "Bài toán đố", link: "/archimedes/chuyen-de-10", desc: "Tự động sinh các bài toán đố dựa trên mẫu có sẵn, giữ nguyên lời văn và thay đổi số liệu." },
 ]
 
 export default function HomePage() {
@@ -48,65 +50,6 @@ export default function HomePage() {
         </Button>
       </div>
 
-      {/* Quick Templates & Global Config */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-2 border-none shadow-md bg-white overflow-hidden">
-          <CardHeader className="pb-3 border-b bg-muted/20">
-            <CardTitle className="text-base flex items-center gap-2">
-              <FilePlus className="size-4 text-primary" />
-              Tạo Nhanh Phiếu Bài Tập (Mẫu phổ biến)
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-             <div className="border border-dashed border-primary/30 rounded-lg p-5 hover:border-primary hover:bg-primary/5 transition cursor-pointer group flex flex-col h-full bg-white">
-               <div className="flex justify-between items-start mb-2">
-                  <h3 className="font-bold text-sm text-primary group-hover:underline">Phiếu Phép nhân (Lớp 2-3)</h3>
-                  <Badge className="ml-auto bg-primary/10 text-primary" variant="secondary">20 câu</Badge>
-               </div>
-               <p className="text-xs text-muted-foreground mb-6 flex-1">Ôn tập các bảng cửu chương căn bản: 2, 3, 4, 5. Xáo trộn ngẫu nhiên để luyện phản xạ.</p>
-               <Button variant="secondary" size="sm" className="w-full bg-primary/10 text-primary hover:bg-primary hover:text-white" asChild>
-                 <Link href="/archimedes/chuyen-de-2">Đến máy tạo & In ngay</Link>
-               </Button>
-             </div>
-             
-             <div className="border border-dashed border-accent/30 rounded-lg p-5 hover:border-accent hover:bg-accent/5 transition cursor-pointer group flex flex-col h-full bg-white">
-               <div className="flex justify-between items-start mb-2">
-                  <h3 className="font-bold text-sm text-accent-foreground group-hover:underline">Đặt tính hàng dọc (Lớp 1-2)</h3>
-                  <Badge className="ml-auto bg-accent/10 text-accent-foreground" variant="secondary">20 câu</Badge>
-               </div>
-               <p className="text-xs text-muted-foreground mb-6 flex-1">Ôn tập cộng trừ 2 chữ số, có nhớ, tự động ẩn vị trí bất kỳ để rèn tư duy ngược.</p>
-               <Button variant="secondary" size="sm" className="w-full bg-accent/10 text-accent-foreground hover:bg-accent hover:text-white" asChild>
-                 <Link href="/archimedes/chuyen-de-4">Đến máy tạo & In ngay</Link>
-               </Button>
-             </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-none shadow-md bg-white flex flex-col">
-          <CardHeader className="pb-3 border-b bg-muted/20">
-            <CardTitle className="text-base flex items-center gap-2">
-              <Settings2 className="size-4 text-accent-foreground" />
-              Header Tiêu chuẩn
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-6 space-y-5 flex-1">
-             <div className="space-y-2">
-               <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Tên trường / Cơ sở</Label>
-               <Input placeholder="VD: Trung tâm Bơ Toán" defaultValue="BƠ HỌC TOÁN" className="text-sm font-medium border-primary/20 focus-visible:ring-primary/20" />
-             </div>
-             <div className="space-y-2">
-               <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Chương trình / Buổi học</Label>
-               <Input placeholder="VD: Khóa luyện tư duy" defaultValue="Number Garden Edition" className="text-sm font-medium border-primary/20 focus-visible:ring-primary/20" />
-             </div>
-             <p className="text-[11px] text-muted-foreground italic leading-relaxed">
-               *Cấu hình này tự động đồng bộ vào mục Header của tất cả các phiếu PDF được xuất ra từ hệ thống.
-             </p>
-          </CardContent>
-          <div className="p-4 bg-muted/20 border-t mt-auto">
-             <Button variant="outline" className="w-full text-xs h-9 font-bold hover:bg-primary hover:text-white transition-colors">Lưu thiết lập in ấn</Button>
-          </div>
-        </Card>
-      </div>
 
       {/* Tools Library */}
       <h2 className="text-xl font-black flex items-center gap-2 pt-6 border-t uppercase text-primary">

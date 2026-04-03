@@ -94,6 +94,27 @@ export default function ChuyenDe1Page() {
     },
   })
 
+  // Persistent settings
+  const formValues = form.watch()
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('archimedes_cd1_settings')
+      if (saved) {
+        try {
+          form.reset(JSON.parse(saved))
+        } catch (e) {
+          console.error("Failed to load settings", e)
+        }
+      }
+    }
+  }, [form])
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('archimedes_cd1_settings', JSON.stringify(formValues))
+    }
+  }, [formValues])
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true)
     try {

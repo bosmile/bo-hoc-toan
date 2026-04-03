@@ -19,7 +19,9 @@ import {
   BoxSelect,
   Grid3X3,
   Clock,
-  BookOpen
+  BookOpen,
+  PlusCircle,
+  FileText
 } from "lucide-react"
 
 import {
@@ -48,6 +50,8 @@ const navigation = {
       { title: "CĐ6: Thử thách Sudoku", url: "/archimedes/chuyen-de-6", icon: Grid3X3 },
       { title: "CĐ7: Xem đồng hồ", url: "/archimedes/chuyen-de-7", icon: Clock },
       { title: "CĐ8: Toán tư duy", url: "/archimedes/chuyen-de-8", icon: BookOpen },
+      { title: "CĐ9: Cân bằng phép cộng", url: "/archimedes/chuyen-de-9", icon: PlusCircle },
+      { title: "CĐ10: Toán có lời văn", url: "/archimedes/chuyen-de-10", icon: FileText },
     ],
   },
 }

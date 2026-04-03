@@ -21,7 +21,8 @@ import {
   ChevronDown,
   Clock,
   BookOpen,
-  LayoutDashboard
+  LayoutDashboard,
+  EyeOff
 } from "lucide-react"
 import { useReactToPrint } from "react-to-print"
 
@@ -49,6 +50,8 @@ import { generateVerticalMathProblems } from "@/ai/flows/generate-vertical-math-
 import { generateSequenceProblems } from "@/ai/flows/generate-sequence-problems"
 import { generateSudokuProblems } from "@/ai/flows/generate-sudoku-problems"
 import { generateClockProblems } from "@/ai/flows/generate-clock-problems"
+import { generateBalanceProblems } from "@/ai/flows/generate-balance-problems"
+import { generateWordProblems } from "@/ai/flows/generate-word-problems"
 import { generateAdvancedQuestions } from "@/app/archimedes/chuyen-de-8/page"
 import { AnalogClock } from "@/components/archimedes/analog-clock"
 import { useToast } from "@/hooks/use-toast"
@@ -324,6 +327,105 @@ const ProblemRow = ({ index, problem, isAnswer = false, topicId }: { index: numb
   );
 };
 
+const BalanceBox = ({ value, isAnswer = false }: { value: any, isAnswer?: boolean }) => {
+  return (
+    <div className={cn(
+      "size-11 flex items-center justify-center border border-slate-400 rounded-md font-mono text-[16px] font-bold shadow-sm p-0 flex-shrink-0 leading-none squared-box-grid bg-white",
+    )}>
+      {isAnswer ? (
+        <span className="text-red-500 font-black text-[16px]">{value}</span>
+      ) : ""}
+    </div>
+  );
+};
+
+const BalanceProblemRow = ({ index, problem, isAnswer = false }: { index: number, problem: any, isAnswer?: boolean }) => {
+  const nums = problem.numbers.join('; ');
+  const parts = problem.equationTemplate.split(' ');
+  
+  return (
+    <div className="col-span-full py-4 border-b border-dashed border-slate-100 break-inside-avoid">
+       <div className="flex flex-col gap-3">
+          <div className="flex items-start gap-2">
+             <span className="text-blue-600 font-sans font-bold text-[15px] shrink-0 mt-0.5">{index}.</span>
+             <p className="text-[15px] font-bold text-slate-800"> Viết mỗi số <span className="text-blue-700 tracking-wider px-1">{nums}</span> vào một ô trống để được dãy phép tính đúng.</p>
+          </div>
+          
+          <div className="flex items-center justify-center gap-2 mt-1">
+             {parts.map((part: string, i: number) => {
+                if (part === '_') {
+                  const valIndex = parts.slice(0, i).filter((p: string) => p === '_').length;
+                  return <BalanceBox key={i} value={problem.solution[valIndex]} isAnswer={isAnswer} />;
+                }
+                const isOp = ['+', '-', '='].includes(part);
+                return (
+                  <span key={i} className={cn(
+                    "text-[18px] font-bold",
+                    isOp ? "text-primary" : "text-slate-700"
+                  )}>
+                    {part}
+                  </span>
+                );
+             })}
+          </div>
+       </div>
+    </div>
+  );
+};
+
+const MathGrid = ({ rows = 1, cols = 15, children }: { rows?: number, cols?: number, children?: React.ReactNode }) => {
+  return (
+    <div className="flex flex-col relative w-fit">
+      {Array.from({ length: rows }).map((_, r) => (
+        <div key={r} className="flex">
+          {Array.from({ length: cols }).map((_, c) => (
+            <div key={c} className="size-6 border border-blue-200 squared-box-grid bg-white opacity-50 flex-shrink-0" />
+          ))}
+        </div>
+      ))}
+      <div className="absolute inset-0 flex items-center px-4 font-mono text-[14px]">
+        {children}
+      </div>
+    </div>
+  );
+};
+
+const WordProblemRow = ({ index, problem, isAnswer = false }: { index: number, problem: any, isAnswer?: boolean }) => {
+  return (
+    <div className="col-span-full py-6 border-b border-dashed border-slate-100 break-inside-avoid">
+      <div className="flex flex-col gap-4">
+        {/* Problem Header */}
+        <div className="flex items-start gap-2">
+          <span className="text-blue-600 font-sans font-bold text-[15px] shrink-0 mt-0.5">{index}.</span>
+          <p className="text-[15px] font-bold text-slate-800 leading-snug">{problem.problemText}</p>
+        </div>
+
+        {/* Content Body */}
+        <div className="space-y-4 pl-6">
+          {problem.solutionLine && (
+             <p className="text-[14px] font-bold text-pink-600 italic">{problem.solutionLine}</p>
+          )}
+
+          <div className="flex items-center gap-2">
+             <MathGrid rows={problem.templateId.includes('two_digit') ? 2 : 1}>
+                {isAnswer && <span className="text-red-600 font-black tracking-widest">{problem.correctAnswer}</span>}
+             </MathGrid>
+             {problem.unit && <span className="text-[14px] font-bold text-pink-600">({problem.unit})</span>}
+          </div>
+
+          <div className="flex items-center gap-2">
+             <p className="text-[14px] font-bold text-pink-600">{problem.answerPrefix}</p>
+             <div className="size-8 border border-blue-300 rounded squared-box-grid flex items-center justify-center bg-white shadow-inner">
+                {isAnswer && <span className="text-red-600 font-black text-[15px]">{problem.correctAnswer}</span>}
+             </div>
+             {problem.answerSuffix && <p className="text-[14px] font-bold text-pink-600">{problem.answerSuffix}</p>}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const TopicSection = ({ batch, batchIdx, startIndex, isAnswer = false }: { batch: QuestionBatch, batchIdx: number, startIndex: number, isAnswer?: boolean }) => {
   const getInstruction = (topicId: number) => {
     switch (topicId) {
@@ -335,6 +437,8 @@ const TopicSection = ({ batch, batchIdx, startIndex, isAnswer = false }: { batch
       case 6: return "Hoàn thành bảng Sudoku.";
       case 7: return "Đọc giờ hoặc vẽ kim đồng hồ tương ứng.";
       case 8: return "Giải các bài toán sau.";
+      case 9: return "Điền số vào ô trống.";
+      case 10: return "Toán có lời văn.";
       default: return "Luyện tập toán tư duy.";
     }
   };
@@ -344,7 +448,7 @@ const TopicSection = ({ batch, batchIdx, startIndex, isAnswer = false }: { batch
   const isClock = batch.topicId === 7;
 
   return (
-    <div className="mb-3 break-inside-avoid-page">
+    <div className="mb-3">
       <div className="topic-section-header mb-0 mt-4 leading-tight">
         <h3 className="text-[16px] font-bold text-slate-800 tracking-tight">
           BÀI {batchIdx + 1}: {getInstruction(batch.topicId)}
@@ -354,9 +458,11 @@ const TopicSection = ({ batch, batchIdx, startIndex, isAnswer = false }: { batch
         "grid gap-x-4 gap-y-0",
         isVertical ? "grid-cols-5" : (isSequence ? "grid-cols-1" : (isClock ? "grid-cols-3" : "grid-cols-2"))
       )}>
-        {batch.problems.map((prob, idx) => (
-          <ProblemRow key={idx} index={startIndex + idx + 1} problem={prob} isAnswer={isAnswer} topicId={batch.topicId} />
-        ))}
+        {batch.problems.map((prob, idx) => {
+          if (batch.topicId === 9) return <BalanceProblemRow key={idx} index={startIndex + idx + 1} problem={prob} isAnswer={isAnswer} />;
+          if (batch.topicId === 10) return <WordProblemRow key={idx} index={startIndex + idx + 1} problem={prob} isAnswer={isAnswer} />;
+          return <ProblemRow key={idx} index={startIndex + idx + 1} problem={prob} isAnswer={isAnswer} topicId={batch.topicId} />;
+        })}
       </div>
     </div>
   );
@@ -370,24 +476,109 @@ export default function ArchimedesMixerPage() {
   
   const cart = examVersions[0] || [];
   
-  // Settings state
-  const [cd1Settings, setCd1Settings] = React.useState({ count: 5, unknownVariable: "D" as any, operationMode: "mixed" as any, maxRange: 20 })
-  const [cd2Settings, setCd2Settings] = React.useState({ count: 5, tables: [2, 5, 10], unknownVariable: "C" as any, shuffle: true })
-  const [cd3Settings, setCd3Settings] = React.useState({ count: 5, level: "1" as any, maxRange: 20, operationMode: "mixed" as any })
-  const [cd4Settings, setCd4Settings] = React.useState({ 
-    count: 5, 
-    operation: "plus" as any, 
-    digits: 2, 
-    hasCarry: false, 
-    hideTarget: "mixed" as any,
-    rangeN1: { min: 10, max: 99 },
-    rangeN2: { min: 10, max: 99 },
-    rangeResult: { min: 0, max: 198 }
+  // Settings state with LocalStorage Persistence
+  const [cd1Settings, setCd1Settings] = React.useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('mixer_cd1');
+      return saved ? JSON.parse(saved) : { count: 5, unknownVariable: "D" as any, operationMode: "mixed" as any, maxRange: 20 }
+    }
+    return { count: 5, unknownVariable: "D" as any, operationMode: "mixed" as any, maxRange: 20 }
   })
-  const [cd5Settings, setCd5Settings] = React.useState({ count: 2, cycleLength: 3, maxCycleSum: 30 })
-  const [cd6Settings, setCd6Settings] = React.useState({ count: 2, size: "4" as any, difficulty: "easy" as any })
-  const [cd7Settings, setCd7Settings] = React.useState({ count: 3, difficulty: "hours" as any, type: "read" as any })
-  const [cd8Settings, setCd8Settings] = React.useState({ count: 2 })
+  React.useEffect(() => localStorage.setItem('mixer_cd1', JSON.stringify(cd1Settings)), [cd1Settings])
+
+  const [cd2Settings, setCd2Settings] = React.useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('mixer_cd2');
+      return saved ? JSON.parse(saved) : { count: 5, tables: [2, 5, 10], unknownVariable: "C" as any, shuffle: true }
+    }
+    return { count: 5, tables: [2, 5, 10], unknownVariable: "C" as any, shuffle: true }
+  })
+  React.useEffect(() => localStorage.setItem('mixer_cd2', JSON.stringify(cd2Settings)), [cd2Settings])
+
+  const [cd3Settings, setCd3Settings] = React.useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('mixer_cd3');
+      return saved ? JSON.parse(saved) : { count: 5, level: "1" as any, maxRange: 20, operationMode: "mixed" as any }
+    }
+    return { count: 5, level: "1" as any, maxRange: 20, operationMode: "mixed" as any }
+  })
+  React.useEffect(() => localStorage.setItem('mixer_cd3', JSON.stringify(cd3Settings)), [cd3Settings])
+
+  const [cd4Settings, setCd4Settings] = React.useState(() => {
+    const defaults = { 
+      count: 5, operation: "plus" as any, digits: 2, hasCarry: false, hideTarget: "mixed" as any,
+      rangeN1: { min: 10, max: 99 }, rangeN2: { min: 10, max: 99 }, rangeResult: { min: 0, max: 198 }
+    }
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('mixer_cd4');
+      return saved ? JSON.parse(saved) : defaults
+    }
+    return defaults
+  })
+  React.useEffect(() => localStorage.setItem('mixer_cd4', JSON.stringify(cd4Settings)), [cd4Settings])
+
+  const [cd5Settings, setCd5Settings] = React.useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('mixer_cd5');
+      return saved ? JSON.parse(saved) : { count: 2, cycleLength: 3, maxCycleSum: 30 }
+    }
+    return { count: 2, cycleLength: 3, maxCycleSum: 30 }
+  })
+  React.useEffect(() => localStorage.setItem('mixer_cd5', JSON.stringify(cd5Settings)), [cd5Settings])
+
+  const [cd6Settings, setCd6Settings] = React.useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('mixer_cd6');
+      return saved ? JSON.parse(saved) : { count: 2, size: "4" as any, difficulty: "easy" as any }
+    }
+    return { count: 2, size: "4" as any, difficulty: "easy" as any }
+  })
+  React.useEffect(() => localStorage.setItem('mixer_cd6', JSON.stringify(cd6Settings)), [cd6Settings])
+
+  const [cd7Settings, setCd7Settings] = React.useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('mixer_cd7');
+      return saved ? JSON.parse(saved) : { count: 3, difficulty: "hours" as any, type: "read" as any }
+    }
+    return { count: 3, difficulty: "hours" as any, type: "read" as any }
+  })
+  React.useEffect(() => localStorage.setItem('mixer_cd7', JSON.stringify(cd7Settings)), [cd7Settings])
+
+  const [cd8Settings, setCd8Settings] = React.useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('mixer_cd8');
+      return saved ? JSON.parse(saved) : { count: 2 }
+    }
+    return { count: 2 }
+  })
+  React.useEffect(() => localStorage.setItem('mixer_cd8', JSON.stringify(cd8Settings)), [cd8Settings])
+
+  const [cd9Settings, setCd9Settings] = React.useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('mixer_cd9');
+      return saved ? JSON.parse(saved) : { count: 2, maxSum: 20, type: "chain" as any, allowSubtraction: false }
+    }
+    return { count: 2, maxSum: 20, type: "chain" as any, allowSubtraction: false }
+  })
+  React.useEffect(() => localStorage.setItem('mixer_cd9', JSON.stringify(cd9Settings)), [cd9Settings])
+
+  const [cd10Settings, setCd10Settings] = React.useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('mixer_cd10');
+      return saved ? JSON.parse(saved) : { count: 1, difficulty: "easy" as any }
+    }
+    return { count: 1, maxSum: 100 }
+  })
+  React.useEffect(() => localStorage.setItem('mixer_cd10', JSON.stringify(cd10Settings)), [cd10Settings])
+
+  const [hiddenTopics, setHiddenTopics] = React.useState<number[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('mixer_hidden_topics');
+      return saved ? JSON.parse(saved) : []
+    }
+    return []
+  })
+  React.useEffect(() => localStorage.setItem('mixer_hidden_topics', JSON.stringify(hiddenTopics)), [hiddenTopics])
 
   const { toast } = useToast()
   const contentRef = React.useRef<HTMLDivElement>(null)
@@ -460,6 +651,20 @@ export default function ArchimedesMixerPage() {
         } else if (topicId === 8) {
           const problems = generateAdvancedQuestions(cd8Settings.count)
           newBatch = { id: batchId, topicId: 8, topicTitle: "Toán tư duy", count: cd8Settings.count, settings: { ...cd8Settings }, problems }
+        } else if (topicId === 9) {
+          const res = await generateBalanceProblems({ 
+             maxSum: cd9Settings.maxSum, 
+             type: cd9Settings.type,
+             allowSubtraction: cd9Settings.allowSubtraction,
+             numProblems: cd9Settings.count 
+          })
+          newBatch = { id: batchId, topicId: 9, topicTitle: "Cân bằng phép cộng", count: cd9Settings.count, settings: { ...cd9Settings }, problems: res.problems }
+        } else if (topicId === 10) {
+          const res = await generateWordProblems({ 
+             maxSum: cd10Settings.maxSum, 
+             numProblems: cd10Settings.count 
+          })
+          newBatch = { id: batchId, topicId: 10, topicTitle: "Toán có lời văn", count: cd10Settings.count, settings: { ...cd10Settings }, problems: res.problems }
         } else {
           newBatch = { id: batchId, topicId: 0, topicTitle: "Unknown", count: 0, settings: {}, problems: [] }
         }
@@ -535,6 +740,12 @@ export default function ArchimedesMixerPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Left Column - Topic Cards */}
         <div className="lg:col-span-5 space-y-4 no-print">
+          {hiddenTopics.length > 0 && (
+             <div className="bg-slate-50 p-3 rounded-lg border border-dashed border-slate-200 flex items-center justify-between">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Đã ẩn {hiddenTopics.length} chủ đề ít dùng</p>
+                <Button variant="link" size="sm" onClick={() => setHiddenTopics([])} className="h-4 text-[10px] font-bold p-0 text-primary">Hiện tất cả</Button>
+             </div>
+          )}
           {[
             { id: 1, title: "CĐ1: Biểu thức 3 số", color: "bg-primary", icon: Calculator, settings: cd1Settings, setter: setCd1Settings },
             { id: 2, title: "CĐ2: Phép nhân", color: "bg-accent", icon: Sparkles, settings: cd2Settings, setter: setCd2Settings },
@@ -543,16 +754,23 @@ export default function ArchimedesMixerPage() {
             { id: 5, title: "CĐ5: Quy luật dãy số", color: "bg-indigo-400", icon: ListOrdered, settings: cd5Settings, setter: setCd5Settings },
             { id: 6, title: "CĐ6: Sudoku", color: "bg-purple-400", icon: LayoutDashboard, settings: cd6Settings, setter: setCd6Settings },
             { id: 7, title: "CĐ7: Xem đồng hồ", color: "bg-pink-400", icon: Clock, settings: cd7Settings, setter: setCd7Settings },
-            { id: 8, title: "CĐ8: Toán tư duy", color: "bg-emerald-400", icon: BookOpen, settings: cd8Settings, setter: setCd8Settings }
-          ].map((topic) => (
-            <Card key={topic.id} className="border-none shadow-md overflow-hidden bg-white">
+            { id: 8, title: "CĐ8: Toán tư duy", color: "bg-emerald-400", icon: BookOpen, settings: cd8Settings, setter: setCd8Settings },
+            { id: 9, title: "CĐ9: Cân bằng phép cộng", color: "bg-red-400", icon: PlusCircle, settings: cd9Settings, setter: setCd9Settings },
+            { id: 10, title: "CĐ10: Toán có lời văn", color: "bg-orange-600", icon: FileText, settings: cd10Settings, setter: setCd10Settings }
+          ].filter(t => !hiddenTopics.includes(t.id)).map((topic) => (
+            <Card key={topic.id} className="border-none shadow-md overflow-hidden bg-white group hover:shadow-lg transition-all duration-300">
               <div className={cn("h-1 w-full", topic.color)} />
               <CardContent className="p-4 space-y-3">
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-bold flex items-center gap-2">
                     <topic.icon className="size-4 opacity-40"/> {topic.title}
                   </h3>
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1.5 translate-x-2">
+                    <div className="flex items-center gap-1 mr-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Button variant="ghost" size="icon" onClick={() => setHiddenTopics(p => [...p, topic.id])} className="size-6 text-slate-300 hover:text-blue-400 hover:bg-blue-50" title="Ẩn chuyên đề">
+                        <EyeOff className="size-3.5" />
+                      </Button>
+                    </div>
                     <Label className="text-[10px] font-bold">CÂU:</Label>
                     <Input type="number" value={topic.settings.count} onChange={(e) => topic.setter((s: any) => ({ ...s, count: parseInt(e.target.value) || 0 }))} className="w-12 h-7 text-xs text-center p-0" />
                   </div>
@@ -800,12 +1018,46 @@ export default function ArchimedesMixerPage() {
                             </div>
                           </div>
                         )}
+
+                        {/* Topic 9 Specific Settings */}
+                        {topic.id === 9 && (
+                          <div className="space-y-4">
+                            <div className="space-y-2">
+                              <Label className="text-xs font-bold">Loại dãy tính</Label>
+                              <Select value={topic.settings.type} onValueChange={(v) => topic.setter((s: any) => ({ ...s, type: v }))}>
+                                <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="chain">Chuỗi cân bằng (A+B=C+D=E)</SelectItem>
+                                  <SelectItem value="expression">Biểu thức (A±B±C=D)</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className="space-y-2">
+                              <Label className="text-xs font-bold">Phạm vi (Max Sum)</Label>
+                              <Input type="number" value={topic.settings.maxSum} onChange={(e) => topic.setter((s: any) => ({ ...s, maxSum: parseInt(e.target.value) || 10 }))} className="h-8" />
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <Label className="text-xs font-bold">Bao gồm phép trừ</Label>
+                              <Switch checked={topic.settings.allowSubtraction} onCheckedChange={(c) => topic.setter((s: any) => ({ ...s, allowSubtraction: c }))} />
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Topic 10 Specific Settings */}
+                        {topic.id === 10 && (
+                          <div className="space-y-4">
+                            <div className="space-y-2">
+                              <Label className="text-xs font-bold">Phạm vi số (Max / Kết quả)</Label>
+                              <Input type="number" value={topic.settings.maxSum} onChange={(e) => topic.setter((s: any) => ({ ...s, maxSum: parseInt(e.target.value) || 100 }))} className="h-8" />
+                            </div>
+                          </div>
+                        )}
                         
                       </div>
 
                     </PopoverContent>
                   </Popover>
-                  <Button onClick={() => addToExam(topic.id)} disabled={isLoading} className={cn("flex-[2] h-7 text-[10px] font-bold gap-1", topic.id === 1 ? "bg-primary text-white" : "bg-muted text-foreground hover:bg-muted/80")}>
+                  <Button onClick={() => addToExam(topic.id)} disabled={isLoading} className={cn("flex-[2] h-7 text-[10px] font-bold gap-1 text-white shadow-sm hover:opacity-90 bg-primary")}>
                     {isLoading ? <Layers className="size-3 animate-spin" /> : <PlusCircle className="size-3" />} Thêm đề
                   </Button>
                 </div>
