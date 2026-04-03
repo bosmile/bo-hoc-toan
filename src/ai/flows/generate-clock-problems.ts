@@ -35,16 +35,20 @@ export async function generateClockProblems(
         minute = 0;
         break;
       case 'half-hours':
+        // Includes: Hours (0) + Half hours (30)
         minute = Math.random() < 0.5 ? 0 : 30;
         break;
       case 'quarter-hours':
+        // Includes: Hours (0) + Half-hours (30) + 15/45 intervals
         const quarters = [0, 15, 30, 45];
         minute = quarters[Math.floor(Math.random() * quarters.length)];
         break;
       case 'five-minutes':
+        // Includes: Hours, Half, Quarters + any multiple of 5
         minute = Math.floor(Math.random() * 12) * 5;
         break;
       case 'any-minutes':
+        // Includes everything
         minute = Math.floor(Math.random() * 60);
         break;
     }

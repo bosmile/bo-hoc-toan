@@ -22,7 +22,8 @@ import {
   Clock,
   BookOpen,
   LayoutDashboard,
-  EyeOff
+  EyeOff,
+  List
 } from "lucide-react"
 import { useReactToPrint } from "react-to-print"
 
@@ -43,6 +44,15 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog"
 import { generateArchimedesMathProblems } from "@/ai/flows/generate-archimedes-math-problems"
 import { generateMultiplicationProblems } from "@/ai/flows/generate-multiplication-problems"
 import { generateComparisonProblems } from "@/ai/flows/generate-comparison-problems"
@@ -188,7 +198,7 @@ const ProblemRow = ({ index, problem, isAnswer = false, topicId }: { index: numb
               hour={problem.hour} 
               minute={problem.minute} 
               showHands={showHands} 
-              size={100}
+              size={140}
               hourHandColor={isAnswer && !isRead ? "#ef4444" : "#1e293b"}
               minuteHandColor={isAnswer && !isRead ? "#ef4444" : "#1e293b"}
            />
@@ -599,6 +609,13 @@ export default function ArchimedesMixerPage() {
 
   const totalCount = cart.reduce((acc, batch) => acc + batch.count, 0)
   const densityPercent = Math.min((totalCount / 40) * 100, 100)
+
+  const [isPresetOpen, setIsPresetOpen] = React.useState(false)
+  const [presetCounts, setPresetCounts] = React.useState<Record<number, number>>({
+    1: 4, 2: 4, 3: 4, 4: 4,
+    5: 2, 6: 2, 7: 2, 8: 2,
+    9: 2, 10: 2
+  })
   
   const removeBatch = (id: string) => setExamVersions(prev => prev.map(v => v.filter(b => b.id !== id)))
 
@@ -705,6 +722,63 @@ export default function ArchimedesMixerPage() {
     }
   }
 
+  const createSmartExam = async () => {
+    setIsLoading(true);
+    setExamVersions([]);
+    try {
+      const batchId = Math.random().toString(36).substr(2, 9);
+      const presets = Object.entries(presetCounts).map(([id, count]) => ({ id: Number(id), count }));
+
+      const allVersions = Array.from({ length: numberOfVersions }, () => []);
+
+      for (const p of presets) {
+        for (let i = 0; i < numberOfVersions; i++) {
+          let batch: QuestionBatch;
+          if (p.id === 1) {
+            const res = await generateArchimedesMathProblems({ ...cd1Settings, numProblems: p.count, rangeA: { min: 0, max: cd1Settings.maxRange }, rangeB: { min: 0, max: 10 }, rangeC: { min: 0, max: 10 }, rangeD: { min: 0, max: 100 } });
+            batch = { id: batchId + p.id, topicId: 1, topicTitle: "Biểu thức 3 số", count: p.count, settings: { ...cd1Settings, count: p.count }, problems: res.problems };
+          } else if (p.id === 2) {
+            const res = await generateMultiplicationProblems({ ...cd2Settings, numProblems: p.count });
+            batch = { id: batchId + p.id, topicId: 2, topicTitle: "Phép nhân", count: p.count, settings: { ...cd2Settings, count: p.count }, problems: res.problems };
+          } else if (p.id === 3) {
+            const res = await generateComparisonProblems({ ...cd3Settings, range: { min: 0, max: cd3Settings.maxRange }, numProblems: p.count });
+            batch = { id: batchId + p.id, topicId: 3, topicTitle: "So sánh biểu thức", count: p.count, settings: { ...cd3Settings, count: p.count }, problems: res.problems };
+          } else if (p.id === 4) {
+            const res = await generateVerticalMathProblems({ ...cd4Settings, numProblems: p.count });
+            batch = { id: batchId + p.id, topicId: 4, topicTitle: "Tính hàng dọc", count: p.count, settings: { ...cd4Settings, count: p.count }, problems: res.problems };
+          } else if (p.id === 5) {
+            const res = await generateSequenceProblems({ ...cd5Settings, numProblems: p.count });
+            batch = { id: batchId + p.id, topicId: 5, topicTitle: "Quy luật dãy số", count: p.count, settings: { ...cd5Settings, count: p.count }, problems: res.problems };
+          } else if (p.id === 6) {
+            const res = await generateSudokuProblems({ ...cd6Settings, numProblems: p.count });
+            batch = { id: batchId + p.id, topicId: 6, topicTitle: "Sudoku", count: p.count, settings: { ...cd6Settings, count: p.count }, problems: res.problems };
+          } else if (p.id === 7) {
+            const res = await generateClockProblems({ ...cd7Settings, numProblems: p.count });
+            batch = { id: batchId + p.id, topicId: 7, topicTitle: "Xem đồng hồ", count: p.count, settings: { ...cd7Settings, count: p.count }, problems: res.problems };
+          } else if (p.id === 8) {
+            const probs = generateAdvancedQuestions(p.count);
+            batch = { id: batchId + p.id, topicId: 8, topicTitle: "Toán tư duy", count: p.count, settings: { ...cd8Settings, count: p.count }, problems: probs };
+          } else if (p.id === 9) {
+            const res = await generateBalanceProblems({ ...cd9Settings, numProblems: p.count });
+            batch = { id: batchId + p.id, topicId: 9, topicTitle: "Cân bằng phép cộng", count: p.count, settings: { ...cd9Settings, count: p.count }, problems: res.problems };
+          } else if (p.id === 10) {
+            const res = await generateWordProblems({ numProblems: p.count, maxSum: cd10Settings.maxSum });
+            batch = { id: batchId + p.id, topicId: 10, topicTitle: "Toán có lời văn", count: p.count, settings: { ...cd10Settings, count: p.count }, problems: res.problems };
+          }
+          allVersions[i].push(batch);
+        }
+      }
+      setExamVersions(allVersions);
+      toast({ title: "Đã tạo đề tổng hợp!", description: "Bao gồm 4x CĐ 1-4 và 2x CĐ 5-10." });
+    } catch (e) {
+      console.error(e);
+      toast({ variant: "destructive", title: "Lỗi", description: "Không thể tạo đề bài mẫu." });
+    } finally {
+      setIsLoading(false);
+      setIsPresetOpen(false);
+    }
+  }
+
   return (
     <div className="space-y-8 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Configuration Header */}
@@ -740,6 +814,68 @@ export default function ArchimedesMixerPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Left Column - Topic Cards */}
         <div className="lg:col-span-5 space-y-4 no-print">
+          <Card className="border-none shadow-md overflow-hidden bg-white mb-6">
+             <div className="h-1 w-full bg-gradient-to-r from-primary via-accent to-pink-500" />
+             <CardContent className="p-4 space-y-4">
+                <div className="flex items-center justify-between">
+                   <h3 className="text-sm font-black flex items-center gap-2 text-primary uppercase tracking-tight">
+                      <Sparkles className="size-4 animate-pulse text-accent" /> Thiết lập đề nhanh (Preset)
+                   </h3>
+                </div>
+                <div className="grid grid-cols-1 gap-2">
+                   <Dialog open={isPresetOpen} onOpenChange={setIsPresetOpen}>
+                      <DialogTrigger asChild>
+                         <Button disabled={isLoading} variant="outline" className="h-10 text-[10px] font-black border-dashed border-primary/40 hover:bg-primary/5 hover:border-primary transition-all gap-2 justify-start px-4">
+                            <div className="size-5 rounded bg-primary/10 flex items-center justify-center text-primary"><List className="size-3" /></div>
+                            TẠO ĐỀ TỔNG HỢP 10 CHUYÊN ĐỀ
+                         </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-[400px] max-h-[85vh] overflow-y-auto">
+                         <DialogHeader>
+                            <DialogTitle className="text-xl font-black text-primary uppercase">Cấu hình Đề tổng hợp</DialogTitle>
+                            <DialogDescription>Nhập số lượng câu hỏi cho mỗi chuyên đề.</DialogDescription>
+                         </DialogHeader>
+                         <div className="space-y-4 py-4">
+                            {[
+                               { id: 1, title: "CĐ1: Biểu thức 3 số" },
+                               { id: 2, title: "CĐ2: Phép nhân" },
+                               { id: 3, title: "CĐ3: So sánh biểu thức" },
+                               { id: 4, title: "CĐ4: Tính hàng dọc" },
+                               { id: 5, title: "CĐ5: Quy luật dãy số" },
+                               { id: 6, title: "CĐ6: Sudoku" },
+                               { id: 7, title: "CĐ7: Xem đồng hồ" },
+                               { id: 8, title: "CĐ8: Toán tư duy" },
+                               { id: 9, title: "CĐ9: Cân bằng phép cộng" },
+                               { id: 10, title: "CĐ10: Toán có lời văn" }
+                            ].map((t) => (
+                               <div key={t.id} className="flex items-center justify-between gap-4 p-2 rounded-lg hover:bg-slate-50 transition-colors">
+                                  <Label className="text-xs font-bold text-slate-600">{t.title}</Label>
+                                  <div className="flex items-center gap-2">
+                                     <span className="text-[10px] font-black text-slate-400 uppercase">Câu:</span>
+                                     <Input 
+                                        type="number" 
+                                        min={0} 
+                                        max={20} 
+                                        className="w-16 h-8 text-center font-bold" 
+                                        value={presetCounts[t.id]} 
+                                        onChange={(e) => setPresetCounts(prev => ({ ...prev, [t.id]: parseInt(e.target.value) || 0 }))} 
+                                     />
+                                  </div>
+                               </div>
+                            ))}
+                         </div>
+                         <DialogFooter>
+                            <Button onClick={createSmartExam} disabled={isLoading} className="w-full py-6 font-black uppercase text-lg shadow-lg">
+                               {isLoading ? <Layers className="size-5 animate-spin mr-2" /> : <Sparkles className="size-5 mr-2" />}
+                               Tạo đề bài ngay
+                            </Button>
+                         </DialogFooter>
+                      </DialogContent>
+                   </Dialog>
+                </div>
+             </CardContent>
+          </Card>
+
           {hiddenTopics.length > 0 && (
              <div className="bg-slate-50 p-3 rounded-lg border border-dashed border-slate-200 flex items-center justify-between">
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Đã ẩn {hiddenTopics.length} chủ đề ít dùng</p>

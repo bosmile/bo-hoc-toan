@@ -16,6 +16,14 @@ export interface WordProblemOptions {
   maxSum: number;
 }
 
+const MAIN_NAME = "Bơ";
+const MOTHER_NAME = "Mẹ Hằng";
+const FATHER_NAME = "Bố Hà";
+const TEACHER_NAMES = ["Cô Ngân", "Cô Hoa", "Cô Lê"];
+const ANIMAL_NAME = "YoKo";
+
+const getTeacher = () => TEACHER_NAMES[Math.floor(Math.random() * TEACHER_NAMES.length)];
+
 const wordProblemTemplates = [
   {
     id: 'find_number_sub_sub',
@@ -26,7 +34,7 @@ const wordProblemTemplates = [
       const total = res + n1 + n2;
       return {
         problemText: `Tìm một số, biết nếu lấy số đó trừ đi ${n1} rồi trừ tiếp đi ${n2} thì được kết quả là ${res}.`,
-        solutionLine: "Ta có:",
+        solutionLine: "",
         answerPrefix: "Số đó là",
         answerSuffix: ".",
         unit: "",
@@ -43,7 +51,7 @@ const wordProblemTemplates = [
       const total = n1 + (n2 * 2) + n3;
       return {
         problemText: `Cửa hàng có một số túi kẹo. Ngày thứ nhất, cửa hàng bán được ${n1} túi kẹo. Ngày thứ hai và thứ ba, mỗi ngày cửa hàng bán được ${n2} túi kẹo thì còn lại ${n3} túi kẹo. Hỏi lúc đầu, cửa hàng có bao nhiêu túi kẹo?`,
-        solutionLine: "Lúc đầu, cửa hàng có số túi kẹo là:",
+        solutionLine: "",
         answerPrefix: "Đáp số:",
         answerSuffix: " túi kẹo.",
         unit: "túi",
@@ -58,8 +66,8 @@ const wordProblemTemplates = [
       const n2 = Math.floor(Math.random() * (max / 2)) + 10;
       const total = n1 + n2;
       return {
-        problemText: `Nam tham gia thi cờ vua. Ở trận thi đấu thứ nhất, Nam được ${n1} điểm, trận thi đấu thứ hai Nam được ${n2} điểm. Hỏi sau hai trận thi đấu, Nam được tất cả bao nhiêu điểm?`,
-        solutionLine: "Sau hai trận thi đấu, Nam được tất cả số điểm là:",
+        problemText: `${MAIN_NAME} tham gia thi cờ vua. Ở trận thi đấu thứ nhất, ${MAIN_NAME} được ${n1} điểm, trận thi đấu thứ hai ${MAIN_NAME} được ${n2} điểm. Hỏi sau hai trận thi đấu, ${MAIN_NAME} được tất cả bao nhiêu điểm?`,
+        solutionLine: "",
         answerPrefix: "Đáp số:",
         answerSuffix: " điểm.",
         unit: "điểm",
@@ -74,8 +82,8 @@ const wordProblemTemplates = [
       const n2 = Math.floor(Math.random() * (max / 2)) + 10;
       const total = n1 + n2;
       return {
-        problemText: `Linh cắt sợi dây thành hai đoạn. Đoạn thứ nhất dài ${n1} cm, đoạn thứ hai dài ${n2} cm. Hỏi lúc đầu, sợi dây dài bao nhiêu xăng-ti-mét?`,
-        solutionLine: "Lúc đầu, sợi dây dài số xăng-ti-mét là:",
+        problemText: `${MAIN_NAME} cắt sợi dây thành hai đoạn. Đoạn thứ nhất dài ${n1} cm, đoạn thứ hai dài ${n2} cm. Hỏi lúc đầu, sợi dây dài bao nhiêu xăng-ti-mét?`,
+        solutionLine: "",
         answerPrefix: "Đáp số:",
         answerSuffix: " cm.",
         unit: "cm",
@@ -92,7 +100,7 @@ const wordProblemTemplates = [
       const n3 = total - n1 - n2;
       return {
         problemText: `Trong vườn có ${total} cây ăn quả gồm: cây bưởi, cây na và cây hồng. Trong đó có ${n1} cây bưởi và ${n2} cây na, còn lại là cây hồng. Hỏi trong vườn có bao nhiêu cây hồng?`,
-        solutionLine: "Trong vườn có số cây hồng là:",
+        solutionLine: "",
         answerPrefix: "Đáp số:",
         answerSuffix: " cây hồng.",
         unit: "cây",
@@ -180,7 +188,7 @@ const wordProblemTemplates = [
       const mn = Math.min(...numbers);
       return {
         problemText: `Cho ba chữ số ${d1}; ${d2}; ${d3}. \n a. Hãy lập các số có hai chữ số khác nhau từ hai trong ba chữ số đã cho. \n b. Từ các số lập được ở câu a, lấy số lớn nhất trừ đi số bé nhất được kết quả là bao nhiêu?`,
-        solutionLine: "Hướng dẫn: Các số lập được: " + numbers.join(', ') + ". Lớn nhất: " + mx + ", Bé nhất: " + mn,
+        solutionLine: "",
         answerPrefix: "Kết quả là:",
         answerSuffix: "",
         unit: "",
@@ -196,8 +204,8 @@ const wordProblemTemplates = [
       const n3 = Math.floor(Math.random() * 15) + 5;
       const total = n1 + n2 + n3;
       return {
-        problemText: `Trước cửa hàng bán bánh có một số người đang xếp hàng. Biết rằng Nga đứng thứ ${n1} tính từ đầu hàng, Lê đứng thứ ${n2} tính từ cuối hàng. Ở giữa Nga và Lê có ${n3} người. Hỏi có bao nhiêu người đang đứng xếp hàng?`,
-        solutionLine: "Vì: " + n1 + " + " + n3 + " + " + n2 + " = " + total,
+        problemText: `Trước cửa hàng bán bánh có một số người đang xếp hàng. Biết rằng ${MAIN_NAME} đứng thứ ${n1} tính từ đầu hàng, ${FATHER_NAME} đứng thứ ${n2} tính từ cuối hàng. Ở giữa ${MAIN_NAME} và ${FATHER_NAME} có ${n3} người. Hỏi có bao nhiêu người đang đứng xếp hàng?`,
+        solutionLine: "",
         answerPrefix: "Có",
         answerSuffix: " người đang đứng xếp hàng.",
         unit: "",
@@ -212,8 +220,8 @@ const wordProblemTemplates = [
       const b2 = Math.floor(Math.random() * 5) + 1;
       const res = (a1 * 10 + 6) + (20 + b2);
       return {
-        problemText: `Bạn Hùng đã viết một phép tính đúng. Sau đó, bạn ấy dùng các tấm bìa để che đi hai chữ số. Hỏi hai chữ số nào đã bị che đi? \n [ ]6 + 2[ ] = ${res}`,
-        solutionLine: "Ta có: " + (a1*10+6) + " + " + (20+b2) + " = " + res,
+        problemText: `Bạn ${MAIN_NAME} đã viết một phép tính đúng. Sau đó, bạn ấy dùng các tấm bìa để che đi hai chữ số. Hỏi hai chữ số nào đã bị che đi? \n [ ]6 + 2[ ] = ${res}`,
+        solutionLine: "",
         answerPrefix: "Hai chữ số bị che là:",
         answerSuffix: "",
         unit: "",
@@ -224,12 +232,13 @@ const wordProblemTemplates = [
   {
     id: 'need_more_students',
     generate: (max: number) => {
-      const total = Math.floor(Math.random() * (max/2)) + (max/2);
-      const n1 = Math.floor(Math.random() * (total - 10)) + 5;
-      const diff = total - n1;
+      const n1 = Math.floor(Math.random() * (max/2)) + (max/2);
+      const n2 = Math.floor(Math.random() * (n1 - 10)) + 5;
+      const diff = n1 - n2;
+      const teacher = getTeacher();
       return {
-        problemText: `Để chuẩn bị cho buổi đồng diễn, cô tổng phụ trách cần có ${total} học sinh tham gia. Cô đã chọn được ${n1} học sinh. Hỏi cô tổng phụ trách cần thêm bao nhiêu học sinh nữa để có đủ số học sinh tham gia?`,
-        solutionLine: "Cô tổng phụ trách cần thêm số học sinh là:",
+        problemText: `Để chuẩn bị cho buổi đồng diễn, ${teacher} cần có ${n1} học sinh tham gia. Cô đã chọn được ${n2} học sinh. Hỏi ${teacher} cần thêm bao nhiêu học sinh nữa để có đủ số học sinh tham gia?`,
+        solutionLine: "",
         answerPrefix: "Đáp số:",
         answerSuffix: " học sinh.",
         unit: "học sinh",
@@ -245,8 +254,8 @@ const wordProblemTemplates = [
       const n3 = Math.floor(Math.random() * (max / 4)) + 5;
       const total = n1 + n2 + n3;
       return {
-        problemText: `Bố đã mua một số chiếc bánh. Bố biếu bà ${n1} chiếc bánh, tặng mẹ ${n2} chiếc bánh và cho Hà ${n3} chiếc bánh thì vừa hết số bánh bố đã mua. Hỏi bố đã mua tất cả bao nhiêu chiếc bánh?`,
-        solutionLine: "Bố đã mua tất cả số chiếc bánh là:",
+        problemText: `${FATHER_NAME} đã mua một số chiếc bánh. ${FATHER_NAME} biếu bà ${n1} chiếc bánh, tặng ${MOTHER_NAME} ${n2} chiếc bánh và cho ${MAIN_NAME} ${n3} chiếc bánh thì vừa hết số bánh ${FATHER_NAME} đã mua. Hỏi ${FATHER_NAME} đã mua tất cả bao nhiêu chiếc bánh?`,
+        solutionLine: "",
         answerPrefix: "Đáp số:",
         answerSuffix: " chiếc bánh.",
         unit: "chiếc",
@@ -261,12 +270,28 @@ const wordProblemTemplates = [
       const n2 = Math.floor(Math.random() * (max / 3)) + 5;
       const total = n1 + n2;
       return {
-        problemText: `Hoà có ${n1} viên bi, Phong có nhiều hơn Hoà ${n2} viên bi. Hỏi Phong có bao nhiêu viên bi?`,
-        solutionLine: "Phong có số viên bi là:",
+        problemText: `${MAIN_NAME} có ${n1} viên bi, ${FATHER_NAME} có nhiều hơn ${MAIN_NAME} ${n2} viên bi. Hỏi ${FATHER_NAME} có bao nhiêu viên bi?`,
+        solutionLine: "",
         answerPrefix: "Đáp số:",
         answerSuffix: " viên bi.",
         unit: "viên",
         correctAnswer: total,
+      };
+    }
+  },
+  {
+    id: 'animal_candies',
+    generate: (max: number) => {
+      const n1 = Math.floor(Math.random() * (max / 2)) + 10;
+      const n2 = Math.floor(Math.random() * (max / 4)) + 5;
+      const res = n1 - n2;
+      return {
+        problemText: `Bạn voi ${ANIMAL_NAME} có ${n1} nải chuối. ${ANIMAL_NAME} đã ăn hết ${n2} nải chuối. Hỏi ${ANIMAL_NAME} còn lại bao nhiêu nải chuối?`,
+        solutionLine: "",
+        answerPrefix: "Đáp số:",
+        answerSuffix: " nải chuối.",
+        unit: "nải",
+        correctAnswer: res,
       };
     }
   }
