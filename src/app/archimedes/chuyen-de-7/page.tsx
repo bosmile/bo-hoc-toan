@@ -89,6 +89,40 @@ const ClockProblemComponent = ({ index, problem, isAnswer = false }: { index: nu
   );
 };
 
+const SampleClockComponent = () => (
+  <div className="flex flex-col items-center gap-4 p-6 border-2 border-dashed border-primary/30 rounded-3xl bg-primary/5 mb-8 break-inside-avoid no-print:shadow-sm">
+    <div className="flex items-center gap-3 w-full justify-center">
+      <div className="bg-primary text-white p-2.5 rounded-xl shadow-md">
+        <Clock className="size-6" />
+      </div>
+      <div>
+        <h3 className="text-xl font-black text-primary uppercase italic leading-none">Hình mẫu: Cách xem phút</h3>
+        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Ghi nhớ các mốc 5 phút ở vòng ngoài</p>
+      </div>
+    </div>
+    <div className="bg-white p-4 rounded-full shadow-inner border border-slate-100">
+      <AnalogClock 
+        hour={10} 
+        minute={10} 
+        showHands={false} 
+        size={220} 
+        showMinuteLabels={true}
+      />
+    </div>
+    <div className="flex items-center gap-4 text-center">
+      <div className="px-4 py-2 bg-white rounded-xl border border-slate-200 shadow-sm">
+        <p className="text-xs font-bold text-slate-600">Mỗi số tương ứng</p>
+        <p className="text-lg font-black text-primary">+5 phút</p>
+      </div>
+      <div className="size-2 rounded-full bg-slate-300" />
+      <div className="px-4 py-2 bg-white rounded-xl border border-slate-200 shadow-sm">
+        <p className="text-xs font-bold text-slate-600">Vòng ngoài</p>
+        <p className="text-lg font-black text-blue-600">Số phút lẻ</p>
+      </div>
+    </div>
+  </div>
+)
+
 export default function ClockSpecialTopicPage() {
   const [results, setResults] = React.useState<any[]>([])
   const [isLoading, setIsLoading] = React.useState(false)
@@ -105,6 +139,8 @@ export default function ClockSpecialTopicPage() {
       numProblems: 4,
     },
   })
+
+  const currentDifficulty = form.watch('difficulty');
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true)
@@ -264,6 +300,12 @@ export default function ClockSpecialTopicPage() {
                         subtitle="Thời gian là vàng - Cùng Bơ chinh phục từng giây phút!" 
                       />
 
+                      {currentDifficulty === 'five-minutes' && (
+                        <div className="mt-6">
+                          <SampleClockComponent />
+                        </div>
+                      )}
+
                       <div className="grid grid-cols-2 gap-x-8 gap-y-8 mt-4">
                         {results.map((prob, idx) => (
                           <ClockProblemComponent key={prob.id} index={idx + 1} problem={prob} />
@@ -288,10 +330,13 @@ export default function ClockSpecialTopicPage() {
                   </div>
 
                   {/* On-screen Preview */}
-                  <div className="no-print grid grid-cols-1 md:grid-cols-2 gap-6 p-4">
-                    {results.map((prob, idx) => (
-                      <ClockProblemComponent key={prob.id} index={idx + 1} problem={prob} />
-                    ))}
+                  <div className="no-print p-4">
+                    {currentDifficulty === 'five-minutes' && <SampleClockComponent />}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {results.map((prob, idx) => (
+                        <ClockProblemComponent key={prob.id} index={idx + 1} problem={prob} />
+                      ))}
+                    </div>
                   </div>
                 </div>
               ) : (

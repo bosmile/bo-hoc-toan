@@ -63,6 +63,7 @@ import { generateClockProblems } from "@/ai/flows/generate-clock-problems"
 import { generateBalanceProblems } from "@/ai/flows/generate-balance-problems"
 import { generateWordProblems } from "@/ai/flows/generate-word-problems"
 import { generateAdvancedQuestions } from "@/app/archimedes/chuyen-de-8/page"
+import { generateSingaporeMath } from "@/ai/flows/generate-singapore-math"
 import { AnalogClock } from "@/components/archimedes/analog-clock"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
@@ -436,6 +437,71 @@ const WordProblemRow = ({ index, problem, isAnswer = false }: { index: number, p
   );
 }
 
+const SampleClockComponent = () => (
+  <div className="col-span-full flex flex-col items-center gap-2 p-4 border-2 border-dashed border-primary/30 rounded-3xl bg-primary/5 mb-4 break-inside-avoid no-print:shadow-sm">
+    <div className="flex items-center gap-3 w-full justify-center">
+      <div className="bg-primary text-white p-1.5 rounded-lg shadow-sm">
+        <Clock className="size-4" />
+      </div>
+      <div>
+        <h3 className="text-sm font-black text-primary uppercase italic leading-none">Hình mẫu: Cách xem phút</h3>
+        <p className="text-[8px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">Vòng ngoài là số phút lẻ</p>
+      </div>
+    </div>
+    <div className="bg-white p-2 rounded-full shadow-inner border border-slate-100">
+      <AnalogClock 
+        hour={10} 
+        minute={10} 
+        showHands={false} 
+        size={160} 
+        showMinuteLabels={true}
+      />
+    </div>
+    <div className="flex items-center gap-3 text-center">
+      <div className="px-2 py-1 bg-white rounded-lg border border-slate-200 shadow-xs">
+        <p className="text-[8px] font-bold text-slate-600">Mỗi số =</p>
+        <p className="text-xs font-black text-primary">+5 phút</p>
+      </div>
+      <div className="size-1 rounded-full bg-slate-300" />
+      <div className="px-2 py-1 bg-white rounded-lg border border-slate-200 shadow-xs">
+        <p className="text-[8px] font-bold text-slate-600">Vòng ngoài</p>
+        <p className="text-xs font-black text-blue-600">Số phút</p>
+      </div>
+    </div>
+  </div>
+)
+
+const SingaporeMathRow = ({ index, problem, isAnswer = false }: { index: number, problem: any, isAnswer?: boolean }) => {
+  return (
+    <div className="col-span-full py-6 border-b border-dashed border-slate-100 break-inside-avoid">
+       <div className="flex flex-col gap-4">
+         <div className="flex items-start gap-2">
+           <span className="text-blue-600 font-sans font-bold text-[15px] shrink-0 mt-0.5">{index}.</span>
+           <p className="text-[15px] font-bold text-slate-800 leading-snug">{problem.question_text}</p>
+         </div>
+         {isAnswer ? (
+            <div className="ml-6 p-4 bg-primary/5 rounded-xl border border-primary/10">
+              <p className="text-[14px] font-bold text-slate-700">{problem.step_by_step_explanation[0]}</p>
+              <p className="text-[14px] font-black text-primary mt-2">Đáp án: {problem.correct_answer}</p>
+            </div>
+         ) : (
+            <div className="ml-6 space-y-2">
+               <div className="border-b border-dotted border-slate-300 h-8 w-full" />
+               <div className="border-b border-dotted border-slate-300 h-8 w-full" />
+               <div className="flex justify-between items-center mt-2">
+                  <div className="text-[11px] font-medium text-blue-400 italic">Gợi ý: {problem.bar_model_hint?.unknown_variable}</div>
+                  <div className="flex items-center gap-2">
+                     <span className="text-[9px] font-black text-slate-400 uppercase">Đáp số:</span>
+                     <div className="border border-slate-300 w-24 h-8 rounded-lg bg-white" />
+                  </div>
+               </div>
+            </div>
+         )}
+       </div>
+    </div>
+  );
+}
+
 const TopicSection = ({ batch, batchIdx, startIndex, isAnswer = false }: { batch: QuestionBatch, batchIdx: number, startIndex: number, isAnswer?: boolean }) => {
   const getInstruction = (topicId: number) => {
     switch (topicId) {
@@ -449,6 +515,7 @@ const TopicSection = ({ batch, batchIdx, startIndex, isAnswer = false }: { batch
       case 8: return "Giải các bài toán sau.";
       case 9: return "Điền số vào ô trống.";
       case 10: return "Toán có lời văn.";
+      case 11: return "Giải toán Singapore AI.";
       default: return "Luyện tập toán tư duy.";
     }
   };
@@ -464,6 +531,9 @@ const TopicSection = ({ batch, batchIdx, startIndex, isAnswer = false }: { batch
           BÀI {batchIdx + 1}: {getInstruction(batch.topicId)}
         </h3>
       </div>
+      {isClock && batch.settings?.difficulty === 'five-minutes' && !isAnswer && (
+        <SampleClockComponent />
+      )}
       <div className={cn(
         "grid gap-x-4 gap-y-0",
         isVertical ? "grid-cols-5" : (isSequence ? "grid-cols-1" : (isClock ? "grid-cols-3" : "grid-cols-2"))
@@ -471,6 +541,7 @@ const TopicSection = ({ batch, batchIdx, startIndex, isAnswer = false }: { batch
         {batch.problems.map((prob, idx) => {
           if (batch.topicId === 9) return <BalanceProblemRow key={idx} index={startIndex + idx + 1} problem={prob} isAnswer={isAnswer} />;
           if (batch.topicId === 10) return <WordProblemRow key={idx} index={startIndex + idx + 1} problem={prob} isAnswer={isAnswer} />;
+          if (batch.topicId === 11) return <SingaporeMathRow key={idx} index={startIndex + idx + 1} problem={prob} isAnswer={isAnswer} />;
           return <ProblemRow key={idx} index={startIndex + idx + 1} problem={prob} isAnswer={isAnswer} topicId={batch.topicId} />;
         })}
       </div>
@@ -479,116 +550,76 @@ const TopicSection = ({ batch, batchIdx, startIndex, isAnswer = false }: { batch
 };
 
 export default function ArchimedesMixerPage() {
+  const [mounted, setMounted] = React.useState(false)
   const [examVersions, setExamVersions] = React.useState<QuestionBatch[][]>([])
   const [numberOfVersions, setNumberOfVersions] = React.useState(1)
   const [isLoading, setIsLoading] = React.useState(false)
   const [showAnswers, setShowAnswers] = React.useState(false)
   
+  React.useEffect(() => {
+    setMounted(true)
+    
+    // Load all settings from localStorage after mount
+    const loadSetting = (key: string, setter: any, defaultValue: any) => {
+      const saved = localStorage.getItem(key);
+      if (saved) setter(JSON.parse(saved));
+    };
+
+    loadSetting('mixer_cd1', setCd1Settings, null);
+    loadSetting('mixer_cd2', setCd2Settings, null);
+    loadSetting('mixer_cd3', setCd3Settings, null);
+    loadSetting('mixer_cd4', setCd4Settings, null);
+    loadSetting('mixer_cd5', setCd5Settings, null);
+    loadSetting('mixer_cd6', setCd6Settings, null);
+    loadSetting('mixer_cd7', setCd7Settings, null);
+    loadSetting('mixer_cd8', setCd8Settings, null);
+    loadSetting('mixer_cd9', setCd9Settings, null);
+    loadSetting('mixer_cd10', setCd10Settings, null);
+    loadSetting('mixer_cd11', setCd11Settings, null);
+    loadSetting('mixer_hidden_topics', setHiddenTopics, null);
+  }, [])
+  
   const cart = examVersions[0] || [];
   
   // Settings state with LocalStorage Persistence
-  const [cd1Settings, setCd1Settings] = React.useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('mixer_cd1');
-      return saved ? JSON.parse(saved) : { count: 5, unknownVariable: "D" as any, operationMode: "mixed" as any, maxRange: 20 }
-    }
-    return { count: 5, unknownVariable: "D" as any, operationMode: "mixed" as any, maxRange: 20 }
-  })
-  React.useEffect(() => localStorage.setItem('mixer_cd1', JSON.stringify(cd1Settings)), [cd1Settings])
+  const [cd1Settings, setCd1Settings] = React.useState({ count: 5, unknownVariable: "D" as any, operationMode: "mixed" as any, maxRange: 20 })
+  React.useEffect(() => { if (mounted) localStorage.setItem('mixer_cd1', JSON.stringify(cd1Settings)) }, [cd1Settings, mounted])
 
-  const [cd2Settings, setCd2Settings] = React.useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('mixer_cd2');
-      return saved ? JSON.parse(saved) : { count: 5, tables: [2, 5, 10], unknownVariable: "C" as any, shuffle: true }
-    }
-    return { count: 5, tables: [2, 5, 10], unknownVariable: "C" as any, shuffle: true }
-  })
-  React.useEffect(() => localStorage.setItem('mixer_cd2', JSON.stringify(cd2Settings)), [cd2Settings])
+  const [cd2Settings, setCd2Settings] = React.useState({ count: 5, tables: [2, 5, 10], unknownVariable: "C" as any, shuffle: true })
+  React.useEffect(() => { if (mounted) localStorage.setItem('mixer_cd2', JSON.stringify(cd2Settings)) }, [cd2Settings, mounted])
 
-  const [cd3Settings, setCd3Settings] = React.useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('mixer_cd3');
-      return saved ? JSON.parse(saved) : { count: 5, level: "1" as any, maxRange: 20, operationMode: "mixed" as any }
-    }
-    return { count: 5, level: "1" as any, maxRange: 20, operationMode: "mixed" as any }
-  })
-  React.useEffect(() => localStorage.setItem('mixer_cd3', JSON.stringify(cd3Settings)), [cd3Settings])
+  const [cd3Settings, setCd3Settings] = React.useState({ count: 5, level: "1" as any, maxRange: 20, operationMode: "mixed" as any })
+  React.useEffect(() => { if (mounted) localStorage.setItem('mixer_cd3', JSON.stringify(cd3Settings)) }, [cd3Settings, mounted])
 
-  const [cd4Settings, setCd4Settings] = React.useState(() => {
-    const defaults = { 
-      count: 5, operation: "plus" as any, digits: 2, hasCarry: false, hideTarget: "mixed" as any,
-      rangeN1: { min: 10, max: 99 }, rangeN2: { min: 10, max: 99 }, rangeResult: { min: 0, max: 198 }
-    }
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('mixer_cd4');
-      return saved ? JSON.parse(saved) : defaults
-    }
-    return defaults
+  const [cd4Settings, setCd4Settings] = React.useState({ 
+    count: 5, operation: "plus" as any, digits: 2, hasCarry: false, hideTarget: "mixed" as any,
+    rangeN1: { min: 10, max: 99 }, rangeN2: { min: 10, max: 99 }, rangeResult: { min: 0, max: 198 }
   })
-  React.useEffect(() => localStorage.setItem('mixer_cd4', JSON.stringify(cd4Settings)), [cd4Settings])
+  React.useEffect(() => { if (mounted) localStorage.setItem('mixer_cd4', JSON.stringify(cd4Settings)) }, [cd4Settings, mounted])
 
-  const [cd5Settings, setCd5Settings] = React.useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('mixer_cd5');
-      return saved ? JSON.parse(saved) : { count: 2, cycleLength: 3, maxCycleSum: 30 }
-    }
-    return { count: 2, cycleLength: 3, maxCycleSum: 30 }
-  })
-  React.useEffect(() => localStorage.setItem('mixer_cd5', JSON.stringify(cd5Settings)), [cd5Settings])
+  const [cd5Settings, setCd5Settings] = React.useState({ count: 2, cycleLength: 3, maxCycleSum: 30 })
+  React.useEffect(() => { if (mounted) localStorage.setItem('mixer_cd5', JSON.stringify(cd5Settings)) }, [cd5Settings, mounted])
 
-  const [cd6Settings, setCd6Settings] = React.useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('mixer_cd6');
-      return saved ? JSON.parse(saved) : { count: 2, size: "4" as any, difficulty: "easy" as any }
-    }
-    return { count: 2, size: "4" as any, difficulty: "easy" as any }
-  })
-  React.useEffect(() => localStorage.setItem('mixer_cd6', JSON.stringify(cd6Settings)), [cd6Settings])
+  const [cd6Settings, setCd6Settings] = React.useState({ count: 2, size: "4" as any, difficulty: "easy" as any })
+  React.useEffect(() => { if (mounted) localStorage.setItem('mixer_cd6', JSON.stringify(cd6Settings)) }, [cd6Settings, mounted])
 
-  const [cd7Settings, setCd7Settings] = React.useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('mixer_cd7');
-      return saved ? JSON.parse(saved) : { count: 3, difficulty: "hours" as any, type: "read" as any }
-    }
-    return { count: 3, difficulty: "hours" as any, type: "read" as any }
-  })
-  React.useEffect(() => localStorage.setItem('mixer_cd7', JSON.stringify(cd7Settings)), [cd7Settings])
+  const [cd7Settings, setCd7Settings] = React.useState({ count: 3, difficulty: "hours" as any, type: "read" as any })
+  React.useEffect(() => { if (mounted) localStorage.setItem('mixer_cd7', JSON.stringify(cd7Settings)) }, [cd7Settings, mounted])
 
-  const [cd8Settings, setCd8Settings] = React.useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('mixer_cd8');
-      return saved ? JSON.parse(saved) : { count: 2 }
-    }
-    return { count: 2 }
-  })
-  React.useEffect(() => localStorage.setItem('mixer_cd8', JSON.stringify(cd8Settings)), [cd8Settings])
+  const [cd8Settings, setCd8Settings] = React.useState({ count: 2 })
+  React.useEffect(() => { if (mounted) localStorage.setItem('mixer_cd8', JSON.stringify(cd8Settings)) }, [cd8Settings, mounted])
 
-  const [cd9Settings, setCd9Settings] = React.useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('mixer_cd9');
-      return saved ? JSON.parse(saved) : { count: 2, maxSum: 20, type: "chain" as any, allowSubtraction: false }
-    }
-    return { count: 2, maxSum: 20, type: "chain" as any, allowSubtraction: false }
-  })
-  React.useEffect(() => localStorage.setItem('mixer_cd9', JSON.stringify(cd9Settings)), [cd9Settings])
+  const [cd9Settings, setCd9Settings] = React.useState({ count: 2, maxSum: 20, type: "chain" as any, allowSubtraction: false })
+  React.useEffect(() => { if (mounted) localStorage.setItem('mixer_cd9', JSON.stringify(cd9Settings)) }, [cd9Settings, mounted])
 
-  const [cd10Settings, setCd10Settings] = React.useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('mixer_cd10');
-      return saved ? JSON.parse(saved) : { count: 1, difficulty: "easy" as any }
-    }
-    return { count: 1, maxSum: 100 }
-  })
-  React.useEffect(() => localStorage.setItem('mixer_cd10', JSON.stringify(cd10Settings)), [cd10Settings])
+  const [cd10Settings, setCd10Settings] = React.useState({ count: 1, maxSum: 100, difficulty: "easy" as any })
+  React.useEffect(() => { if (mounted) localStorage.setItem('mixer_cd10', JSON.stringify(cd10Settings)) }, [cd10Settings, mounted])
 
-  const [hiddenTopics, setHiddenTopics] = React.useState<number[]>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('mixer_hidden_topics');
-      return saved ? JSON.parse(saved) : []
-    }
-    return []
-  })
-  React.useEffect(() => localStorage.setItem('mixer_hidden_topics', JSON.stringify(hiddenTopics)), [hiddenTopics])
+  const [cd11Settings, setCd11Settings] = React.useState({ count: 2, topic: "Lego", difficulty: "Trung bình" as any })
+  React.useEffect(() => { if (mounted) localStorage.setItem('mixer_cd11', JSON.stringify(cd11Settings)) }, [cd11Settings, mounted])
+
+  const [hiddenTopics, setHiddenTopics] = React.useState<number[]>([])
+  React.useEffect(() => { if (mounted) localStorage.setItem('mixer_hidden_topics', JSON.stringify(hiddenTopics)) }, [hiddenTopics, mounted])
 
   const { toast } = useToast()
   const contentRef = React.useRef<HTMLDivElement>(null)
@@ -610,14 +641,18 @@ export default function ArchimedesMixerPage() {
   const totalCount = cart.reduce((acc, batch) => acc + batch.count, 0)
   const densityPercent = Math.min((totalCount / 40) * 100, 100)
 
+
   const [isPresetOpen, setIsPresetOpen] = React.useState(false)
   const [presetCounts, setPresetCounts] = React.useState<Record<number, number>>({
     1: 4, 2: 4, 3: 4, 4: 4,
     5: 2, 6: 2, 7: 2, 8: 2,
-    9: 2, 10: 2
+    9: 2, 10: 2, 11: 2
   })
   
+  
   const removeBatch = (id: string) => setExamVersions(prev => prev.map(v => v.filter(b => b.id !== id)))
+
+  if (!mounted) return null;
 
   async function addToExam(topicId: number) {
     setIsLoading(true)
@@ -682,6 +717,13 @@ export default function ArchimedesMixerPage() {
              numProblems: cd10Settings.count 
           })
           newBatch = { id: batchId, topicId: 10, topicTitle: "Toán có lời văn", count: cd10Settings.count, settings: { ...cd10Settings }, problems: res.problems }
+        } else if (topicId === 11) {
+          const res = await generateSingaporeMath({ 
+             numProblems: cd11Settings.count,
+             topic: cd11Settings.topic,
+             difficulty: cd11Settings.difficulty
+          })
+          newBatch = { id: batchId, topicId: 11, topicTitle: "Toán Singapore AI", count: cd11Settings.count, settings: { ...cd11Settings }, problems: res.problems }
         } else {
           newBatch = { id: batchId, topicId: 0, topicTitle: "Unknown", count: 0, settings: {}, problems: [] }
         }
@@ -715,8 +757,9 @@ export default function ArchimedesMixerPage() {
         return nextVersions;
       })
       toast({ title: "Thành công!", description: `Đã thêm ${generatedVersions[0].count} câu x ${numberOfVersions} bản.` })
-    } catch (error) {
-      toast({ variant: "destructive", title: "Lỗi AI", description: "Vui lòng thử lại sau." })
+    } catch (error: any) {
+      console.error(error);
+      toast({ variant: "destructive", title: "Lỗi AI", description: error.message || "Vui lòng thử lại sau." })
     } finally {
       setIsLoading(false)
     }
@@ -764,15 +807,18 @@ export default function ArchimedesMixerPage() {
           } else if (p.id === 10) {
             const res = await generateWordProblems({ numProblems: p.count, maxSum: cd10Settings.maxSum });
             batch = { id: batchId + p.id, topicId: 10, topicTitle: "Toán có lời văn", count: p.count, settings: { ...cd10Settings, count: p.count }, problems: res.problems };
+          } else if (p.id === 11) {
+            const res = await generateSingaporeMath({ numProblems: p.count, topic: cd11Settings.topic, difficulty: cd11Settings.difficulty });
+            batch = { id: batchId + p.id, topicId: 11, topicTitle: "Toán Singapore AI", count: p.count, settings: { ...cd11Settings, count: p.count }, problems: res.problems };
           }
           allVersions[i].push(batch);
         }
       }
       setExamVersions(allVersions);
       toast({ title: "Đã tạo đề tổng hợp!", description: "Bao gồm 4x CĐ 1-4 và 2x CĐ 5-10." });
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
-      toast({ variant: "destructive", title: "Lỗi", description: "Không thể tạo đề bài mẫu." });
+      toast({ variant: "destructive", title: "Lỗi", description: e.message || "Không thể tạo đề bài mẫu." });
     } finally {
       setIsLoading(false);
       setIsPresetOpen(false);
@@ -827,7 +873,7 @@ export default function ArchimedesMixerPage() {
                       <DialogTrigger asChild>
                          <Button disabled={isLoading} variant="outline" className="h-10 text-[10px] font-black border-dashed border-primary/40 hover:bg-primary/5 hover:border-primary transition-all gap-2 justify-start px-4">
                             <div className="size-5 rounded bg-primary/10 flex items-center justify-center text-primary"><List className="size-3" /></div>
-                            TẠO ĐỀ TỔNG HỢP 10 CHUYÊN ĐỀ
+                            TẠO ĐỀ TỔNG HỢP 11 CHUYÊN ĐỀ
                          </Button>
                       </DialogTrigger>
                       <DialogContent className="max-w-[400px] max-h-[85vh] overflow-y-auto">
@@ -846,7 +892,8 @@ export default function ArchimedesMixerPage() {
                                { id: 7, title: "CĐ7: Xem đồng hồ" },
                                { id: 8, title: "CĐ8: Toán tư duy" },
                                { id: 9, title: "CĐ9: Cân bằng phép cộng" },
-                               { id: 10, title: "CĐ10: Toán có lời văn" }
+                               { id: 10, title: "CĐ10: Toán có lời văn" },
+                               { id: 11, title: "CĐ11: Toán Singapore AI" }
                             ].map((t) => (
                                <div key={t.id} className="flex items-center justify-between gap-4 p-2 rounded-lg hover:bg-slate-50 transition-colors">
                                   <Label className="text-xs font-bold text-slate-600">{t.title}</Label>
@@ -892,7 +939,8 @@ export default function ArchimedesMixerPage() {
             { id: 7, title: "CĐ7: Xem đồng hồ", color: "bg-pink-400", icon: Clock, settings: cd7Settings, setter: setCd7Settings },
             { id: 8, title: "CĐ8: Toán tư duy", color: "bg-emerald-400", icon: BookOpen, settings: cd8Settings, setter: setCd8Settings },
             { id: 9, title: "CĐ9: Cân bằng phép cộng", color: "bg-red-400", icon: PlusCircle, settings: cd9Settings, setter: setCd9Settings },
-            { id: 10, title: "CĐ10: Toán có lời văn", color: "bg-orange-600", icon: FileText, settings: cd10Settings, setter: setCd10Settings }
+            { id: 10, title: "CĐ10: Toán có lời văn", color: "bg-orange-600", icon: FileText, settings: cd10Settings, setter: setCd10Settings },
+            { id: 11, title: "CĐ11: Toán Singapore AI", color: "bg-indigo-600", icon: Sparkles, settings: cd11Settings, setter: setCd11Settings }
           ].filter(t => !hiddenTopics.includes(t.id)).map((topic) => (
             <Card key={topic.id} className="border-none shadow-md overflow-hidden bg-white group hover:shadow-lg transition-all duration-300">
               <div className={cn("h-1 w-full", topic.color)} />
@@ -1016,6 +1064,13 @@ export default function ArchimedesMixerPage() {
                         {/* Topic 4 Specific Settings */}
                         {topic.id === 4 && (
                           <div className="space-y-4">
+                            <div className="space-y-2 mb-2">
+                              <Label className="text-[10px] font-black text-primary/60 uppercase tracking-tighter">Thiết lập nhanh</Label>
+                              <div className="flex flex-wrap gap-1.5">
+                                 <Button variant="outline" size="sm" onClick={() => topic.setter((s: any) => ({ ...s, operation: "plus", digits: 2, hasCarry: false, hideTarget: "mixed" }))} className="h-7 text-[10px] font-bold">Dễ</Button>
+                                 <Button variant="default" size="sm" onClick={() => topic.setter((s: any) => ({ ...s, operation: "mixed", digits: 2, hasCarry: true, hideTarget: "full-result" }))} className="h-7 text-[10px] font-black bg-blue-600 hover:bg-blue-700 shadow-sm">⚡ Tìm kết quả</Button>
+                              </div>
+                            </div>
                             <div className="space-y-2">
                               <Label className="text-xs font-bold">Loại phép tính</Label>
                               <RadioGroup value={topic.settings.operation} onValueChange={(v) => topic.setter((s: any) => ({ ...s, operation: v }))} className="grid grid-cols-3 gap-2">
@@ -1044,7 +1099,8 @@ export default function ArchimedesMixerPage() {
                               <Select value={topic.settings.hideTarget} onValueChange={(v) => topic.setter((s: any) => ({ ...s, hideTarget: v }))}>
                                 <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="result">Chỉ kết quả</SelectItem>
+                                  <SelectItem value="result">Khuyết một ô ở KQ</SelectItem>
+                                  <SelectItem value="full-result">Toàn bộ kết quả</SelectItem>
                                   <SelectItem value="operands">Chỉ số hạng</SelectItem>
                                   <SelectItem value="mixed">Hỗn hợp</SelectItem>
                                 </SelectContent>
@@ -1186,6 +1242,27 @@ export default function ArchimedesMixerPage() {
                               <Label className="text-xs font-bold">Phạm vi số (Max / Kết quả)</Label>
                               <Input type="number" value={topic.settings.maxSum} onChange={(e) => topic.setter((s: any) => ({ ...s, maxSum: parseInt(e.target.value) || 100 }))} className="h-8" />
                             </div>
+                          </div>
+                        )}
+
+                        {/* Topic 11 Specific Settings */}
+                        {topic.id === 11 && (
+                          <div className="space-y-4">
+                             <div className="space-y-2">
+                               <Label className="text-xs font-bold">Chủ đề (Lego, Táo...)</Label>
+                               <Input value={topic.settings.topic} onChange={(e) => topic.setter((s: any) => ({ ...s, topic: e.target.value }))} className="h-8" />
+                             </div>
+                             <div className="space-y-2">
+                                <Label className="text-xs font-bold">Độ khó</Label>
+                                <Select value={topic.settings.difficulty} onValueChange={(v) => topic.setter((s: any) => ({ ...s, difficulty: v }))}>
+                                  <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="Dễ">Dễ</SelectItem>
+                                    <SelectItem value="Trung bình">Trung bình</SelectItem>
+                                    <SelectItem value="Khó">Khó</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                             </div>
                           </div>
                         )}
                         

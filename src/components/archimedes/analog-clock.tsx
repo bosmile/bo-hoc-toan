@@ -10,6 +10,7 @@ interface AnalogClockProps {
   size?: number;
   className?: string;
   showNumbers?: boolean;
+  showMinuteLabels?: boolean;
   hourHandColor?: string;
   minuteHandColor?: string;
 }
@@ -21,11 +22,12 @@ export const AnalogClock: React.FC<AnalogClockProps> = ({
   size = 200,
   className,
   showNumbers = true,
+  showMinuteLabels = false,
   hourHandColor = "currentColor",
   minuteHandColor = "currentColor"
 }) => {
-  const radius = 90;
   const center = 100;
+  const radius = showMinuteLabels ? 70 : 90;
   
   // Calculate angles
   // Hour hand: 30 degrees per hour + 0.5 degrees per minute
@@ -67,11 +69,11 @@ export const AnalogClock: React.FC<AnalogClockProps> = ({
           );
         })}
 
-        {/* Numbers */}
+        {/* Numbers (1-12) */}
         {showNumbers && numbers.map((n, i) => {
           const angle = (i * 30 * Math.PI) / 180;
-          const x = center + (radius - 25) * Math.sin(angle);
-          const y = center - (radius - 25) * Math.cos(angle);
+          const x = center + (radius - 18) * Math.sin(angle);
+          const y = center - (radius - 18) * Math.cos(angle);
           return (
             <text
               key={n}
@@ -79,10 +81,44 @@ export const AnalogClock: React.FC<AnalogClockProps> = ({
               y={y}
               textAnchor="middle"
               dominantBaseline="middle"
-              className="text-[18px] font-black fill-slate-800 font-sans"
+              className={cn(
+                "font-black fill-slate-800 font-sans",
+                showMinuteLabels ? "text-[14px]" : "text-[18px]"
+              )}
             >
               {n}
             </text>
+          );
+        })}
+
+        {/* Minute Labels (5, 10, 15...) */}
+        {showMinuteLabels && Array.from({ length: 12 }).map((_, i) => {
+          const minuteVal = (i === 0 ? 0 : i * 5);
+          const angle = (i * 30 * Math.PI) / 180;
+          const dist = radius + 20;
+          const x = center + dist * Math.sin(angle);
+          const y = center - dist * Math.cos(angle);
+          
+          return (
+            <g key={`min-${i}`}>
+               <text
+                x={x}
+                y={y}
+                textAnchor="middle"
+                dominantBaseline="middle"
+                className="text-[12px] font-bold fill-blue-600 font-sans"
+              >
+                {minuteVal === 0 ? "60" : minuteVal}
+              </text>
+              {/* Optional pointer or line to the minute mark */}
+              <line 
+                x1={center + (radius + 8) * Math.sin(angle)}
+                y1={center - (radius + 8) * Math.cos(angle)}
+                x2={center + (radius + 12) * Math.sin(angle)}
+                y2={center - (radius + 12) * Math.cos(angle)}
+                className="stroke-blue-400 stroke-[1]"
+              />
+            </g>
           );
         })}
 
@@ -93,8 +129,8 @@ export const AnalogClock: React.FC<AnalogClockProps> = ({
             <line
               x1={center}
               y1={center}
-              x2={center + 50 * Math.sin((hourAngle * Math.PI) / 180)}
-              y2={center - 50 * Math.cos((hourAngle * Math.PI) / 180)}
+              x2={center + (radius * 0.55) * Math.sin((hourAngle * Math.PI) / 180)}
+              y2={center - (radius * 0.55) * Math.cos((hourAngle * Math.PI) / 180)}
               stroke={hourHandColor}
               strokeWidth="6"
               strokeLinecap="round"
@@ -103,8 +139,8 @@ export const AnalogClock: React.FC<AnalogClockProps> = ({
             <line
               x1={center}
               y1={center}
-              x2={center + 75 * Math.sin((minuteAngle * Math.PI) / 180)}
-              y2={center - 75 * Math.cos((minuteAngle * Math.PI) / 180)}
+              x2={center + (radius * 0.85) * Math.sin((minuteAngle * Math.PI) / 180)}
+              y2={center - (radius * 0.85) * Math.cos((minuteAngle * Math.PI) / 180)}
               stroke={minuteHandColor}
               strokeWidth="4"
               strokeLinecap="round"

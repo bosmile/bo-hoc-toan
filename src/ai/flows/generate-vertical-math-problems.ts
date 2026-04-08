@@ -19,7 +19,7 @@ export interface GenerateVerticalInput {
   operation: 'plus' | 'minus' | 'mixed';
   digits: number;
   hasCarry?: boolean;
-  hideTarget: 'result' | 'operands' | 'mixed';
+  hideTarget: 'result' | 'operands' | 'mixed' | 'full-result';
   numProblems: number;
   rangeN1?: VariableRange;
   rangeN2?: VariableRange;
@@ -85,7 +85,9 @@ export async function generateVerticalMathProblems(
        targetObj = targets[Math.floor(Math.random() * targets.length)] as any;
     }
     
-    if (targetObj === 'result') {
+    if (targetObj === 'full-result') {
+      resultStr = resultStr.replace(/./g, '_');
+    } else if (targetObj === 'result') {
       const hideIdx = Math.floor(Math.random() * resultStr.length);
       resultStr = resultStr.substring(0, hideIdx) + '_' + resultStr.substring(hideIdx + 1);
     } else {

@@ -47,7 +47,7 @@ const formSchema = z.object({
   operation: z.enum(["plus", "minus", "mixed"]),
   digits: z.coerce.number().min(1).max(3),
   hasCarry: z.boolean(),
-  hideTarget: z.enum(["result", "operands", "mixed"]),
+  hideTarget: z.enum(["result", "operands", "mixed", "full-result"]),
   numProblems: z.coerce.number().min(1).max(50),
   rangeN1: rangeSchema,
   rangeN2: rangeSchema,
@@ -127,11 +127,12 @@ export default function ChuyenDe4Page() {
     }
   }
 
-  const applyPreset = (type: 'easy' | 'medium' | 'hard') => {
+  const applyPreset = (type: 'easy' | 'medium' | 'hard' | 'result-only') => {
     if (type === 'easy') {
       form.setValue("operation", "plus")
       form.setValue("digits", 2)
       form.setValue("hasCarry", false)
+      form.setValue("hideTarget", "mixed")
       form.setValue("rangeN1", { min: 10, max: 99 })
       form.setValue("rangeN2", { min: 10, max: 99 })
       form.setValue("rangeResult", { min: 0, max: 198 })
@@ -140,6 +141,7 @@ export default function ChuyenDe4Page() {
       form.setValue("operation", "mixed")
       form.setValue("digits", 2)
       form.setValue("hasCarry", true)
+      form.setValue("hideTarget", "mixed")
       form.setValue("rangeN1", { min: 10, max: 99 })
       form.setValue("rangeN2", { min: 10, max: 99 })
       form.setValue("rangeResult", { min: 0, max: 198 })
@@ -148,9 +150,19 @@ export default function ChuyenDe4Page() {
       form.setValue("operation", "mixed")
       form.setValue("digits", 3)
       form.setValue("hasCarry", true)
+      form.setValue("hideTarget", "mixed")
       form.setValue("rangeN1", { min: 100, max: 999 })
       form.setValue("rangeN2", { min: 100, max: 999 })
       form.setValue("rangeResult", { min: 0, max: 1998 })
+    }
+    if (type === 'result-only') {
+      form.setValue("operation", "mixed")
+      form.setValue("digits", 2)
+      form.setValue("hasCarry", true)
+      form.setValue("hideTarget", "full-result")
+      form.setValue("rangeN1", { min: 10, max: 99 })
+      form.setValue("rangeN2", { min: 10, max: 99 })
+      form.setValue("rangeResult", { min: 0, max: 198 })
     }
   }
 
@@ -190,6 +202,7 @@ export default function ChuyenDe4Page() {
                       <Button type="button" variant="outline" size="sm" onClick={() => applyPreset('easy')}>Dễ (Ko nhớ)</Button>
                       <Button type="button" variant="outline" size="sm" onClick={() => applyPreset('medium')}>Vừa (Có nhớ)</Button>
                       <Button type="button" variant="outline" size="sm" onClick={() => applyPreset('hard')}>Khó (3 chữ số)</Button>
+                      <Button type="button" variant="default" className="bg-blue-600 hover:bg-blue-700 shadow-sm" size="sm" onClick={() => applyPreset('result-only')}>⚡ Tìm kết quả</Button>
                     </div>
                   </div>
 
@@ -321,7 +334,8 @@ export default function ChuyenDe4Page() {
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
                           <SelectContent>
-                            <SelectItem value="result">Chỉ ở kết quả</SelectItem>
+                            <SelectItem value="result">Khuyết một ô ở kết quả</SelectItem>
+                            <SelectItem value="full-result">Toàn bộ kết quả (Tìm DS)</SelectItem>
                             <SelectItem value="operands">Chỉ ở số hạng</SelectItem>
                             <SelectItem value="mixed">Hỗn hợp ngẫu nhiên</SelectItem>
                           </SelectContent>
