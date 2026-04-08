@@ -90,34 +90,37 @@ const ClockProblemComponent = ({ index, problem, isAnswer = false }: { index: nu
 };
 
 const SampleClockComponent = () => (
-  <div className="flex flex-col items-center gap-4 p-6 border-2 border-dashed border-primary/30 rounded-3xl bg-primary/5 mb-8 break-inside-avoid no-print:shadow-sm">
-    <div className="flex items-center gap-3 w-full justify-center">
-      <div className="bg-primary text-white p-2.5 rounded-xl shadow-md">
-        <Clock className="size-6" />
-      </div>
-      <div>
-        <h3 className="text-xl font-black text-primary uppercase italic leading-none">Hình mẫu: Cách xem phút</h3>
-        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Ghi nhớ các mốc 5 phút ở vòng ngoài</p>
-      </div>
-    </div>
-    <div className="bg-white p-4 rounded-full shadow-inner border border-slate-100">
+  <div className="flex flex-row items-center justify-center gap-8 p-4 border-2 border-dashed border-primary/30 rounded-3xl bg-primary/5 mb-6 break-inside-avoid no-print:shadow-sm">
+    <div className="bg-white p-3 rounded-full shadow-inner border border-slate-100 shrink-0">
       <AnalogClock 
         hour={10} 
         minute={10} 
         showHands={false} 
-        size={220} 
+        size={180} 
         showMinuteLabels={true}
       />
     </div>
-    <div className="flex items-center gap-4 text-center">
-      <div className="px-4 py-2 bg-white rounded-xl border border-slate-200 shadow-sm">
-        <p className="text-xs font-bold text-slate-600">Mỗi số tương ứng</p>
-        <p className="text-lg font-black text-primary">+5 phút</p>
+
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center gap-3">
+        <div className="bg-primary text-white p-2.5 rounded-xl shadow-md">
+          <Clock className="size-6" />
+        </div>
+        <div>
+          <h3 className="text-xl font-black text-primary uppercase italic leading-none">Hình mẫu: Cách xem phút</h3>
+          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Ghi nhớ các mốc 5 phút ở vòng ngoài</p>
+        </div>
       </div>
-      <div className="size-2 rounded-full bg-slate-300" />
-      <div className="px-4 py-2 bg-white rounded-xl border border-slate-200 shadow-sm">
-        <p className="text-xs font-bold text-slate-600">Vòng ngoài</p>
-        <p className="text-lg font-black text-blue-600">Số phút lẻ</p>
+      
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center gap-3 px-4 py-2 bg-white rounded-xl border border-slate-200 shadow-sm">
+          <div className="size-2 rounded-full bg-primary" />
+          <p className="text-xs font-bold text-slate-600">Mỗi số trên đồng hồ tương ứng <span className="text-primary font-black">+5 phút</span></p>
+        </div>
+        <div className="flex items-center gap-3 px-4 py-2 bg-white rounded-xl border border-slate-200 shadow-sm">
+          <div className="size-2 rounded-full bg-blue-600" />
+          <p className="text-xs font-bold text-slate-600">Vòng ngoài hiển thị <span className="text-blue-600 font-black">Số phút lẻ</span></p>
+        </div>
       </div>
     </div>
   </div>

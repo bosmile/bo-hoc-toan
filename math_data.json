@@ -1,0 +1,74 @@
+[
+  {
+    "question_text": "Bơ có 5 bộ đồ chơi Khủng long, mỗi bộ có 12 cái. Hỏi Bơ có tất cả bao nhiêu cái Khủng long?",
+    "variables": [
+      5,
+      12
+    ],
+    "operation": "nhân",
+    "correct_answer": 60,
+    "bar_model_hint": {
+      "model_type": "part-whole",
+      "number_of_blocks": [
+        5
+      ],
+      "unknown_variable": "tổng số cái Khủng long",
+      "value_per_block": 12
+    },
+    "step_by_step_explanation": [
+      "Bước 1: Xác định Bơ có 5 bộ Khủng long.",
+      "Bước 2: Mỗi bộ đều có 12 miếng ghép (đơn vị).",
+      "Bước 3: Ta vẽ mô hình 5 khối bằng nhau, mỗi khối ghi số 12.",
+      "Bước 4: Thực hiện phép tính 5 x 12 = 60.",
+      "Kết luận: Bơ có 60 cái Khủng long."
+    ]
+  },
+  {
+    "question_text": "Bơ có 3 túi Khủng long lớn, mỗi túi có 20 con. Hỏi Bơ có tất cả bao nhiêu con Khủng long?",
+    "variables": [
+      3,
+      20
+    ],
+    "operation": "nhân",
+    "correct_answer": 60,
+    "bar_model_hint": {
+      "model_type": "part-whole",
+      "number_of_blocks": [
+        3
+      ],
+      "unknown_variable": "tổng số con Khủng long",
+      "value_per_block": 20
+    },
+    "step_by_step_explanation": [
+      "Bước 1: Bơ có 3 túi quà.",
+      "Bước 2: Mỗi túi chứa 20 con Khủng long.",
+      "Bước 3: Sử dụng mô hình thanh với 3 phần bằng nhau.",
+      "Bước 4: Tính 3 x 20 = 60.",
+      "Kết luận: Tổng cộng có 60 con Khủng long."
+    ]
+  },
+  {
+    "question_text": "Bơ mua 4 hộp Khủng long Lego, mỗi hộp giá 50 nghìn đồng. Hỏi Bơ phải trả bao nhiêu tiền?",
+    "variables": [
+      4,
+      50
+    ],
+    "operation": "nhân",
+    "correct_answer": 200,
+    "bar_model_hint": {
+      "model_type": "part-whole",
+      "number_of_blocks": [
+        4
+      ],
+      "unknown_variable": "tổng số tiền Bơ phải trả",
+      "value_per_block": 50
+    },
+    "step_by_step_explanation": [
+      "Bước 1: Bơ mua 4 hộp đồ chơi.",
+      "Bước 2: Mỗi hộp giá 50 nghìn đồng.",
+      "Bước 3: Vẽ mô hình 4 khối, mỗi khối đại diện cho 50.",
+      "Bước 4: 4 x 50 = 200.",
+      "Kết luận: Bơ phải trả 200 nghìn đồng."
+    ]
+  }
+]

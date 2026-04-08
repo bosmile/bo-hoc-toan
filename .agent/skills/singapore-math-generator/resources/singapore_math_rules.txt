@@ -1,0 +1,23 @@
+# Singapore Math Core Rules
+
+## 1. CPA Approach (Concrete-Pictorial-Abstract)
+- **Concrete**: Use physical objects to understand concepts.
+- **Pictorial**: Translate objects into visual representations like drawings or bar models.
+- **Abstract**: Use numbers and mathematical symbols (+, -, ×, ÷) to solve the problem.
+
+## 2. Bar Modeling Principles
+- **Part-Whole Model**: Used for addition and subtraction. Visualizes how parts combine to form a whole.
+- **Comparison Model**: Used to compare two or more quantities. Helpful for "more than" or "less than" problems.
+- **Equal Parts Model**: Used for multiplication and division. Shows multiple equal blocks representing the same value.
+
+## 3. Problem Solving Protocol
+- **Step 1: Understand**: Read the problem carefully. Identify the knowns and unknowns.
+- **Step 2: Plan (Model)**: Draw a Bar Model to visualize the relationships between numbers.
+- **Step 3: Solve**: Perform the calculations based on the model.
+- **Step 4: Check**: Review the answer for logical consistency and accuracy.
+
+## 4. Key Terminology
+- **Sum**: Total of parts.
+- **Difference**: The gap between two quantities in a comparison model.
+- **Product**: Total value of multiple equal blocks.
+- **Quotient**: Value of one block when the total is divided.
