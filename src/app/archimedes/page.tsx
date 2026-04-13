@@ -23,8 +23,15 @@ import {
   BookOpen,
   LayoutDashboard,
   EyeOff,
-  List
+  List,
+  Check,
+  RefreshCw
 } from "lucide-react"
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible"
 import { useReactToPrint } from "react-to-print"
 
 import { Button } from "@/components/ui/button"
@@ -141,6 +148,24 @@ const VerticalProblemRow = ({ index, problem, isAnswer = false }: { index: numbe
           </div>
         </div>
       </div>
+      
+      {/* Floating Summary Bar */}
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 bg-white/95 backdrop-blur-md px-6 py-4 rounded-full shadow-[0_10px_40px_-10px_rgba(0,0,0,0.3)] border border-primary/20 no-print animate-in slide-in-from-bottom-10 transition-all">
+         <div className="flex flex-col text-center">
+            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Giỏ Hàng</span>
+            <span className="text-xl font-black text-primary leading-none">{totalCount} <span className="text-xs">câu</span></span>
+         </div>
+         <div className="h-8 w-px bg-slate-200" />
+         <div className="flex flex-col text-center hidden sm:flex">
+            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Ước tính A4</span>
+            <span className={cn("text-xl font-black leading-none", totalCount > 40 ? "text-destructive" : "text-emerald-600")}>{Math.ceil(totalCount / 40)} <span className="text-xs">trang</span></span>
+         </div>
+         <div className="h-8 w-px bg-slate-200 hidden sm:block" />
+         <Button size="lg" onClick={() => handlePrint()} disabled={cart.length === 0} className="rounded-full shadow-lg gap-2 text-[15px] font-black px-8 py-6 uppercase bg-primary hover:bg-primary/90 hover:scale-[1.02] transition-transform">
+            <Printer className="size-5" /> In Phiếu Ngay
+         </Button>
+      </div>
+
     </div>
   );
 };
@@ -414,23 +439,44 @@ const WordProblemRow = ({ index, problem, isAnswer = false }: { index: number, p
         {/* Content Body */}
         <div className="space-y-4 pl-6">
           {problem.solutionLine && (
-             <p className="text-[14px] font-bold text-pink-600 italic">{problem.solutionLine}</p>
+             <p className="text-[15px] font-bold text-pink-600 italic">{problem.solutionLine}</p>
           )}
 
-          <div className="flex items-center gap-2">
-             <MathGrid rows={problem.templateId.includes('two_digit') ? 2 : 1}>
-                {isAnswer && <span className="text-red-600 font-black tracking-widest">{problem.correctAnswer}</span>}
-             </MathGrid>
-             {problem.unit && <span className="text-[14px] font-bold text-pink-600">({problem.unit})</span>}
-          </div>
-
-          <div className="flex items-center gap-2">
-             <p className="text-[14px] font-bold text-pink-600">{problem.answerPrefix}</p>
-             <div className="size-8 border border-blue-300 rounded squared-box-grid flex items-center justify-center bg-white shadow-inner">
-                {isAnswer && <span className="text-red-600 font-black text-[15px]">{problem.correctAnswer}</span>}
-             </div>
-             {problem.answerSuffix && <p className="text-[14px] font-bold text-pink-600">{problem.answerSuffix}</p>}
-          </div>
+          {problem.isGridOnly ? (
+            <div className="flex items-center gap-2">
+               <MathGrid rows={problem.templateId?.includes('two_digit') ? 2 : 1}>
+                  {isAnswer && <span className="text-red-600 font-black tracking-widest">{problem.correctAnswer}</span>}
+               </MathGrid>
+               {problem.unit && <span className="text-[15px] font-bold text-pink-600">({problem.unit})</span>}
+            </div>
+          ) : (
+             isAnswer ? (
+                <div className="mt-2 p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2 print:bg-white text-xs">
+                   <div className="text-[10px] font-black text-blue-500 uppercase italic tracking-widest my-0.5">
+                      HƯỚNG DẪN GIẢI:
+                   </div>
+                   <div className="flex items-center gap-2 mt-2">
+                     <p className="text-[15px] font-black text-slate-800">{problem.answerPrefix} {problem.correctAnswer} {problem.answerSuffix} {problem.unit}</p>
+                   </div>
+                </div>
+             ) : (
+                <div className="w-full mt-1 bg-white">
+                   <div className="text-[10px] font-black italic text-blue-500 uppercase tracking-widest my-0.5">
+                      BÀI GIẢI:
+                   </div>
+                   <div className="space-y-0 w-full mb-1">
+                      <div className="border-b border-dotted border-slate-300 h-7 w-full" />
+                      <div className="border-b border-dotted border-slate-300 h-7 w-full" />
+                      <div className="border-b border-dotted border-slate-300 h-7 w-full" />
+                   </div>
+                   <div className="flex justify-start items-center gap-2 pr-2 mt-2">
+                      <span className="text-[15px] font-bold text-pink-600">{problem.answerPrefix}</span>
+                      <div className="border border-slate-300 w-24 h-8 rounded-lg bg-white" />
+                      {problem.answerSuffix && <span className="text-[15px] font-bold text-pink-600">{problem.answerSuffix}</span>}
+                   </div>
+                </div>
+             )
+          )}
         </div>
       </div>
     </div>
@@ -568,6 +614,9 @@ export default function ArchimedesMixerPage() {
       if (saved) setter(JSON.parse(saved));
     };
 
+    const savedVersions = localStorage.getItem('mixer_cart_versions');
+    if (savedVersions) setExamVersions(JSON.parse(savedVersions));
+
     loadSetting('mixer_cd1', setCd1Settings, null);
     loadSetting('mixer_cd2', setCd2Settings, null);
     loadSetting('mixer_cd3', setCd3Settings, null);
@@ -582,6 +631,10 @@ export default function ArchimedesMixerPage() {
     loadSetting('mixer_hidden_topics', setHiddenTopics, null);
   }, [])
   
+  React.useEffect(() => {
+    if (mounted) localStorage.setItem('mixer_cart_versions', JSON.stringify(examVersions));
+  }, [examVersions, mounted])
+
   const cart = examVersions[0] || [];
   
   // Settings state with LocalStorage Persistence
@@ -661,7 +714,7 @@ export default function ArchimedesMixerPage() {
     setIsLoading(true)
     try {
       const generatedVersions = [];
-      const batchId = Math.random().toString(36).substr(2, 9);
+      const topicBatchId = `topic-${topicId}`;
       
       for (let i = 0; i < numberOfVersions; i++) {
         let newBatch: QuestionBatch;
@@ -675,13 +728,13 @@ export default function ArchimedesMixerPage() {
             rangeC: { min: 0, max: Math.floor(cd1Settings.maxRange / 2) },
             rangeD: { min: 0, max: cd1Settings.maxRange * 2 },
           })
-          newBatch = { id: batchId, topicId: 1, topicTitle: "Biểu thức 3 số", count: cd1Settings.count, settings: { ...cd1Settings }, problems: res.problems }
+          newBatch = { id: topicBatchId, topicId: 1, topicTitle: "Biểu thức 3 số", count: cd1Settings.count, settings: { ...cd1Settings }, problems: res.problems }
         } else if (topicId === 2) {
           const res = await generateMultiplicationProblems({ tables: cd2Settings.tables, unknownVariable: cd2Settings.unknownVariable, numProblems: cd2Settings.count, shuffle: cd2Settings.shuffle })
-          newBatch = { id: batchId, topicId: 2, topicTitle: "Phép nhân", count: cd2Settings.count, settings: { ...cd2Settings }, problems: res.problems }
+          newBatch = { id: topicBatchId, topicId: 2, topicTitle: "Phép nhân", count: cd2Settings.count, settings: { ...cd2Settings }, problems: res.problems }
         } else if (topicId === 3) {
           const res = await generateComparisonProblems({ level: cd3Settings.level, range: { min: 0, max: cd3Settings.maxRange }, operationMode: cd3Settings.operationMode, numProblems: cd3Settings.count })
-          newBatch = { id: batchId, topicId: 3, topicTitle: "So sánh biểu thức", count: cd3Settings.count, settings: { ...cd3Settings }, problems: res.problems }
+          newBatch = { id: topicBatchId, topicId: 3, topicTitle: "So sánh biểu thức", count: cd3Settings.count, settings: { ...cd3Settings }, problems: res.problems }
         } else if (topicId === 4) {
           const res = await generateVerticalMathProblems({ 
             operation: cd4Settings.operation, 
@@ -693,19 +746,19 @@ export default function ArchimedesMixerPage() {
             rangeN2: cd4Settings.rangeN2,
             rangeResult: cd4Settings.rangeResult
           })
-          newBatch = { id: batchId, topicId: 4, topicTitle: "Tính hàng dọc", count: cd4Settings.count, settings: { ...cd4Settings }, problems: res.problems }
+          newBatch = { id: topicBatchId, topicId: 4, topicTitle: "Tính hàng dọc", count: cd4Settings.count, settings: { ...cd4Settings }, problems: res.problems }
         } else if (topicId === 5) {
           const res = await generateSequenceProblems({ cycleLength: cd5Settings.cycleLength, maxCycleSum: cd5Settings.maxCycleSum, numProblems: cd5Settings.count })
-          newBatch = { id: batchId, topicId: 5, topicTitle: "Quy luật dãy số", count: cd5Settings.count, settings: { ...cd5Settings }, problems: res.problems }
+          newBatch = { id: topicBatchId, topicId: 5, topicTitle: "Quy luật dãy số", count: cd5Settings.count, settings: { ...cd5Settings }, problems: res.problems }
         } else if (topicId === 6) {
           const res = await generateSudokuProblems({ size: cd6Settings.size, difficulty: cd6Settings.difficulty, numProblems: cd6Settings.count })
-          newBatch = { id: batchId, topicId: 6, topicTitle: "Sudoku", count: cd6Settings.count, settings: { ...cd6Settings }, problems: res.problems }
+          newBatch = { id: topicBatchId, topicId: 6, topicTitle: "Sudoku", count: cd6Settings.count, settings: { ...cd6Settings }, problems: res.problems }
         } else if (topicId === 7) {
           const res = await generateClockProblems({ difficulty: cd7Settings.difficulty, type: cd7Settings.type, numProblems: cd7Settings.count })
-          newBatch = { id: batchId, topicId: 7, topicTitle: "Xem đồng hồ", count: cd7Settings.count, settings: { ...cd7Settings }, problems: res.problems }
+          newBatch = { id: topicBatchId, topicId: 7, topicTitle: "Xem đồng hồ", count: cd7Settings.count, settings: { ...cd7Settings }, problems: res.problems }
         } else if (topicId === 8) {
           const problems = generateAdvancedQuestions(cd8Settings.count)
-          newBatch = { id: batchId, topicId: 8, topicTitle: "Toán tư duy", count: cd8Settings.count, settings: { ...cd8Settings }, problems }
+          newBatch = { id: topicBatchId, topicId: 8, topicTitle: "Toán tư duy", count: cd8Settings.count, settings: { ...cd8Settings }, problems }
         } else if (topicId === 9) {
           const res = await generateBalanceProblems({ 
              maxSum: cd9Settings.maxSum, 
@@ -713,22 +766,22 @@ export default function ArchimedesMixerPage() {
              allowSubtraction: cd9Settings.allowSubtraction,
              numProblems: cd9Settings.count 
           })
-          newBatch = { id: batchId, topicId: 9, topicTitle: "Cân bằng phép cộng", count: cd9Settings.count, settings: { ...cd9Settings }, problems: res.problems }
+          newBatch = { id: topicBatchId, topicId: 9, topicTitle: "Cân bằng phép cộng", count: cd9Settings.count, settings: { ...cd9Settings }, problems: res.problems }
         } else if (topicId === 10) {
           const res = await generateWordProblems({ 
              maxSum: cd10Settings.maxSum, 
              numProblems: cd10Settings.count 
           })
-          newBatch = { id: batchId, topicId: 10, topicTitle: "Toán có lời văn", count: cd10Settings.count, settings: { ...cd10Settings }, problems: res.problems }
+          newBatch = { id: topicBatchId, topicId: 10, topicTitle: "Toán có lời văn", count: cd10Settings.count, settings: { ...cd10Settings }, problems: res.problems }
         } else if (topicId === 11) {
           const res = await generateSingaporeMath({ 
              numProblems: cd11Settings.count,
              topic: cd11Settings.topic,
              difficulty: cd11Settings.difficulty
           })
-          newBatch = { id: batchId, topicId: 11, topicTitle: "Toán Singapore AI", count: cd11Settings.count, settings: { ...cd11Settings }, problems: res.problems }
+          newBatch = { id: topicBatchId, topicId: 11, topicTitle: "Toán Singapore AI", count: cd11Settings.count, settings: { ...cd11Settings }, problems: res.problems }
         } else {
-          newBatch = { id: batchId, topicId: 0, topicTitle: "Unknown", count: 0, settings: {}, problems: [] }
+          newBatch = { id: topicBatchId, topicId: 0, topicTitle: "Unknown", count: 0, settings: {}, problems: [] }
         }
         generatedVersions.push(newBatch);
       }
@@ -746,13 +799,7 @@ export default function ArchimedesMixerPage() {
           const genBatch = generatedVersions[i];
           const existingIdx = nextVersions[i].findIndex(b => b.topicId === genBatch.topicId);
           if (existingIdx >= 0) {
-            const existingBatch = nextVersions[i][existingIdx];
-            nextVersions[i][existingIdx] = {
-              ...existingBatch,
-              count: existingBatch.count + genBatch.count,
-              problems: [...existingBatch.problems, ...genBatch.problems],
-              settings: genBatch.settings,
-            };
+            nextVersions[i][existingIdx] = genBatch; // Overwrite to prevent duplication
           } else {
             nextVersions[i].push(genBatch);
           }
@@ -778,41 +825,43 @@ export default function ArchimedesMixerPage() {
       const allVersions = Array.from({ length: numberOfVersions }, () => []);
 
       for (const p of presets) {
+        if (p.count <= 0) continue;
+        const topicBatchId = `topic-${p.id}`;
         for (let i = 0; i < numberOfVersions; i++) {
           let batch: QuestionBatch;
           if (p.id === 1) {
-            const res = await generateArchimedesMathProblems({ ...cd1Settings, numProblems: p.count, rangeA: { min: 0, max: cd1Settings.maxRange }, rangeB: { min: 0, max: 10 }, rangeC: { min: 0, max: 10 }, rangeD: { min: 0, max: 100 } });
-            batch = { id: batchId + p.id, topicId: 1, topicTitle: "Biểu thức 3 số", count: p.count, settings: { ...cd1Settings, count: p.count }, problems: res.problems };
+            const res = await generateArchimedesMathProblems({ ...cd1Settings, numProblems: p.count, rangeA: { min: 0, max: cd1Settings.maxRange }, rangeB: { min: 0, max: Math.floor(cd1Settings.maxRange / 2) }, rangeC: { min: 0, max: Math.floor(cd1Settings.maxRange / 2) }, rangeD: { min: 0, max: cd1Settings.maxRange * 2 } });
+            batch = { id: topicBatchId, topicId: 1, topicTitle: "Biểu thức 3 số", count: p.count, settings: { ...cd1Settings, count: p.count }, problems: res.problems };
           } else if (p.id === 2) {
             const res = await generateMultiplicationProblems({ ...cd2Settings, numProblems: p.count });
-            batch = { id: batchId + p.id, topicId: 2, topicTitle: "Phép nhân", count: p.count, settings: { ...cd2Settings, count: p.count }, problems: res.problems };
+            batch = { id: topicBatchId, topicId: 2, topicTitle: "Phép nhân", count: p.count, settings: { ...cd2Settings, count: p.count }, problems: res.problems };
           } else if (p.id === 3) {
             const res = await generateComparisonProblems({ ...cd3Settings, range: { min: 0, max: cd3Settings.maxRange }, numProblems: p.count });
-            batch = { id: batchId + p.id, topicId: 3, topicTitle: "So sánh biểu thức", count: p.count, settings: { ...cd3Settings, count: p.count }, problems: res.problems };
+            batch = { id: topicBatchId, topicId: 3, topicTitle: "So sánh biểu thức", count: p.count, settings: { ...cd3Settings, count: p.count }, problems: res.problems };
           } else if (p.id === 4) {
             const res = await generateVerticalMathProblems({ ...cd4Settings, numProblems: p.count });
-            batch = { id: batchId + p.id, topicId: 4, topicTitle: "Tính hàng dọc", count: p.count, settings: { ...cd4Settings, count: p.count }, problems: res.problems };
+            batch = { id: topicBatchId, topicId: 4, topicTitle: "Tính hàng dọc", count: p.count, settings: { ...cd4Settings, count: p.count }, problems: res.problems };
           } else if (p.id === 5) {
             const res = await generateSequenceProblems({ ...cd5Settings, numProblems: p.count });
-            batch = { id: batchId + p.id, topicId: 5, topicTitle: "Quy luật dãy số", count: p.count, settings: { ...cd5Settings, count: p.count }, problems: res.problems };
+            batch = { id: topicBatchId, topicId: 5, topicTitle: "Quy luật dãy số", count: p.count, settings: { ...cd5Settings, count: p.count }, problems: res.problems };
           } else if (p.id === 6) {
             const res = await generateSudokuProblems({ ...cd6Settings, numProblems: p.count });
-            batch = { id: batchId + p.id, topicId: 6, topicTitle: "Sudoku", count: p.count, settings: { ...cd6Settings, count: p.count }, problems: res.problems };
+            batch = { id: topicBatchId, topicId: 6, topicTitle: "Sudoku", count: p.count, settings: { ...cd6Settings, count: p.count }, problems: res.problems };
           } else if (p.id === 7) {
             const res = await generateClockProblems({ ...cd7Settings, numProblems: p.count });
-            batch = { id: batchId + p.id, topicId: 7, topicTitle: "Xem đồng hồ", count: p.count, settings: { ...cd7Settings, count: p.count }, problems: res.problems };
+            batch = { id: topicBatchId, topicId: 7, topicTitle: "Xem đồng hồ", count: p.count, settings: { ...cd7Settings, count: p.count }, problems: res.problems };
           } else if (p.id === 8) {
             const probs = generateAdvancedQuestions(p.count);
-            batch = { id: batchId + p.id, topicId: 8, topicTitle: "Toán tư duy", count: p.count, settings: { ...cd8Settings, count: p.count }, problems: probs };
+            batch = { id: topicBatchId, topicId: 8, topicTitle: "Toán tư duy", count: p.count, settings: { ...cd8Settings, count: p.count }, problems: probs };
           } else if (p.id === 9) {
             const res = await generateBalanceProblems({ ...cd9Settings, numProblems: p.count });
-            batch = { id: batchId + p.id, topicId: 9, topicTitle: "Cân bằng phép cộng", count: p.count, settings: { ...cd9Settings, count: p.count }, problems: res.problems };
+            batch = { id: topicBatchId, topicId: 9, topicTitle: "Cân bằng phép cộng", count: p.count, settings: { ...cd9Settings, count: p.count }, problems: res.problems };
           } else if (p.id === 10) {
             const res = await generateWordProblems({ numProblems: p.count, maxSum: cd10Settings.maxSum });
-            batch = { id: batchId + p.id, topicId: 10, topicTitle: "Toán có lời văn", count: p.count, settings: { ...cd10Settings, count: p.count }, problems: res.problems };
+            batch = { id: topicBatchId, topicId: 10, topicTitle: "Toán có lời văn", count: p.count, settings: { ...cd10Settings, count: p.count }, problems: res.problems };
           } else if (p.id === 11) {
             const res = await generateSingaporeMath({ numProblems: p.count, topic: cd11Settings.topic, difficulty: cd11Settings.difficulty });
-            batch = { id: batchId + p.id, topicId: 11, topicTitle: "Toán Singapore AI", count: p.count, settings: { ...cd11Settings, count: p.count }, problems: res.problems };
+            batch = { id: topicBatchId, topicId: 11, topicTitle: "Toán Singapore AI", count: p.count, settings: { ...cd11Settings, count: p.count }, problems: res.problems };
           }
           allVersions[i].push(batch);
         }
@@ -854,7 +903,7 @@ export default function ArchimedesMixerPage() {
              <Label htmlFor="ans" className="text-xs font-bold uppercase text-muted-foreground">In kèm đáp án</Label>
              <Switch id="ans" checked={showAnswers} onCheckedChange={setShowAnswers} />
           </div>
-          <Button size="lg" onClick={() => handlePrint()} disabled={cart.length === 0} className="w-full gap-2 font-black py-7 text-lg shadow-xl bg-primary hover:bg-primary/90">
+          <Button size="lg" onClick={() => handlePrint()} disabled={cart.length === 0} className="w-full gap-2 font-black py-7 text-lg shadow-xl bg-primary hover:bg-primary/90 mt-2">
             <Printer className="size-5" /> IN PHIẾU BÀI TẬP (A4)
           </Button>
         </div>
@@ -932,6 +981,7 @@ export default function ArchimedesMixerPage() {
                 <Button variant="link" size="sm" onClick={() => setHiddenTopics([])} className="h-4 text-[10px] font-bold p-0 text-primary">Hiện tất cả</Button>
              </div>
           )}
+          <div className="columns-1 sm:columns-3 gap-3 space-y-3 mt-4">
           {[
             { id: 1, title: "CĐ1: Biểu thức 3 số", color: "bg-primary", icon: Calculator, settings: cd1Settings, setter: setCd1Settings },
             { id: 2, title: "CĐ2: Phép nhân", color: "bg-accent", icon: Sparkles, settings: cd2Settings, setter: setCd2Settings },
@@ -944,33 +994,29 @@ export default function ArchimedesMixerPage() {
             { id: 9, title: "CĐ9: Cân bằng phép cộng", color: "bg-red-400", icon: PlusCircle, settings: cd9Settings, setter: setCd9Settings },
             { id: 10, title: "CĐ10: Toán có lời văn", color: "bg-orange-600", icon: FileText, settings: cd10Settings, setter: setCd10Settings },
             { id: 11, title: "CĐ11: Toán Singapore AI", color: "bg-indigo-600", icon: Sparkles, settings: cd11Settings, setter: setCd11Settings }
-          ].filter(t => !hiddenTopics.includes(t.id)).map((topic) => (
-            <Card key={topic.id} className="border-none shadow-md overflow-hidden bg-white group hover:shadow-lg transition-all duration-300">
-              <div className={cn("h-1 w-full", topic.color)} />
-              <CardContent className="p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold flex items-center gap-2">
-                    <topic.icon className="size-4 opacity-40"/> {topic.title}
-                  </h3>
-                  <div className="flex items-center gap-1.5 translate-x-2">
-                    <div className="flex items-center gap-1 mr-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Button variant="ghost" size="icon" onClick={() => setHiddenTopics(p => [...p, topic.id])} className="size-6 text-slate-300 hover:text-blue-400 hover:bg-blue-50" title="Ẩn chuyên đề">
-                        <EyeOff className="size-3.5" />
-                      </Button>
-                    </div>
-                    <Label className="text-[10px] font-bold">CÂU:</Label>
-                    <Input type="number" value={topic.settings.count} onChange={(e) => topic.setter((s: any) => ({ ...s, count: parseInt(e.target.value) || 0 }))} className="w-12 h-7 text-xs text-center p-0" />
-                  </div>
+          ].filter(t => !hiddenTopics.includes(t.id)).map((topic) => {
+            const addedCount = cart.find(b => b.topicId === topic.id)?.count || 0;
+            const isAdded = addedCount > 0;
+            
+            return (
+            <Card key={topic.id} className={cn("border-2 transition-all duration-300 relative bg-white break-inside-avoid", isAdded ? "border-green-500 shadow-sm" : "border-slate-100 hover:border-primary/30")}>
+              {isAdded && (
+                <div className="absolute top-2 right-2 bg-green-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded flex items-center gap-1 z-10 shadow-sm">
+                  <Check className="size-3"/> Đã chọn {addedCount}
                 </div>
-                <div className="flex gap-2">
-                  <Popover>
-                    <PopoverTrigger asChild><Button variant="outline" size="sm" className="flex-1 h-7 text-[10px] font-bold gap-1"><Settings2 className="size-3" /> Cấu hình</Button></PopoverTrigger>
-                    <PopoverContent className="w-80 p-6 overflow-y-auto max-h-[80vh]">
-                      <div className="space-y-6">
-                        <div className="flex items-center justify-between border-b pb-2">
-                          <p className="text-xs font-black text-primary uppercase tracking-widest">{topic.title}</p>
-                          <Settings2 className="size-4 text-primary/40" />
-                        </div>
+              )}
+              <div className="p-2 flex flex-col group relative">
+                <Button variant="ghost" size="icon" onClick={() => setHiddenTopics(p => [...p, topic.id])} className="absolute top-1 right-1 size-5 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity" title="Ẩn chuyên đề"><EyeOff className="size-3" /></Button>
+                
+                <Collapsible className="w-full">
+                  <CollapsibleTrigger asChild>
+                    <div className="cursor-pointer flex items-center justify-between hover:bg-slate-50/80 transition-colors w-full px-2 py-1.5 rounded-md group/trigger">
+                      <h3 className="text-[11px] font-black uppercase text-slate-800 leading-tight mr-4">{topic.title}</h3>
+                      <Settings2 className="size-3 text-slate-300 group-hover/trigger:text-primary transition-colors flex-shrink-0" />
+                    </div>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="w-full text-left bg-slate-50/50 rounded-xl mt-1.5 overflow-hidden border border-slate-100">
+                    <div className="p-2.5 space-y-3">
                         
                         {/* Topic 1 Specific Settings */}
                         {topic.id === 1 && (
@@ -1269,17 +1315,26 @@ export default function ArchimedesMixerPage() {
                           </div>
                         )}
                         
-                      </div>
-
-                    </PopoverContent>
-                  </Popover>
-                  <Button onClick={() => addToExam(topic.id)} disabled={isLoading} className={cn("flex-[2] h-7 text-[10px] font-bold gap-1 text-white shadow-sm hover:opacity-90 bg-primary")}>
-                    {isLoading ? <Layers className="size-3 animate-spin" /> : <PlusCircle className="size-3" />} Thêm đề
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
+                
+                {/* Always visible Count & Add block */}
+                <div className="flex items-center gap-2 w-full mt-3 bg-slate-50/80 p-1.5 rounded-lg border border-slate-100">
+                  <Input type="number" 
+                         value={topic.settings.count} 
+                         onChange={(e) => topic.setter((s: any) => ({ ...s, count: parseInt(e.target.value) || 0 }))} 
+                         className="w-14 h-8 text-xs font-black text-center bg-white shadow-sm px-1" />
+                  <Button onClick={() => addToExam(topic.id)} 
+                          disabled={isLoading} 
+                          className={cn("flex-1 h-8 text-[11px] font-black uppercase tracking-tight gap-1.5 shadow-sm transition-all", isAdded ? "bg-indigo-600 hover:bg-indigo-700 text-white" : "bg-primary hover:bg-primary/90 text-white")}>
+                    {isLoading ? <Layers className="size-3 animate-spin" /> : (isAdded ? <RefreshCw className="size-3" /> : <PlusCircle className="size-3" />)} {isAdded ? "Cập nhật" : "Thêm ngay"}
                   </Button>
                 </div>
-              </CardContent>
+              </div>
             </Card>
-          ))}
+          )})}
+          </div>
           
           {/* Cart View */}
           {cart.length > 0 && (
