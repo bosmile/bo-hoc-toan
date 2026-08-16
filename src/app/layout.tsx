@@ -51,7 +51,7 @@ export default function RootLayout({
                       className="object-contain p-0.5"
                     />
                  </div>
-                 <h2 className="text-sm font-bold text-primary uppercase tracking-tight">Number Garden Edition</h2>
+                 <h2 className="text-sm font-bold text-primary uppercase tracking-tight">Archimedes Edition</h2>
               </div>
             </header>
             <main className="flex flex-1 flex-col p-4 md:p-8">

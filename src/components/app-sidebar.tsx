@@ -38,22 +38,34 @@ import {
 } from "@/components/ui/sidebar"
 
 const navigation = {
-  archimedes: {
-    title: "Toán Archimedes",
+  lop1: {
+    title: "Toán Lớp 1 (Number Garden)",
     chapters: [
-      { title: "Bộ trộn đề (Mixer)", url: "/archimedes", icon: List },
-      { title: "CĐ1: Biểu thức 3 số", url: "/archimedes/chuyen-de-1", icon: Calculator },
-      { title: "CĐ2: Phép nhân", url: "/archimedes/chuyen-de-2", icon: Calculator },
-      { title: "CĐ3: So sánh biểu thức", url: "/archimedes/chuyen-de-3", icon: Scale },
-      { title: "CĐ4: Tính hàng dọc", url: "/archimedes/chuyen-de-4", icon: Columns2 },
-      { title: "CĐ5: Quy luật dãy số", url: "/archimedes/chuyen-de-5", icon: ListOrdered },
-      { title: "CĐ6: Thử thách Sudoku", url: "/archimedes/chuyen-de-6", icon: Grid3X3 },
-      { title: "CĐ7: Xem đồng hồ", url: "/archimedes/chuyen-de-7", icon: Clock },
-      { title: "CĐ8: Toán tư duy", url: "/archimedes/chuyen-de-8", icon: BookOpen },
-      { title: "CĐ9: Cân bằng phép cộng", url: "/archimedes/chuyen-de-9", icon: PlusCircle },
-      { title: "CĐ10: Toán có lời văn", url: "/archimedes/chuyen-de-10", icon: FileText },
+      { title: "Bộ trộn đề (Mixer)", url: "/archimedes/lop-1/mixer", icon: List },
+      { title: "CĐ1: Biểu thức 3 số", url: "/archimedes/lop-1/chuyen-de-1", icon: Calculator },
+      { title: "CĐ2: Phép nhân", url: "/archimedes/lop-1/chuyen-de-2", icon: Calculator },
+      { title: "CĐ3: So sánh biểu thức", url: "/archimedes/lop-1/chuyen-de-3", icon: Scale },
+      { title: "CĐ4: Tính hàng dọc", url: "/archimedes/lop-1/chuyen-de-4", icon: Columns2 },
+      { title: "CĐ5: Quy luật dãy số", url: "/archimedes/lop-1/chuyen-de-5", icon: ListOrdered },
+      { title: "CĐ6: Thử thách Sudoku", url: "/archimedes/lop-1/chuyen-de-6", icon: Grid3X3 },
+      { title: "CĐ7: Xem đồng hồ", url: "/archimedes/lop-1/chuyen-de-7", icon: Clock },
+      { title: "CĐ8: Toán tư duy", url: "/archimedes/lop-1/chuyen-de-8", icon: BookOpen },
+      { title: "CĐ9: Cân bằng phép cộng", url: "/archimedes/lop-1/chuyen-de-9", icon: PlusCircle },
+      { title: "CĐ10: Toán có lời văn", url: "/archimedes/lop-1/chuyen-de-10", icon: FileText },
     ],
   },
+  lop2: {
+    title: "Toán Lớp 2 (Logic Mastery)",
+    chapters: [
+      { title: "Bộ trộn đề (Mixer)", url: "/archimedes/lop-2/mixer", icon: List },
+      { title: "CĐ1: Số học & Phép tính", url: "/archimedes/lop-2/chuyen-de-1", icon: Calculator },
+      { title: "CĐ2: Đại lượng Đo lường", url: "/archimedes/lop-2/chuyen-de-2", icon: Scale },
+      { title: "CĐ3: Hình học & Chu vi", url: "/archimedes/lop-2/chuyen-de-3", icon: Shapes },
+      { title: "CĐ4: Phân số trực quan", url: "/archimedes/lop-2/chuyen-de-4", icon: BoxSelect },
+      { title: "CĐ5: Toán có lời văn", url: "/archimedes/lop-2/chuyen-de-5", icon: FileText },
+      { title: "CĐ6: Logic Grid", url: "/archimedes/lop-2/chuyen-de-6", icon: BrainCircuit },
+    ],
+  }
 }
 
 export function AppSidebar() {
@@ -74,7 +86,7 @@ export function AppSidebar() {
           </div>
           <div className="flex flex-col gap-0.5 leading-none overflow-hidden">
             <span className="font-black text-lg text-primary tracking-tighter uppercase truncate">BƠ HỌC TOÁN</span>
-            <span className="text-[8px] text-accent font-bold uppercase tracking-wider truncate">Number Garden Edition</span>
+            <span className="text-[8px] text-accent font-bold uppercase tracking-wider truncate">Archimedes Edition</span>
           </div>
         </Link>
       </SidebarHeader>
@@ -93,17 +105,39 @@ export function AppSidebar() {
           </SidebarMenu>
         </SidebarGroup>
 
-        {/* Toán Archimedes Section */}
+        {/* Toán Lớp 1 Section */}
         <SidebarGroup>
-          <SidebarGroupLabel className="px-4 text-[10px] font-black text-primary/40 uppercase tracking-[0.2em] mb-2">
-            Hệ thống Archimedes
+          <SidebarGroupLabel className="px-4 text-[10px] font-black text-emerald-600 uppercase tracking-[0.2em] mb-2 bg-emerald-50 py-1 mx-2 rounded-md justify-center">
+            {navigation.lop1.title}
           </SidebarGroupLabel>
           <SidebarMenu>
-            {navigation.archimedes.chapters.map((chapter) => {
+            {navigation.lop1.chapters.map((chapter) => {
               const Icon = chapter.icon
               return (
                 <SidebarMenuItem key={chapter.url}>
-                  <SidebarMenuButton asChild isActive={pathname === chapter.url} className="data-[active=true]:bg-primary data-[active=true]:text-white transition-all">
+                  <SidebarMenuButton asChild isActive={pathname === chapter.url} className="data-[active=true]:bg-emerald-500 data-[active=true]:text-white transition-all">
+                    <Link href={chapter.url}>
+                      <Icon className="size-4" />
+                      <span className="font-semibold">{chapter.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )
+            })}
+          </SidebarMenu>
+        </SidebarGroup>
+
+        {/* Toán Lớp 2 Section */}
+        <SidebarGroup>
+          <SidebarGroupLabel className="px-4 text-[10px] font-black text-blue-600 uppercase tracking-[0.2em] mb-2 bg-blue-50 py-1 mx-2 rounded-md justify-center mt-2">
+            {navigation.lop2.title}
+          </SidebarGroupLabel>
+          <SidebarMenu>
+            {navigation.lop2.chapters.map((chapter) => {
+              const Icon = chapter.icon
+              return (
+                <SidebarMenuItem key={chapter.url}>
+                  <SidebarMenuButton asChild isActive={pathname === chapter.url} className="data-[active=true]:bg-blue-600 data-[active=true]:text-white transition-all">
                     <Link href={chapter.url}>
                       <Icon className="size-4" />
                       <span className="font-semibold">{chapter.title}</span>

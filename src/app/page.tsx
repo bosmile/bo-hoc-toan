@@ -4,84 +4,87 @@ import * as React from "react"
 import Link from "next/link"
 import { 
   Calculator, 
-  FilePlus, 
-  Settings2,
-  BookOpen,
   Library,
+  BookOpen,
   ChevronRight,
-  Clock
+  BrainCircuit,
+  Sparkles
 } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-
-const archimedesModules = [
-  { id: 1, title: "CĐ1: Biểu thức 3 số", query: "A ± B ± C = D", link: "/archimedes/chuyen-de-1", desc: "Tùy chỉnh phạm vi, vị trí ẩn số, chỉ định phép cộng/trừ/trộn." },
-  { id: 2, title: "CĐ2: Phép nhân căn bản", query: "A x B = C", link: "/archimedes/chuyen-de-2", desc: "Chọn bảng cửu chương, xáo trộn, tìm tích số hoặc thừa số." },
-  { id: 3, title: "CĐ3: So sánh biểu thức", query: "A ± B [?,<,>] C ± D", link: "/archimedes/chuyen-de-3", desc: "So sánh 2 vế logic, định cấu hình độ phức tạp biểu thức." },
-  { id: 4, title: "CĐ4: Đặt tính hàng dọc", query: "+ / - có nhớ", link: "/archimedes/chuyen-de-4", desc: "Giới hạn số chữ số, ẩn một chữ số bất kì, bắt buộc có/không nhớ." },
-  { id: 5, title: "CĐ5: Dãy số chu kỳ", query: "[A, B, C, _]", link: "/archimedes/chuyen-de-5", desc: "Tạo dãy số chu kỳ lặp lại, học sinh tìm số thiếu dựa vào tổng chu kỳ." },
-  { id: 6, title: "CĐ6: Thử thách Sudoku", query: "Bảng 4x4, 6x6, 9x9", link: "/archimedes/chuyen-de-6", desc: "Rèn luyện logic loại trừ với các bảng Sudoku từ dễ đến khó." },
-  { id: 7, title: "CĐ7: Xem đồng hồ", query: "Analog & Digital", link: "/archimedes/chuyen-de-7", desc: "Học cách đọc giờ đúng, giờ rưỡi và vẽ kim đồng hồ tương ứng." },
-  { id: 8, title: "CĐ8: Toán Tư Duy", query: "Logic & IQ Math", link: "/archimedes/chuyen-de-8", desc: "Bộ 7 template toán tư duy siêu trí tuệ, tự động sinh đáp án dựa trên logic." },
-  { id: 9, title: "CĐ9: Cân bằng phép cộng", query: "[ ] + [ ] = [ ] + [ ] = [ ]", link: "/archimedes/chuyen-de-9", desc: "Thử thách điền các số cho trước vào dãy các phép cộng có tính chất bắc cầu." },
-  { id: 10, title: "CĐ10: Toán có lời văn", query: "Bài toán đố", link: "/archimedes/chuyen-de-10", desc: "Tự động sinh các bài toán đố dựa trên mẫu có sẵn, giữ nguyên lời văn và thay đổi số liệu." },
-]
 
 export default function HomePage() {
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="flex flex-col md:flex-row justify-between items-start gap-4">
-        <div>
-          <Badge variant="outline" className="text-primary border-primary/20 bg-primary/5 mb-2 rounded-sm rounded-tr-xl tracking-wider font-bold">TEACHER DASHBOARD</Badge>
-          <h1 className="text-3xl font-black tracking-tight text-primary uppercase">Trung tâm tạo phiếu in</h1>
-          <p className="text-muted-foreground mt-1 font-medium">
-            Hệ thống thiết kế đề thi và phiếu bài tập tự động dành riêng cho giáo viên.
-          </p>
-        </div>
-        <Button asChild size="lg" className="gap-2 bg-primary font-bold shadow-lg shadow-primary/20">
-          <Link href="/archimedes">
-             <Library className="size-5" />
-             Bộ trộn đề tổng hợp (Mixer)
-          </Link>
-        </Button>
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-4xl mx-auto py-8">
+      <div className="text-center space-y-4 mb-12">
+        <Badge variant="outline" className="text-primary border-primary/20 bg-primary/5 tracking-wider font-bold">ARC-MASTERY SYSTEM</Badge>
+        <h1 className="text-4xl font-black tracking-tight text-primary uppercase">Trung tâm tạo phiếu bài tập</h1>
+        <p className="text-muted-foreground mt-2 font-medium max-w-xl mx-auto">
+          Hệ thống thiết kế đề thi và phiếu bài tập tự động dành riêng cho học sinh tiểu học, phân vùng theo khối lớp chuyên sâu.
+        </p>
       </div>
 
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Lớp 1 Card */}
+        <Link href="/archimedes/lop-1" className="block group">
+          <Card className="h-full border-2 border-border/50 hover:border-emerald-500/50 shadow-sm hover:shadow-2xl hover:shadow-emerald-500/10 transition-all duration-500 bg-white relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-100/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <CardHeader className="p-8 pb-4 relative">
+              <div className="flex justify-between items-start mb-6">
+                <div className="size-16 rounded-2xl bg-emerald-100 flex items-center justify-center text-emerald-600 font-black group-hover:bg-emerald-500 group-hover:text-white group-hover:-translate-y-2 transition-all duration-300 shadow-sm">
+                  <Calculator className="size-8" />
+                </div>
+                <Badge className="bg-emerald-500 hover:bg-emerald-600">Khối Lớp 1</Badge>
+              </div>
+              <CardTitle className="text-3xl font-extrabold text-slate-800 group-hover:text-emerald-600 transition-colors uppercase tracking-tight mb-2">Number Garden</CardTitle>
+              <CardDescription className="text-base text-slate-500 font-medium leading-relaxed">
+                Nền tảng số học căn bản. Khám phá 11 chuyên đề từ phép cộng trừ có nhớ, so sánh biểu thức đến toán có lời văn và xem đồng hồ.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="px-8 pb-8 pt-4">
+              <div className="flex items-center gap-4 text-sm font-bold text-slate-400">
+                <div className="flex items-center gap-1.5"><Library className="size-4" /> 11 Chuyên đề</div>
+                <div className="flex items-center gap-1.5"><Sparkles className="size-4" /> Mixer Tích hợp</div>
+              </div>
+              
+              <div className="mt-8 flex items-center justify-between text-emerald-600 font-black group-hover:translate-x-2 transition-transform duration-300">
+                <span>Vào không gian Lớp 1</span>
+                <ChevronRight className="size-5" />
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
 
-      {/* Tools Library */}
-      <h2 className="text-xl font-black flex items-center gap-2 pt-6 border-t uppercase text-primary">
-        <BookOpen className="size-6 text-primary" />
-        Bảng Điều Khiển Sinh Đề Chuyên Sâu
-      </h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {archimedesModules.map((mod) => (
-          <Link href={mod.link} key={mod.id} className="block group">
-            <Card className="h-full border border-border/50 hover:border-primary/50 shadow-sm hover:shadow-xl transition-all duration-300 bg-white">
-              <CardHeader className="p-5 pb-3">
-                <div className="flex justify-between items-start">
-                  <div className="size-12 rounded-xl bg-primary/5 flex items-center justify-center text-primary font-black mb-4 group-hover:bg-primary group-hover:text-white group-hover:-translate-y-1 transition-all">
-                    {mod.id === 7 ? <Clock className="size-6" /> : mod.id === 8 ? <BookOpen className="size-6" /> : <Calculator className="size-6" />}
-                  </div>
-                  <Badge variant="outline" className="font-mono text-[10px] bg-muted/30 border-dashed">{mod.query}</Badge>
+        {/* Lớp 2 Card */}
+        <Link href="/archimedes/lop-2" className="block group">
+          <Card className="h-full border-2 border-border/50 hover:border-blue-600/50 shadow-sm hover:shadow-2xl hover:shadow-blue-600/10 transition-all duration-500 bg-white relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-100/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <CardHeader className="p-8 pb-4 relative">
+              <div className="flex justify-between items-start mb-6">
+                <div className="size-16 rounded-2xl bg-blue-100 flex items-center justify-center text-blue-600 font-black group-hover:bg-blue-600 group-hover:text-white group-hover:-translate-y-2 transition-all duration-300 shadow-sm">
+                  <BrainCircuit className="size-8" />
                 </div>
-                <CardTitle className="text-sm font-extrabold group-hover:text-primary transition-colors uppercase tracking-tight">{mod.title}</CardTitle>
-              </CardHeader>
-              <CardContent className="px-5 pb-4">
-                <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed font-medium">
-                  {mod.desc}
-                </p>
-              </CardContent>
-              <CardFooter className="px-5 pb-5 pt-0 mt-auto">
-                <div className="text-[11px] font-bold text-primary flex items-center group-hover:translate-x-1 transition-transform">
-                  Mở công cụ cài đặt <ChevronRight className="size-3 ml-1" />
-                </div>
-              </CardFooter>
-            </Card>
-          </Link>
-        ))}
+                <Badge className="bg-blue-600 hover:bg-blue-700">Khối Lớp 2</Badge>
+              </div>
+              <CardTitle className="text-3xl font-extrabold text-slate-800 group-hover:text-blue-600 transition-colors uppercase tracking-tight mb-2">Logic Mastery</CardTitle>
+              <CardDescription className="text-base text-slate-500 font-medium leading-relaxed">
+                Tuyệt đỉnh tư duy logic. Chinh phục 6 chuyên đề nâng cao bao gồm tính ngược, toán sơ đồ đoạn thẳng, lưới logic và hình học chu vi.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="px-8 pb-8 pt-4">
+              <div className="flex items-center gap-4 text-sm font-bold text-slate-400">
+                <div className="flex items-center gap-1.5"><Library className="size-4" /> 6 Chuyên đề</div>
+                <div className="flex items-center gap-1.5"><Sparkles className="size-4" /> AI Generate</div>
+              </div>
+              
+              <div className="mt-8 flex items-center justify-between text-blue-600 font-black group-hover:translate-x-2 transition-transform duration-300">
+                <span>Vào không gian Lớp 2</span>
+                <ChevronRight className="size-5" />
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
       </div>
     </div>
   )

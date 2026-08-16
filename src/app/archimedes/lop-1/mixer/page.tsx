@@ -22,10 +22,12 @@ import {
   Clock,
   BookOpen,
   LayoutDashboard,
-  EyeOff,
   List,
   Check,
-  RefreshCw
+  RefreshCw,
+  Palette,
+  EyeOff,
+  Save
 } from "lucide-react"
 import {
   Collapsible,
@@ -69,7 +71,7 @@ import { generateSudokuProblems } from "@/ai/flows/generate-sudoku-problems"
 import { generateClockProblems } from "@/ai/flows/generate-clock-problems"
 import { generateBalanceProblems } from "@/ai/flows/generate-balance-problems"
 import { generateWordProblems } from "@/ai/flows/generate-word-problems"
-import { generateAdvancedQuestions } from "@/app/archimedes/chuyen-de-8/page"
+import { generateAdvancedQuestions } from "@/app/archimedes/lop-1/chuyen-de-8/page"
 import { generateSingaporeMath } from "@/ai/flows/generate-singapore-math"
 import { AnalogClock } from "@/components/archimedes/analog-clock"
 import { useToast } from "@/hooks/use-toast"
@@ -148,24 +150,6 @@ const VerticalProblemRow = ({ index, problem, isAnswer = false }: { index: numbe
           </div>
         </div>
       </div>
-      
-      {/* Floating Summary Bar */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 bg-white/95 backdrop-blur-md px-6 py-4 rounded-full shadow-[0_10px_40px_-10px_rgba(0,0,0,0.3)] border border-primary/20 no-print animate-in slide-in-from-bottom-10 transition-all">
-         <div className="flex flex-col text-center">
-            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Giỏ Hàng</span>
-            <span className="text-xl font-black text-primary leading-none">{totalCount} <span className="text-xs">câu</span></span>
-         </div>
-         <div className="h-8 w-px bg-slate-200" />
-         <div className="flex flex-col text-center hidden sm:flex">
-            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Ước tính A4</span>
-            <span className={cn("text-xl font-black leading-none", totalCount > 40 ? "text-destructive" : "text-emerald-600")}>{Math.ceil(totalCount / 40)} <span className="text-xs">trang</span></span>
-         </div>
-         <div className="h-8 w-px bg-slate-200 hidden sm:block" />
-         <Button size="lg" onClick={() => handlePrint()} disabled={cart.length === 0} className="rounded-full shadow-lg gap-2 text-[15px] font-black px-8 py-6 uppercase bg-primary hover:bg-primary/90 hover:scale-[1.02] transition-transform">
-            <Printer className="size-5" /> In Phiếu Ngay
-         </Button>
-      </div>
-
     </div>
   );
 };
@@ -188,15 +172,15 @@ const ProblemRow = ({ index, problem, isAnswer = false, topicId }: { index: numb
                        <div className="mt-2 text-[12px] font-black text-blue-700">Đáp án: {problem.answer}</div>
                     </div>
                  ) : (
-                    <div className="w-full mt-1 bg-white">
-                       <div className="text-[10px] font-black italic text-blue-500 uppercase tracking-widest my-0.5">
-                          BÀI GIẢI:
-                       </div>
-                       <div className="space-y-0 w-full mb-1">
-                          <div className="border-b border-dotted border-slate-300 h-7 w-full" />
-                          <div className="border-b border-dotted border-slate-300 h-7 w-full" />
-                          <div className="border-b border-dotted border-slate-300 h-7 w-full" />
-                       </div>
+                     <div className="w-full mt-1 bg-white">
+                        <div className="space-y-0 w-full mb-1">
+                           <div className="border-b border-dotted border-slate-300 h-7 w-full flex items-center">
+                              <span className="text-[10px] font-black italic text-blue-500 uppercase tracking-widest">
+                                 BÀI GIẢI:
+                              </span>
+                           </div>
+                           <div className="border-b border-dotted border-slate-300 h-7 w-full" />
+                        </div>
                        <div className="flex justify-end items-center gap-3 pr-2 mt-2">
                           <span className="text-[10px] font-black text-blue-600 uppercase tracking-tighter">ĐÁP SỐ:</span>
                           <div className="border border-slate-300 w-24 h-8 rounded-lg bg-white" />
@@ -461,12 +445,12 @@ const WordProblemRow = ({ index, problem, isAnswer = false }: { index: number, p
                 </div>
              ) : (
                 <div className="w-full mt-1 bg-white">
-                   <div className="text-[10px] font-black italic text-blue-500 uppercase tracking-widest my-0.5">
-                      BÀI GIẢI:
-                   </div>
                    <div className="space-y-0 w-full mb-1">
-                      <div className="border-b border-dotted border-slate-300 h-7 w-full" />
-                      <div className="border-b border-dotted border-slate-300 h-7 w-full" />
+                      <div className="border-b border-dotted border-slate-300 h-7 w-full flex items-center">
+                         <span className="text-[10px] font-black italic text-blue-500 uppercase tracking-widest">
+                            BÀI GIẢI:
+                         </span>
+                      </div>
                       <div className="border-b border-dotted border-slate-300 h-7 w-full" />
                    </div>
                    <div className="flex justify-start items-center gap-2 pr-2 mt-2">
@@ -604,9 +588,16 @@ export default function ArchimedesMixerPage() {
   const [numberOfVersions, setNumberOfVersions] = React.useState(1)
   const [isLoading, setIsLoading] = React.useState(false)
   const [showAnswers, setShowAnswers] = React.useState(false)
+  const [theme, setTheme] = React.useState('garden')
   
   React.useEffect(() => {
     setMounted(true)
+    
+    // Theme initialization
+    const savedTheme = localStorage.getItem('mixer_theme') || 'garden';
+    setTheme(savedTheme);
+    document.documentElement.setAttribute('data-theme', savedTheme);
+
     
     // Load all settings from localStorage after mount
     const loadSetting = (key: string, setter: any, defaultValue: any) => {
@@ -628,6 +619,7 @@ export default function ArchimedesMixerPage() {
     loadSetting('mixer_cd9', setCd9Settings, null);
     loadSetting('mixer_cd10', setCd10Settings, null);
     loadSetting('mixer_cd11', setCd11Settings, null);
+    loadSetting('mixer_preset_counts', setPresetCounts, null);
     loadSetting('mixer_hidden_topics', setHiddenTopics, null);
   }, [])
   
@@ -636,6 +628,13 @@ export default function ArchimedesMixerPage() {
   }, [examVersions, mounted])
 
   const cart = examVersions[0] || [];
+  
+  const toggleTheme = () => {
+    const next = theme === 'garden' ? 'vintage' : 'garden';
+    setTheme(next);
+    localStorage.setItem('mixer_theme', next);
+    document.documentElement.setAttribute('data-theme', next);
+  };
   
   // Settings state with LocalStorage Persistence
   const [cd1Settings, setCd1Settings] = React.useState({ count: 5, unknownVariable: "D" as any, operationMode: "mixed" as any, maxRange: 20 })
@@ -677,6 +676,30 @@ export default function ArchimedesMixerPage() {
   const [hiddenTopics, setHiddenTopics] = React.useState<number[]>([])
   React.useEffect(() => { if (mounted) localStorage.setItem('mixer_hidden_topics', JSON.stringify(hiddenTopics)) }, [hiddenTopics, mounted])
 
+  const [presetCounts, setPresetCounts] = React.useState<Record<number, number>>({
+    1: 4, 2: 4, 3: 4, 4: 4,
+    5: 2, 6: 2, 7: 2, 8: 2,
+    9: 2, 10: 2, 11: 2
+  })
+  React.useEffect(() => { if (mounted) localStorage.setItem('mixer_preset_counts', JSON.stringify(presetCounts)) }, [presetCounts, mounted])
+
+  const savePreset = () => {
+    const newPresets = { ...presetCounts };
+    // Reset all to 0
+    Object.keys(newPresets).forEach(key => newPresets[Number(key)] = 0);
+    // Apply current cart
+    cart.forEach(batch => {
+      newPresets[batch.topicId] = batch.count;
+    });
+    setPresetCounts(newPresets);
+    toast({
+      title: "Đã lưu thiết lập!",
+      description: "Cấu hình giỏ hàng hiện tại đã được lưu vào Mục thiết lập đề nhanh.",
+    });
+  };
+
+  const [isPresetOpen, setIsPresetOpen] = React.useState(false)
+
   const { toast } = useToast()
   const contentRef = React.useRef<HTMLDivElement>(null)
   
@@ -698,12 +721,7 @@ export default function ArchimedesMixerPage() {
   const densityPercent = Math.min((totalCount / 40) * 100, 100)
 
 
-  const [isPresetOpen, setIsPresetOpen] = React.useState(false)
-  const [presetCounts, setPresetCounts] = React.useState<Record<number, number>>({
-    1: 4, 2: 4, 3: 4, 4: 4,
-    5: 2, 6: 2, 7: 2, 8: 2,
-    9: 2, 10: 2, 11: 2
-  })
+
   
   
   const removeBatch = (id: string) => setExamVersions(prev => prev.map(v => v.filter(b => b.id !== id)))
@@ -879,8 +897,12 @@ export default function ArchimedesMixerPage() {
 
   return (
     <div className="space-y-8 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <Button variant="outline" size="icon" onClick={toggleTheme} className="no-print fixed top-6 right-6 z-50 rounded-full shadow-lg bg-card text-primary border-primary/20 hover:scale-110 transition-transform">
+         <Palette className="size-5" />
+      </Button>
+
       {/* Configuration Header */}
-      <div className="no-print flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-white p-8 rounded-3xl shadow-sm border border-primary/10">
+      <div className="no-print flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-card p-8 rounded-3xl shadow-sm border border-primary/10">
         <div className="space-y-4 flex-1">
           <div className="space-y-2">
             <Badge variant="outline" className="text-primary border-primary/20 bg-primary/5 px-3 py-1 font-bold">BƠ HỌC TOÁN - Master Mixer</Badge>
@@ -999,23 +1021,23 @@ export default function ArchimedesMixerPage() {
             const isAdded = addedCount > 0;
             
             return (
-            <Card key={topic.id} className={cn("border-2 transition-all duration-300 relative bg-white break-inside-avoid", isAdded ? "border-green-500 shadow-sm" : "border-slate-100 hover:border-primary/30")}>
+            <Card key={topic.id} className={cn("border-2 transition-all duration-300 relative bg-card break-inside-avoid", isAdded ? "border-primary shadow-sm" : "border-border hover:border-primary/30")}>
               {isAdded && (
-                <div className="absolute top-2 right-2 bg-green-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded flex items-center gap-1 z-10 shadow-sm">
+                <div className="absolute top-2 right-2 bg-primary text-primary-foreground text-[10px] font-bold px-1.5 py-0.5 rounded flex items-center gap-1 z-10 shadow-sm animate-in zoom-in">
                   <Check className="size-3"/> Đã chọn {addedCount}
                 </div>
               )}
               <div className="p-2 flex flex-col group relative">
-                <Button variant="ghost" size="icon" onClick={() => setHiddenTopics(p => [...p, topic.id])} className="absolute top-1 right-1 size-5 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity" title="Ẩn chuyên đề"><EyeOff className="size-3" /></Button>
+                <Button variant="ghost" size="icon" onClick={() => setHiddenTopics(p => [...p, topic.id])} className="absolute top-1 right-1 size-5 text-muted-foreground/40 hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity" title="Ẩn chuyên đề"><EyeOff className="size-3" /></Button>
                 
                 <Collapsible className="w-full">
                   <CollapsibleTrigger asChild>
-                    <div className="cursor-pointer flex items-center justify-between hover:bg-slate-50/80 transition-colors w-full px-2 py-1.5 rounded-md group/trigger">
-                      <h3 className="text-[11px] font-black uppercase text-slate-800 leading-tight mr-4">{topic.title}</h3>
-                      <Settings2 className="size-3 text-slate-300 group-hover/trigger:text-primary transition-colors flex-shrink-0" />
+                    <div className="cursor-pointer flex items-center justify-between hover:bg-muted/50 transition-colors w-full px-2 py-1.5 rounded-md group/trigger">
+                      <h3 className="text-[11px] font-black uppercase text-card-foreground leading-tight mr-4">{topic.title}</h3>
+                      <Settings2 className="size-3 text-muted-foreground/40 group-hover/trigger:text-primary transition-colors flex-shrink-0" />
                     </div>
                   </CollapsibleTrigger>
-                  <CollapsibleContent className="w-full text-left bg-slate-50/50 rounded-xl mt-1.5 overflow-hidden border border-slate-100">
+                  <CollapsibleContent className="w-full text-left bg-muted/30 rounded-xl mt-1.5 overflow-hidden border border-border">
                     <div className="p-2.5 space-y-3">
                         
                         {/* Topic 1 Specific Settings */}
@@ -1320,14 +1342,14 @@ export default function ArchimedesMixerPage() {
                 </Collapsible>
                 
                 {/* Always visible Count & Add block */}
-                <div className="flex items-center gap-2 w-full mt-3 bg-slate-50/80 p-1.5 rounded-lg border border-slate-100">
+                <div className="flex items-center gap-2 w-full mt-3 bg-muted/60 p-1.5 rounded-lg border border-border">
                   <Input type="number" 
                          value={topic.settings.count} 
                          onChange={(e) => topic.setter((s: any) => ({ ...s, count: parseInt(e.target.value) || 0 }))} 
-                         className="w-14 h-8 text-xs font-black text-center bg-white shadow-sm px-1" />
+                         className="w-14 h-8 text-xs font-black text-center bg-card shadow-sm px-1" />
                   <Button onClick={() => addToExam(topic.id)} 
                           disabled={isLoading} 
-                          className={cn("flex-1 h-8 text-[11px] font-black uppercase tracking-tight gap-1.5 shadow-sm transition-all", isAdded ? "bg-indigo-600 hover:bg-indigo-700 text-white" : "bg-primary hover:bg-primary/90 text-white")}>
+                          className={cn("flex-1 h-8 text-[11px] font-black uppercase tracking-tight gap-1.5 shadow-sm transition-all", isAdded ? "bg-accent hover:bg-accent/90 text-accent-foreground" : "bg-primary hover:bg-primary/90 text-primary-foreground")}>
                     {isLoading ? <Layers className="size-3 animate-spin" /> : (isAdded ? <RefreshCw className="size-3" /> : <PlusCircle className="size-3" />)} {isAdded ? "Cập nhật" : "Thêm ngay"}
                   </Button>
                 </div>
@@ -1343,15 +1365,25 @@ export default function ArchimedesMixerPage() {
                  <span>Giỏ hàng bài tập</span>
                  <Badge variant="outline" className="text-[9px] bg-white">{cart.length} nhóm</Badge>
                </div>
-              {cart.map((batch) => (
-                <div key={batch.id} className="p-2 flex items-center justify-between hover:bg-muted/10 transition-colors">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-primary truncate max-w-[120px]">{batch.topicTitle}</span>
-                    <Badge variant="secondary" className="text-[8px] h-4 bg-primary/5 text-primary px-1">{batch.count} câu</Badge>
-                  </div>
-                  <Button variant="ghost" size="icon" onClick={() => removeBatch(batch.id)} className="size-6 text-destructive hover:bg-destructive/10"><Trash2 className="size-3" /></Button>
-                </div>
-              ))}
+               {cart.map((batch) => (
+                 <div key={batch.id} className="p-2 flex items-center justify-between hover:bg-muted/10 transition-colors">
+                   <div className="flex items-center gap-2">
+                     <span className="text-xs font-bold text-primary truncate max-w-[120px]">{batch.topicTitle}</span>
+                     <Badge variant="secondary" className="text-[8px] h-4 bg-primary/5 text-primary px-1">{batch.count} câu</Badge>
+                   </div>
+                   <Button variant="ghost" size="icon" onClick={() => removeBatch(batch.id)} className="size-6 text-destructive hover:bg-destructive/10"><Trash2 className="size-3" /></Button>
+                 </div>
+               ))}
+               <div className="p-2 bg-slate-50 border-t">
+                  <Button 
+                    onClick={savePreset} 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full h-8 text-[10px] font-black uppercase text-primary border-primary/20 hover:bg-primary/5 gap-2"
+                  >
+                    <Save className="size-3" /> Lưu làm thiết lập nhanh
+                  </Button>
+               </div>
             </div>
           )}
         </div>
@@ -1454,6 +1486,24 @@ export default function ArchimedesMixerPage() {
           </Card>
         </div>
       </div>
+      
+      {/* Floating Summary Bar */}
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 bg-card/95 backdrop-blur-md px-6 py-4 rounded-full shadow-[0_10px_40px_-10px_rgba(0,0,0,0.3)] border border-primary/20 no-print animate-in slide-in-from-bottom-10 transition-all">
+         <div className="flex flex-col text-center">
+            <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest leading-none mb-1">Giỏ Hàng</span>
+            <span className="text-xl font-black text-primary leading-none">{totalCount} <span className="text-xs">câu</span></span>
+         </div>
+         <div className="h-8 w-px bg-border" />
+         <div className="flex flex-col text-center hidden sm:flex">
+            <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest leading-none mb-1">Ước tính A4</span>
+            <span className={cn("text-xl font-black leading-none", totalCount > 40 ? "text-destructive" : "text-primary")}>{Math.ceil(totalCount / 40)} <span className="text-xs">trang</span></span>
+         </div>
+         <div className="h-8 w-px bg-border hidden sm:block" />
+         <Button size="lg" onClick={() => handlePrint()} disabled={cart.length === 0} className="rounded-full shadow-lg gap-2 text-[15px] font-black px-8 py-6 uppercase bg-primary hover:bg-primary/90 hover:scale-[1.02] transition-transform text-white">
+            <Printer className="size-5" /> In Phiếu Ngay
+         </Button>
+      </div>
+
     </div>
   )
 }
