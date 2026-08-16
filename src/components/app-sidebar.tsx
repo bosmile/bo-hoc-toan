@@ -52,6 +52,7 @@ const navigation = {
       { title: "CĐ8: Toán tư duy", url: "/archimedes/lop-1/chuyen-de-8", icon: BookOpen },
       { title: "CĐ9: Cân bằng phép cộng", url: "/archimedes/lop-1/chuyen-de-9", icon: PlusCircle },
       { title: "CĐ10: Toán có lời văn", url: "/archimedes/lop-1/chuyen-de-10", icon: FileText },
+      { title: "CĐ11: Ôn thi TIMO", url: "/archimedes/lop-1/chuyen-de-timo", icon: FileText },
     ],
   },
   lop2: {
