@@ -29,6 +29,7 @@ const archimedesModules = [
   { id: 8, title: "CĐ8: Toán Tư Duy", query: "Logic & IQ Math", link: "/archimedes/lop-1/chuyen-de-8", desc: "Bộ 7 template toán tư duy siêu trí tuệ, tự động sinh đáp án dựa trên logic." },
   { id: 9, title: "CĐ9: Cân bằng phép cộng", query: "[ ] + [ ] = [ ] + [ ] = [ ]", link: "/archimedes/lop-1/chuyen-de-9", desc: "Thử thách điền các số cho trước vào dãy các phép cộng có tính chất bắc cầu." },
   { id: 10, title: "CĐ10: Toán có lời văn", query: "Bài toán đố", link: "/archimedes/lop-1/chuyen-de-10", desc: "Tự động sinh các bài toán đố dựa trên mẫu có sẵn, giữ nguyên lời văn và thay đổi số liệu." },
+  { id: 11, title: "CĐ11: Ôn thi TIMO Lớp 1", query: "Đề Quốc Gia", link: "/archimedes/lop-1/chuyen-de-timo", desc: "Ngân hàng câu hỏi song ngữ mô phỏng cấu trúc đề TIMO thực tế." },
 ]
 
 export default function HomePage() {
